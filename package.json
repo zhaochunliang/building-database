@@ -1,0 +1,22 @@
+{
+  "name": "building-database-app",
+  "version": "0.0.1",
+  "description": "Database of 3D building models",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "buildings",
+    "geography",
+    "3d",
+    "models"
+  ],
+  "author": "Robin Hawkes <rob@vizicities.com>",
+  "license": "MIT",
+  "dependencies": {
+    "errorhandler": "^1.2.2",
+    "express": "^4.10.2",
+    "multer": "^0.1.6"
+  }
+}

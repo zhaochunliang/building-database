@@ -1,0 +1,71 @@
+h1 Add a building
+
+p Add ID: {{addId}}
+
+form
+  input#add-id(type="hidden", name="session-id", value="{{addId}}")
+  label(for="title") Title:
+  input#title(type="text", name="title")
+  br
+  label(for="center-latitude") Center latitude:
+  input#center-latitude(type="text", name="center-latitude")
+  br
+  label(for="center-longitude") Center longitude:
+  input#center-longitude(type="text", name="center-longitude")
+  br
+  br
+  input#model(type="file", name="model")
+  br
+  br
+  input#add-button(type="button", value="Add building")
+
+script(src="//cdnjs.cloudflare.com/ajax/libs/zepto/1.1.4/zepto.min.js")
+
+script.
+  var fileInput = document.getElementById("model");
+  var titleInput = document.getElementById("title");
+  var addButton = document.getElementById("add-button");
+  var addId = document.getElementById("add-id");
+
+  addButton.addEventListener("click", function(event) {
+    event.preventDefault();
+
+    addButton.innerHTML = "Uploading&hellip;";
+
+    var files = fileInput.files;
+    var file = files[0];
+
+    // This requires IE 10+
+    // What are the ramifications of this?
+    // What alternatives exist for async file upload?
+    var formData = new FormData();
+
+    // Check the file type.
+    // if (!file.type.match("*.dxf")) {
+    //   continue;
+    // }
+
+    // Add the title to the request
+    formData.append("title", titleInput.value);
+
+    // Add the file to the request.
+    formData.append("model", file, file.name);
+
+    // Add the session id to the request
+    formData.append("addId", addId.value);
+
+    $.ajax({
+      url: "/add",
+      data: formData,
+      processData: false,
+      contentType: false,
+      type: "POST",
+      success: function(data, status, xhr){
+        console.log(data);
+      },
+      error: function(xhr, errorType, error){
+        console.log(errorType);
+        console.log(error);
+      }
+    });
+  });

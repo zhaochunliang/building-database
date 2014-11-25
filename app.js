@@ -1,4 +1,3 @@
-// var _ = require("underscore");
 var path = require("path");
 
 var express = require("express");
@@ -8,11 +7,10 @@ var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 var passport = require("passport");
 var session = require("express-session")
-var errorHandler = require("errorhandler");
-var multer = require("multer");
 var flash = require("connect-flash");
 
-var initPassport = require("./passport/init");
+var authController = require("./controllers/auth")(passport);
+
 var dbConfig = require("./config/db.js");
 var mongoose = require("mongoose");
 
@@ -22,8 +20,6 @@ var mongoose = require("mongoose");
 // var modelConverter = require("model-converter");
 // var pendingUploads = {};
 // var pendingMetadata = {};
-
-var app = express();
 
 
 // --------------------------------------------------------------------
@@ -37,16 +33,21 @@ mongoose.connect(dbConfig.url);
 // SET UP EXPRESS
 // --------------------------------------------------------------------
 
+var app = express();
+
 // View engine setup
-app.set("views", __dirname + "/views");
+app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + "/public/favicon.ico"));
+// Uncomment after placing your favicon in /public
+//app.use(favicon(path.join(__dirname, "/public/favicon.ico")));
+
 app.use(logger("dev"));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(flash());
 
 // Session handler
 app.use(session({
@@ -59,21 +60,14 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Initialise Passport
-initPassport(passport);
-
-app.use(flash());
-
 // Handle file uploads
-app.use(multer({dest: "./tmp/"}));
+// app.use(multer({dest: "./tmp/"}));
 
 // Serve static files from directory
 app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
-var routes = require("./routes/index")(passport);
-
-app.use("/", routes);
+var routes = require("./router")(app, passport);
 
 // Catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -94,17 +88,17 @@ if (app.get("env") === "development") {
       error: err
     });
   });
-}
-
-// Production error handler
-// No stacktraces leaked to user
-app.use(function(err, req, res, next) {
-  res.status(err.status || 500);
-  res.render("error", {
-    message: err.message,
-    error: {}
+} else {
+  // Production error handler
+  // No stacktraces leaked to user
+  app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render("error", {
+      message: err.message,
+      error: {}
+    });
   });
-});
+}
 
 // app.get("/browse", function(req, res) {});
 // app.get("/search", function(req, res) {});

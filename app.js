@@ -14,13 +14,6 @@ var authController = require("./controllers/auth")(passport);
 var dbConfig = require("./config/db.js");
 var mongoose = require("mongoose");
 
-// Move to relevant route
-// var Q = require("q");
-// var UUID = require("uuid");
-// var modelConverter = require("model-converter");
-// var pendingUploads = {};
-// var pendingMetadata = {};
-
 
 // --------------------------------------------------------------------
 // SET UP MONGOOSE
@@ -99,108 +92,5 @@ if (app.get("env") === "development") {
     });
   });
 }
-
-// app.get("/browse", function(req, res) {});
-// app.get("/search", function(req, res) {});
-// app.get("/building/:id", function(req, res) {});
-// app.get("/register", function(req, res) {});
-
-// // Add model form
-// // TODO: Remove addId from user session after a certain period (a few days?)
-// app.get("/add", function(req, res) {
-//   // Generate unique identifier to track add progress
-//   var id = UUID.v4();
-
-//   if (!req.session.addIds) {
-//     req.session.addIds = [];
-//   }
-
-//   // Store identifier in the user session
-//   // Using an array to handle situation where user has multiple add tabs open
-//   req.session.addIds.push(id);
-
-//   res.render("add", {addId: id});
-// });
-
-// app.post("/login", function(req, res) {});
-
-// // Model upload endpoint
-// // TODO: Link this to addId so it can be handled correctly on completion (filename added to DB, moved to right location, etc)
-// // TODO: Delete tmp file if upload or conversion fails
-// // TODO: Report back progress of upload and coversion (realtime with Pusher?)
-// // TODO: Move tmp model files to a permanent location (uploaded and converted)
-// // TODO: Handle situation where this completes before /add call is finished
-// // TODO: Handle situation where this completes after /add call is finished
-// app.post("/add", function(req, res) {
-//   console.log(req.session);
-//   console.log(req.body);
-//   console.log(req.files);
-
-//   // Basic check of addID validity
-//   if (_.indexOf(req.session.addIds, req.body.addId) < 0) {
-//     console.log("Add session ID is not valid");
-//     res.sendStatus(400);
-//     return;
-//   }
-
-//   var modelPath = req.files.model.path;
-//   var modelExt = req.files.model.extension;
-
-//   // Convert to Collada
-//   if (modelExt !== "dae") {
-//     // TODO: Use promise
-//     modelConverter.convert(modelPath, modelPath.split(modelExt)[0] + "dae").then(function() {
-//       console.log("Upload promise complete");
-//     }, function(error) {
-//       console.log(error);
-//     });
-//   }
-
-//   // Convert to Wavefront Object
-//   if (modelExt !== "obj") {
-//     modelConverter.convert(modelPath, modelPath.split(modelExt)[0] + "obj").then(function() {
-//       console.log("Upload promise complete");
-//     }, function(error) {
-//       console.log(error);
-//     });
-//   }
-
-//   // TODO: Add metadata and model path to database
-
-//   var dbEntry = {
-//     title: req.body.title,
-//     rawModel: modelPath,
-//     modelFormats: {dae: false, obj: false, ply: false}
-//   };
-
-//   console.log(dbEntry);
-
-//   res.json({id: "building_id"});
-// });
-
-// Add model metadata to database
-// TODO: Remove addId from user session when finished
-// TODO: Link this up with files added through the /upload endpoint
-// TODO: Handle situation where this completes before /upload call is finished
-// TODO: Handle situation where this completes after /upload call is finished
-// app.post("/add", function(req, res) {
-//   console.log(req.session);
-//   console.log(req.body);
-
-//   // Basic check of addID validity
-//   if (_.indexOf(req.session.addIds, req.body.addId) < 0) {
-//     console.log("Add session ID is not valid");
-//     res.sendStatus(400);
-//     return;
-//   }
-
-//   // Check if upload has finished
-//   // If so, move files to permanent folder and grab file paths
-
-//   // Else, add to database, mark as incomplete, add to pending metadata and wait for upload to be completed
-//   pendingMetadata[req.body.addId] = "database_row_id";
-
-//   res.sendStatus(200);
-// });
 
 module.exports = app;

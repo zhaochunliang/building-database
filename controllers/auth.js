@@ -1,9 +1,9 @@
+var LocalStrategy = require("passport-local").Strategy;
+var bCrypt = require("bcrypt-nodejs");
+
+var User = require("../models/user");
+
 module.exports = function(passport) {
-  var LocalStrategy   = require("passport-local").Strategy;
-  var bCrypt = require("bcrypt-nodejs");
-
-  var User = require("../models/user");
-
   // Serialize and deserialize users
   // Required for persistent login sessions
   passport.serializeUser(function(user, done) {
@@ -92,11 +92,23 @@ module.exports = function(passport) {
     })
   );
 
+  var isAuthenticated = function (req, res, next) {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+
+    res.redirect("/login");
+  };
+
   var isValidPassword = function(user, password){
     return bCrypt.compareSync(password, user.password);
   };
 
   var createHash = function(password) {
     return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
+  };
+
+  return {
+    isAuthenticated: isAuthenticated
   };
 };

@@ -1,9 +1,6 @@
 h1 Add a building
 
-p Add ID: {{addId}}
-
 form
-  input#add-id(type="hidden", name="session-id", value="{{addId}}")
   label(for="title") Title:
   input#title(type="text", name="title")
   br
@@ -25,7 +22,6 @@ script.
   var fileInput = document.getElementById("model");
   var titleInput = document.getElementById("title");
   var addButton = document.getElementById("add-button");
-  var addId = document.getElementById("add-id");
 
   addButton.addEventListener("click", function(event) {
     event.preventDefault();
@@ -50,9 +46,6 @@ script.
 
     // Add the file to the request.
     formData.append("model", file, file.name);
-
-    // Add the session id to the request
-    formData.append("addId", addId.value);
 
     $.ajax({
       url: "/add",

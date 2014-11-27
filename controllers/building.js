@@ -59,6 +59,7 @@ module.exports = function (passport) {
       type : "Point",
       coordinates : [req.body.centerLatitude, req.body.centerLongitude]
     };
+    building.userId = req.user._id;
 
     // TODO: Add model paths to building entry
     // TODO: Attach user to building entry
@@ -68,7 +69,7 @@ module.exports = function (passport) {
         res.send(err);
       }
 
-      res.json({message: "Building added", data: building});
+      res.json({message: "Building added", building: building});
     });
   };
 

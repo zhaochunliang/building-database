@@ -11,7 +11,7 @@ form
   input#center-longitude(type="text", name="center-longitude")
   br
   br
-  input#model(type="file", name="model")
+  input#model(type="file", name="model", accept=".obj,.dae,.ply,.dxf")
   br
   br
   input#add-button(type="button", value="Add building")
@@ -39,9 +39,10 @@ script.
     var formData = new FormData();
 
     // Check the file type.
-    // if (!file.type.match("*.dxf")) {
-    //   continue;
-    // }
+    if (!file.name.match(".*\.obj|.*\.dae|.*\.ply|.*\.dxf")) {
+      console.log("Model file type not valid");
+      return;
+    }
 
     // Add the name to the request
     formData.append("name", nameInput.value);
@@ -59,10 +60,11 @@ script.
       processData: false,
       contentType: false,
       type: "POST",
-      success: function(data, status, xhr){
-        console.log(data);
+      success: function(data, status, xhr) {
+        window.location.href = "/api/building/" + data.building._id;
       },
-      error: function(xhr, errorType, error){
+      error: function(xhr, errorType, error) {
+        // TODO: Display error and course of action
         console.log(errorType);
         console.log(error);
       }

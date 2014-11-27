@@ -6,5 +6,6 @@ module.exports = mongoose.model("Building", {
   location: {
     type: { type: String },
     coordinates: []
-  }
+  },
+  userId: String
 });

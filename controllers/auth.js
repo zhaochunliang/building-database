@@ -98,6 +98,7 @@ module.exports = function(passport) {
       return next();
     }
 
+    req.session.returnTo = req.path;
     res.redirect("/login");
   };
 

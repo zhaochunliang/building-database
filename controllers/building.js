@@ -59,10 +59,11 @@ module.exports = function (passport) {
       type : "Point",
       coordinates : [req.body.centerLatitude, req.body.centerLongitude]
     };
-    building.userId = req.user._id;
 
     // TODO: Add model paths to building entry
+    
     // TODO: Attach user to building entry
+    building.userId = req.user._id;
 
     building.save(function(err) {
       if (err) {

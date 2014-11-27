@@ -7,7 +7,7 @@ module.exports = function (passport) {
   // Endpoint /login for POST
   var postLogin = function(req, res, next) {
     passport.authenticate("login", {
-      successRedirect: "/",
+      successRedirect: req.session.returnTo || "/",
       failureRedirect: "/login",
       failureFlash: true  
     })(req, res, next);

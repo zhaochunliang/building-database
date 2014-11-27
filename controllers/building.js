@@ -1,5 +1,5 @@
 var debug = require("debug")("buidingDatabase");
-// var Q = require("q");
+var Q = require("q");
 var modelConverter = require("model-converter");
 
 var Building = require("../models/building");
@@ -31,46 +31,54 @@ module.exports = function (passport) {
     var modelPath = req.files.model.path;
     var modelExt = req.files.model.extension;
 
+    // Record of files created for this building
+    var files = [];
+    files.push(modelPath);
+
     // TODO: Probably worth splitting the coversion logic into a function
+
+    var convertQueue = [];
 
     // Convert to Collada
     if (modelExt !== "dae") {
-      // TODO: Use promise
-      modelConverter.convert(modelPath, modelPath.split(modelExt)[0] + "dae").then(function() {
-        debug("Upload promise complete");
-      }, function(error) {
-        debug(error);
-      });
+      convertQueue.push([modelConverter.convert, [modelPath, modelPath.split(modelExt)[0] + "dae"]]);
     }
 
     // Convert to Wavefront Object
     if (modelExt !== "obj") {
-      modelConverter.convert(modelPath, modelPath.split(modelExt)[0] + "obj").then(function() {
-        debug("Upload promise complete");
-      }, function(error) {
-        debug(error);
-      });
+      convertQueue.push([modelConverter.convert, [modelPath, modelPath.split(modelExt)[0] + "obj"]]);
     }
 
-    var building = new Building();
+    // TODO: Wait for all conversion promises to complete before adding to db
+    Q.all(convertQueue.map(function(promiseFunc) {
+      return promiseFunc[0].apply(this, promiseFunc[1]).then(function(path) {
+        debug("Upload promise complete");
+        files.push(path);
+      });
+    })).done(function() {
+      var building = new Building();
 
-    building.name = req.body.name;
-    building.location = {
-      type : "Point",
-      coordinates : [req.body.centerLatitude, req.body.centerLongitude]
-    };
+      building.name = req.body.name;
+      building.location = {
+        type : "Point",
+        coordinates : [req.body.centerLatitude, req.body.centerLongitude]
+      };
 
-    // TODO: Add model paths to building entry
-    
-    // TODO: Attach user to building entry
-    building.userId = req.user._id;
+      // TODO: Add model paths to building entry
+      debug(files);
 
-    building.save(function(err) {
-      if (err) {
-        res.send(err);
-      }
+      // TODO: Attach user to building entry
+      building.userId = req.user._id;
 
-      res.json({message: "Building added", building: building});
+      building.save(function(err) {
+        if (err) {
+          res.send(err);
+        }
+
+        res.json({message: "Building added", building: building});
+      });
+    }, function(error) {
+      debug(error);
     });
   };
 

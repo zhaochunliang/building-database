@@ -1,3 +1,4 @@
+var debug = require("debug")("buidingDatabase");
 var path = require("path");
 
 var express = require("express");
@@ -8,6 +9,7 @@ var bodyParser = require("body-parser");
 var passport = require("passport");
 var session = require("express-session")
 var flash = require("connect-flash");
+var multer = require("multer");
 
 var authController = require("./controllers/auth")(passport);
 
@@ -54,7 +56,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Handle file uploads
-// app.use(multer({dest: "./tmp/"}));
+app.use(multer({dest: "./tmp/"}));
 
 // Serve static files from directory
 app.use(express.static(path.join(__dirname, "public")));

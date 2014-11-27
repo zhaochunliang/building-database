@@ -1,8 +1,8 @@
 h1 Add a building
 
 form
-  label(for="title") Title:
-  input#title(type="text", name="title")
+  label(for="name") Name:
+  input#name(type="text", name="name")
   br
   label(for="center-latitude") Center latitude:
   input#center-latitude(type="text", name="center-latitude")
@@ -19,8 +19,10 @@ form
 script(src="//cdnjs.cloudflare.com/ajax/libs/zepto/1.1.4/zepto.min.js")
 
 script.
+  var nameInput = document.getElementById("name");
+  var centerLatitudeInput = document.getElementById("center-latitude");
+  var centerLongitudeInput = document.getElementById("center-longitude");
   var fileInput = document.getElementById("model");
-  var titleInput = document.getElementById("title");
   var addButton = document.getElementById("add-button");
 
   addButton.addEventListener("click", function(event) {
@@ -41,14 +43,18 @@ script.
     //   continue;
     // }
 
-    // Add the title to the request
-    formData.append("title", titleInput.value);
+    // Add the name to the request
+    formData.append("name", nameInput.value);
+
+    // Add the coordindates to the request
+    formData.append("centerLatitude", centerLatitudeInput.value);
+    formData.append("centerLongitude", centerLongitudeInput.value);
 
     // Add the file to the request.
     formData.append("model", file, file.name);
 
     $.ajax({
-      url: "/add",
+      url: "/api/buildings",
       data: formData,
       processData: false,
       contentType: false,

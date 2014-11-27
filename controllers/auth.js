@@ -1,3 +1,4 @@
+var debug = require("debug")("buidingDatabase");
 var LocalStrategy = require("passport-local").Strategy;
 var bCrypt = require("bcrypt-nodejs");
 
@@ -7,13 +8,13 @@ module.exports = function(passport) {
   // Serialize and deserialize users
   // Required for persistent login sessions
   passport.serializeUser(function(user, done) {
-    console.log("Serializing user: ", user);
+    debug("Serializing user: ", user);
     done(null, user._id);
   });
 
   passport.deserializeUser(function(id, done) {
     User.findById(id, function(err, user) {
-      console.log("Deserializing user: ", user);
+      debug("Deserializing user: ", user);
       done(err, user);
     });
   });
@@ -30,12 +31,12 @@ module.exports = function(passport) {
             return done(err);
           // Username does not exist, log the error and redirect back
           if (!user){
-            console.log("User Not Found with username "+username);
+            debug("User Not Found with username "+username);
             return done(null, false, req.flash("message", "User Not found."));                 
           }
           // User exists but wrong password, log the error 
           if (!isValidPassword(user, password)){
-            console.log("Invalid Password");
+            debug("Invalid Password");
               return done(null, false, req.flash("message", "Invalid Password"));
               // redirect back to login page
             }
@@ -56,12 +57,12 @@ module.exports = function(passport) {
         User.findOne({ "username" :  username }, function(err, user) {
           // In case of any error, return using the done method
           if (err){
-            console.log("Error in SignUp: "+err);
+            debug("Error in SignUp: "+err);
             return done(err);
           }
           // already exists
           if (user) {
-            console.log("User already exists with username: "+username);
+            debug("User already exists with username: "+username);
             return done(null, false, req.flash("message","User Already Exists"));
           } else {
             // if there is no user with that email
@@ -76,10 +77,10 @@ module.exports = function(passport) {
             // save the user
             newUser.save(function(err) {
               if (err){
-                console.log("Error in Saving user: "+err);  
+                debug("Error in Saving user: "+err);  
                 throw err;  
               }
-              console.log("User Registration succesful");    
+              debug("User Registration succesful");    
               return done(null, newUser);
             });
           }

@@ -1,5 +1,6 @@
+var debug = require("debug")("buidingDatabase");
 // var Q = require("q");
-// var modelConverter = require("model-converter");
+var modelConverter = require("model-converter");
 
 var Building = require("../models/building");
 
@@ -18,14 +19,49 @@ module.exports = function (passport) {
   // Endpoint /api/buildings for POST
   var postBuildings = function(req, res, next) {
     // TODO: Perform validation on received data
+    // - http://mongoosejs.com/docs/validation.html
+    // TODO: Delete tmp file if upload or conversion fails
+    // TODO: Report back progress of upload and coversion (realtime with Pusher?)
+    // TODO: Move tmp model files to a permanent location
+
+    debug(req.session);
+    debug(req.body);
+    debug(req.files);
+
+    var modelPath = req.files.model.path;
+    var modelExt = req.files.model.extension;
+
+    // TODO: Probably worth splitting the coversion logic into a function
+
+    // Convert to Collada
+    if (modelExt !== "dae") {
+      // TODO: Use promise
+      modelConverter.convert(modelPath, modelPath.split(modelExt)[0] + "dae").then(function() {
+        debug("Upload promise complete");
+      }, function(error) {
+        debug(error);
+      });
+    }
+
+    // Convert to Wavefront Object
+    if (modelExt !== "obj") {
+      modelConverter.convert(modelPath, modelPath.split(modelExt)[0] + "obj").then(function() {
+        debug("Upload promise complete");
+      }, function(error) {
+        debug(error);
+      });
+    }
 
     var building = new Building();
 
-    building.name = "Testing";
+    building.name = req.body.name;
     building.location = {
       type : "Point",
-      coordinates : [51, 0]
+      coordinates : [req.body.centerLatitude, req.body.centerLongitude]
     };
+
+    // TODO: Add model paths to building entry
+    // TODO: Attach user to building entry
 
     building.save(function(err) {
       if (err) {
@@ -63,13 +99,13 @@ module.exports = function (passport) {
 // // TODO: Handle situation where this completes before /add call is finished
 // // TODO: Handle situation where this completes after /add call is finished
 // app.post("/add", function(req, res) {
-//   console.log(req.session);
-//   console.log(req.body);
-//   console.log(req.files);
+//   debug(req.session);
+//   debug(req.body);
+//   debug(req.files);
 
 //   // Basic check of addID validity
 //   if (_.indexOf(req.session.addIds, req.body.addId) < 0) {
-//     console.log("Add session ID is not valid");
+//     debug("Add session ID is not valid");
 //     res.sendStatus(400);
 //     return;
 //   }
@@ -81,18 +117,18 @@ module.exports = function (passport) {
 //   if (modelExt !== "dae") {
 //     // TODO: Use promise
 //     modelConverter.convert(modelPath, modelPath.split(modelExt)[0] + "dae").then(function() {
-//       console.log("Upload promise complete");
+//       debug("Upload promise complete");
 //     }, function(error) {
-//       console.log(error);
+//       debug(error);
 //     });
 //   }
 
 //   // Convert to Wavefront Object
 //   if (modelExt !== "obj") {
 //     modelConverter.convert(modelPath, modelPath.split(modelExt)[0] + "obj").then(function() {
-//       console.log("Upload promise complete");
+//       debug("Upload promise complete");
 //     }, function(error) {
-//       console.log(error);
+//       debug(error);
 //     });
 //   }
 
@@ -104,32 +140,7 @@ module.exports = function (passport) {
 //     modelFormats: {dae: false, obj: false, ply: false}
 //   };
 
-//   console.log(dbEntry);
+//   debug(dbEntry);
 
 //   res.json({id: "building_id"});
-// });
-
-// Add model metadata to database
-// TODO: Remove addId from user session when finished
-// TODO: Link this up with files added through the /upload endpoint
-// TODO: Handle situation where this completes before /upload call is finished
-// TODO: Handle situation where this completes after /upload call is finished
-// app.post("/add", function(req, res) {
-//   console.log(req.session);
-//   console.log(req.body);
-
-//   // Basic check of addID validity
-//   if (_.indexOf(req.session.addIds, req.body.addId) < 0) {
-//     console.log("Add session ID is not valid");
-//     res.sendStatus(400);
-//     return;
-//   }
-
-//   // Check if upload has finished
-//   // If so, move files to permanent folder and grab file paths
-
-//   // Else, add to database, mark as incomplete, add to pending metadata and wait for upload to be completed
-//   pendingMetadata[req.body.addId] = "database_row_id";
-
-//   res.sendStatus(200);
 // });

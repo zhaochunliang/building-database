@@ -1,0 +1,17 @@
+<div>Buildings: {{buildingsCount}}</div>
+
+{{#link-to "buildings.add" class="create-btn"}} Add building {{/link-to}}
+
+<ul class="buildings-listing">
+  {{#each building in controller}}
+    <li>
+      {{#link-to "building" building}}
+        {{building.name}}
+      {{/link-to}}
+    </li>
+  {{else}}
+    <li>no buildings</li>
+  {{/each}}
+</ul>
+
+{{outlet}}

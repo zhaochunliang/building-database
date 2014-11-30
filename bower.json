@@ -1,0 +1,16 @@
+{
+  "name": "building-database",
+  "version": "0.0.1",
+  "dependencies": {
+    "ember": "components/ember#beta",
+    "ember-data": "components/ember-data#beta",
+    "handlebars": "2.0.0",
+    "jquery": "2.1.1"
+  },
+  "devDependencies": {},
+  "resolutions": {
+    "ember": "beta",
+    "ember-data": "beta",
+    "handlebars": ">= 2.0.0 < 3.0.0"
+  }
+}

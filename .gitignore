@@ -1,6 +1,11 @@
 config/db.js
 tmp
 model-files
+public/lib
+public/compiled-templates.js
+public/combined-scripts.js.map
+public/combined-scripts.js
+public/style/main.css
 
 # Created by https://www.gitignore.io
 

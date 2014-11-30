@@ -2,5 +2,14 @@ doctype html
 html
   head
     title= title
+    link(rel="stylesheet", href="/style/main.css")
   body
     block content
+
+    script(src="/lib/jquery/dist/jquery.min.js")
+    script(src="/lib/handlebars/handlebars.min.js")
+    script(src="/lib/ember/ember.min.js")
+    script(src="/lib/ember-data/ember-data.min.js")
+
+    script(src="compiled-templates.js")
+    script(src="combined-scripts.js")

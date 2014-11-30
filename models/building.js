@@ -1,4 +1,10 @@
 var mongoose = require("mongoose");
+var Schema = mongoose.Schema;
+
+var ModelSchema = new Schema({
+  type: String,
+  path: String
+});
 
 module.exports = mongoose.model("Building", {
   id: String,
@@ -7,5 +13,6 @@ module.exports = mongoose.model("Building", {
     type: { type: String },
     coordinates: []
   },
+  models: [ModelSchema],
   userId: String
 });

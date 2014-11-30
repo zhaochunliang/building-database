@@ -1,5 +1,6 @@
 config/db.js
 tmp
+model-files
 
 # Created by https://www.gitignore.io
 

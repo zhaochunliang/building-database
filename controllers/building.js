@@ -1,6 +1,9 @@
 var debug = require("debug")("buidingDatabase");
+var _ = require("underscore");
 var Q = require("q");
+var mv = require("mv");
 var modelConverter = require("model-converter");
+var UUID = require("uuid");
 
 var Building = require("../models/building");
 
@@ -22,7 +25,6 @@ module.exports = function (passport) {
     // - http://mongoosejs.com/docs/validation.html
     // TODO: Delete tmp file if upload or conversion fails
     // TODO: Report back progress of upload and coversion (realtime with Pusher?)
-    // TODO: Move tmp model files to a permanent location
 
     debug(req.session);
     debug(req.body);
@@ -32,8 +34,8 @@ module.exports = function (passport) {
     var modelExt = req.files.model.extension;
 
     // Record of files created for this building
-    var files = [];
-    files.push(modelPath);
+    var tmpFiles = [];
+    tmpFiles.push(modelPath);
 
     // TODO: Probably worth splitting the coversion logic into a function
 
@@ -53,7 +55,9 @@ module.exports = function (passport) {
     Q.all(convertQueue.map(function(promiseFunc) {
       return promiseFunc[0].apply(this, promiseFunc[1]).then(function(path) {
         debug("Upload promise complete");
-        files.push(path);
+        debug(path);
+
+        tmpFiles.push(path);
       });
     })).done(function() {
       var building = new Building();
@@ -64,20 +68,47 @@ module.exports = function (passport) {
         coordinates : [req.body.centerLatitude, req.body.centerLongitude]
       };
 
-      // TODO: Add model paths to building entry
-      debug(files);
+      var pathID = UUID.v4();
+      var movePromises = [];
+      var moveFiles = [];
 
-      // TODO: Attach user to building entry
-      building.userId = req.user._id;
+      // Move model files to permanent path
+      _.each(tmpFiles, function(file, index) {
+        var splitPath = file.split("tmp/");
+        var permPath = "model-files/" + pathID + "/" + splitPath[1];
+        var ext = permPath.split(".").pop();
 
-      building.save(function(err) {
-        if (err) {
-          res.send(err);
-        }
+        moveFiles.push([permPath, ext]);
+        movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
+      });
 
-        res.json({message: "Building added", building: building});
+      Q.all(movePromises).done(function() {
+        debug("Moved files");
+
+        // Add model paths to building entry
+        _.each(moveFiles, function(file, index) {
+          building.models.push({
+            type: file[1],
+            path: file[0]
+          });
+        });
+
+        // Attach user to building entry
+        building.userId = req.user._id;
+
+        building.save(function(err, savedBuilding) {
+          if (err) {
+            res.send(err);
+          }
+
+          res.json({message: "Building added", building: savedBuilding});
+        });
+      }, function(err) {
+        // TODO: Remove temporary files on error
+        debug(err);
       });
     }, function(error) {
+      // TODO: Remove temporary files on error
       debug(error);
     });
   };
@@ -99,58 +130,3 @@ module.exports = function (passport) {
     getBuilding: getBuilding
   };
 };
-
-
-// // Model upload endpoint
-// // TODO: Link this to addId so it can be handled correctly on completion (filename added to DB, moved to right location, etc)
-// // TODO: Delete tmp file if upload or conversion fails
-// // TODO: Report back progress of upload and coversion (realtime with Pusher?)
-// // TODO: Move tmp model files to a permanent location (uploaded and converted)
-// // TODO: Handle situation where this completes before /add call is finished
-// // TODO: Handle situation where this completes after /add call is finished
-// app.post("/add", function(req, res) {
-//   debug(req.session);
-//   debug(req.body);
-//   debug(req.files);
-
-//   // Basic check of addID validity
-//   if (_.indexOf(req.session.addIds, req.body.addId) < 0) {
-//     debug("Add session ID is not valid");
-//     res.sendStatus(400);
-//     return;
-//   }
-
-//   var modelPath = req.files.model.path;
-//   var modelExt = req.files.model.extension;
-
-//   // Convert to Collada
-//   if (modelExt !== "dae") {
-//     // TODO: Use promise
-//     modelConverter.convert(modelPath, modelPath.split(modelExt)[0] + "dae").then(function() {
-//       debug("Upload promise complete");
-//     }, function(error) {
-//       debug(error);
-//     });
-//   }
-
-//   // Convert to Wavefront Object
-//   if (modelExt !== "obj") {
-//     modelConverter.convert(modelPath, modelPath.split(modelExt)[0] + "obj").then(function() {
-//       debug("Upload promise complete");
-//     }, function(error) {
-//       debug(error);
-//     });
-//   }
-
-//   // TODO: Add metadata and model path to database
-
-//   var dbEntry = {
-//     title: req.body.title,
-//     rawModel: modelPath,
-//     modelFormats: {dae: false, obj: false, ply: false}
-//   };
-
-//   debug(dbEntry);
-
-//   res.json({id: "building_id"});
-// });

@@ -5,7 +5,8 @@
     "ember": "components/ember#beta",
     "ember-data": "components/ember-data#beta",
     "handlebars": "2.0.0",
-    "jquery": "2.1.1"
+    "jquery": "2.1.1",
+    "ember-simple-auth": "~0.7.1"
   },
   "devDependencies": {},
   "resolutions": {

@@ -118,7 +118,7 @@ module.exports = function(grunt) {
             return "public/" + filepath;
           }
         },
-        src: "<%= config.app %>/ember/app.js",
+        src: ["<%= config.app %>/ember/app.js"],
         dest: "<%= config.app %>/combined-scripts.js"
       }
     },

@@ -1,4 +1,4 @@
-var debug = require("debug")("buidingDatabase");
+var debug = require("debug")("buildingDatabase");
 var LocalStrategy = require("passport-local").Strategy;
 var bCrypt = require("bcrypt-nodejs");
 
@@ -27,8 +27,10 @@ module.exports = function(passport) {
       User.findOne({ "username" :  username }, 
         function(err, user) {
           // In case of any error, return using the done method
-          if (err)
+          if (err) {
             return done(err);
+          }
+
           // Username does not exist, log the error and redirect back
           if (!user){
             debug("User Not Found with username "+username);
@@ -99,7 +101,8 @@ module.exports = function(passport) {
     }
 
     req.session.returnTo = req.path;
-    res.redirect("/login");
+    return res.send(401, 'User is not authorized');
+    // res.redirect("/login");
   };
 
   var isValidPassword = function(user, password){

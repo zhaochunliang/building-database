@@ -1,4 +1,4 @@
-var debug = require("debug")("buidingDatabase");
+var debug = require("debug")("buildingDatabase");
 var _ = require("underscore");
 var Q = require("q");
 var mv = require("mv");

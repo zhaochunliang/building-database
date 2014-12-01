@@ -1,0 +1,21 @@
+<form {{action "signup" on="submit"}}>
+  <div class="form-group">
+    <label for="username">Username</label>
+    {{input id="username" placeholder="Enter username" autofocus=true required=true value=this.username}}
+  </div>
+  <div class="form-group">
+    <label for="email">Email</label>
+    {{input id="email" placeholder="Enter email" type="email" required=true value=this.email}}
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    {{input id="password" placeholder="Enter password" required=true type="password" value=this.password}}
+  </div>
+  <button type="submit">Sign up</button>&nbsp; or&nbsp;
+  {{#link-to "login"}}login{{/link-to}}
+</form>
+{{#if errorMessage}}
+<div class="alert alert-danger">
+  <strong>Login failed:</strong>{{errorMessage}}
+</div>
+{{/if}}

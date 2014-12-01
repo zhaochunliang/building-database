@@ -1,5 +1,5 @@
 window.App = Ember.Application.create({
-  // Basic logging, e.g. "Transitioned into 'post'"
+  // Basic logging, e.g. "Transitioned into "post""
   LOG_TRANSITIONS: true,
 
   // Extremely detailed logging, highlighting every internal
@@ -15,3 +15,4 @@ require("ember/controllers/*");
 require("ember/models/*");
 require("ember/routes/*");
 require("ember/router");
+require("ember/initializers/*");

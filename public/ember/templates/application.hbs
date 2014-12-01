@@ -1,4 +1,9 @@
 <div class="main">
+  {{#if session.isAuthenticated}}
+    <a {{ action "invalidateSession" }}>Logout</a>
+  {{else}}
+    {{#link-to "login"}}Login{{/link-to}} | {{#link-to "signup"}}Sign up{{/link-to}}
+  {{/if}}
   <h1>Hello World</h1>
   {{outlet}}
 </div>

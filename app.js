@@ -1,4 +1,4 @@
-var debug = require("debug")("buidingDatabase");
+var debug = require("debug")("buildingDatabase");
 var path = require("path");
 
 var express = require("express");

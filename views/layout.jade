@@ -2,5 +2,16 @@ doctype html
 html
   head
     title= title
+    link(rel="stylesheet", href="/style/main.css")
   body
+    nav
+      li
+        a(href="/add") Add building
+      if (user)
+        li #{user.username}
+        li
+          a(href="/Logout") Logout
+      else
+        li
+          a(href="/login") Login
     block content

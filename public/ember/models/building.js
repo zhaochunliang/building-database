@@ -3,12 +3,12 @@ App.Building = DS.Model.extend({
 });
 
 // Sample data
-App.Building.reopenClass({
-  FIXTURES: [{
-    id: 1,
-    name: "The Shard"
-  }, {
-    id: 2,
-    name: "One Canada Square"
-  }]
-});
+// App.Building.reopenClass({
+//   FIXTURES: [{
+//     id: 1,
+//     name: "The Shard"
+//   }, {
+//     id: 2,
+//     name: "One Canada Square"
+//   }]
+// });

@@ -1,9 +1,4 @@
 module.exports = function (passport) {
-  // Endpoint /login for GET
-  var getLogin = function(req, res) {
-    res.render("login", { message: req.flash("message") });
-  };
-
   // Endpoint /login for POST
   var postLogin = function(req, res, next) {
     // Tweaked so redirect doesn't confuse Ember
@@ -26,12 +21,9 @@ module.exports = function (passport) {
   // Endpoint /logout for GET
   var getLogout = function(req, res, next) {
     req.logout();
-    res.redirect("/");
-  };
-
-  // Endpoint /signup for GET
-  var getSignup = function(req, res) {
-    res.render("register", { message: req.flash("message") });
+    // Redirect automatically occurs in Ember on sessionInvalidationSucceeded
+    // res.redirect("/");
+    res.sendStatus(200);
   };
 
   // Endpoint /signup for POST
@@ -53,9 +45,7 @@ module.exports = function (passport) {
   };
 
   return {
-    getLogin: getLogin,
     postLogin: postLogin,
-    getSignup: getSignup,
     postSignup: postSignup,
     getLogout: getLogout
   };

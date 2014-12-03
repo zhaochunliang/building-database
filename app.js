@@ -48,7 +48,8 @@ app.use(flash());
 app.use(session({
   secret: "m@pzen&v1ziciti3s",
   resave: true,
-  saveUninitialized: true
+  saveUninitialized: true,
+  cookie: { maxAge: 3600000 * 24 * 7 } // 1 week
 }));
 
 // Configuring Passport

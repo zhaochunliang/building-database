@@ -2,8 +2,8 @@ App.BuildingController = Ember.ObjectController.extend({
   deleteMode: false,
 
   actions: {
-    edit: function() {
-      this.transitionToRoute("building.edit");
+    add: function() {
+      this.transitionToRoute("building.add");
     },
     delete: function() {
       // our delete method now only toggles deleteMode"s value

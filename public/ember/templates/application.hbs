@@ -1,4 +1,5 @@
 <div class="main">
+  {{#link-to "index"}}Home{{/link-to}} | 
   {{#if session.isAuthenticated}}
     <a {{ action "invalidateSession" }}>Logout</a>
   {{else}}

@@ -15,4 +15,5 @@ require("ember/controllers/*");
 require("ember/models/*");
 require("ember/routes/*");
 require("ember/router");
+require("ember/views/*");
 require("ember/initializers/*");

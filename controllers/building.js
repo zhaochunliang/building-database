@@ -15,7 +15,7 @@ module.exports = function (passport) {
         res.send(err);
       }
 
-      res.json(buildings);
+      res.json({buildings: buildings});
     });
   };
 
@@ -120,7 +120,7 @@ module.exports = function (passport) {
         res.send(err);
       }
 
-      res.json(building);
+      res.json({building: building});
     });
   };
 

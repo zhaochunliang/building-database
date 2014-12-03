@@ -1,7 +1,7 @@
 module.exports = function (passport) {
   // Endpoint / for GET
   var getIndex = function(req, res) {
-    res.render("index");
+    res.render("layout");
   };
 
   // Endpoint /browse for GET

@@ -59,7 +59,8 @@ app.use(passport.session());
 app.use(multer({dest: "./tmp/"}));
 
 // Serve static files from directory
-app.use(express.static(path.join(__dirname, "public")));
+app.use("/", express.static(path.join(__dirname, "public")));
+app.use("/model-files", express.static(path.join(__dirname, "model-files")));
 
 // Routes
 var routes = require("./router")(app, passport);

@@ -3,8 +3,15 @@ module.exports = function (passport) {
 
   // Endpoint / for GET
   var getIndex = function(req, res) {
-    res.render("index", {
-      user: req.user
+    Building.find().sort({createdAt: -1}).limit(10).exec(function(err, buildings) {
+      if (err) {
+        res.send(err);
+      }
+      
+      res.render("index", {
+        user: req.user,
+        buildings: buildings
+      });
     });
   };
 

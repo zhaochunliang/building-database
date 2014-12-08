@@ -2,3 +2,10 @@ extends layout
 
 block content
   h1 PolygonCity
+
+  h2 Latest buildings
+
+  ul
+  each building, key in buildings
+    li
+      a(href="/building/#{building._id}") #{building.name}

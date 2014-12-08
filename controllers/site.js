@@ -1,4 +1,6 @@
 module.exports = function (passport) {
+  var Building = require("../models/building");
+
   // Endpoint / for GET
   var getIndex = function(req, res) {
     res.render("index", {
@@ -8,7 +10,30 @@ module.exports = function (passport) {
 
   // Endpoint /browse for GET
   var getBrowse = function(req, res) {
-    res.sendStatus(404);
+    Building.find(function(err, buildings) {
+      if (err) {
+        res.send(err);
+      }
+      
+      res.render("browse", {
+        user: req.user,
+        buildings: buildings
+      });
+    });
+  };
+
+  // Endpoint /building/:id for GET
+  var getBuilding = function(req, res) {
+    Building.findById(req.params.building_id, function(err, building) {
+      if (err) {
+        res.send(err);
+      }
+
+      res.render("building", {
+        user: req.user,
+        building: building
+      });
+    });
   };
 
   // Endpoint /search for GET
@@ -26,6 +51,7 @@ module.exports = function (passport) {
   return {
     getIndex: getIndex,
     getBrowse: getBrowse,
+    getBuilding: getBuilding,
     getSearch: getSearch,
     getAdd: getAdd
   };

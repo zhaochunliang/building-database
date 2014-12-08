@@ -1,14 +1,18 @@
 doctype html
 html
   head
-    title= title
+    title= PolygonCity
     link(rel="stylesheet", href="/style/main.css")
   body
     nav
       li
+        a(href="/") Home
+      li
+        a(href="/browse") Browse buildings
+      li
         a(href="/add") Add building
       if (user)
-        li #{user.username}
+        li Hi #{user.username}!
         li
           a(href="/Logout") Logout
       else

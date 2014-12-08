@@ -1,0 +1,9 @@
+extends layout
+
+block content
+  h1 Browse buildings
+
+  ul
+  each building, key in buildings
+    li
+      a(href="/building/#{building._id}") #{building.name}

@@ -5,7 +5,24 @@ block content
 
   h2 Latest buildings
 
-  ul
-  each building, key in buildings
-    li
-      a(href="/building/#{building._id}") #{building.name}
+  .cards
+    each building, key in buildings
+      a.card(href="/building/#{building._id}")
+        .card-image
+          img(src="/images/card-bg.png", alt="")
+        .card-header
+          | #{building.name}
+        .card-copy
+          p
+            | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga, officiis sunt neque facilis culpa molestiae necessitatibus delectus veniam provident.
+        .card-stats
+          ul
+            li
+              | 98
+              span Faces
+            li
+              | 298
+              span Vertices
+            li
+              | 923
+              span Downloads

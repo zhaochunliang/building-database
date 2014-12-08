@@ -45,8 +45,8 @@ module.exports = function (passport) {
 
   // Endpoint /search for POST
   var postSearch = function(req, res) {
-    var keyword = req.body.keyword.toLowerCase();
-    res.redirect("/search/" + keyword);
+    var search = req.body.search.toLowerCase();
+    res.redirect("/search/" + search);
   };
 
   // Endpoint /search/:search_term for GET

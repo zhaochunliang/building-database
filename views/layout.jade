@@ -4,24 +4,56 @@ html
     title= PolygonCity
     link(rel="stylesheet", href="/style/main.css")
   body
-    nav
-      li
-        a(href="/") Home
-      li
-        a(href="/browse") Browse buildings
-      li
-        a(href="/add") Add building
-      if (user)
-        li Hi #{user.username}!
-        li
-          a(href="/Logout") Logout
-      else
-        li
-          a(href="/login") Login
-        li
-          a(href="/signup") Signup
+    header.navigation
+      .navigation-wrapper
+        a.logo(href="/")
+          img(src="/images/logo.png", alt="Logo")
+        a#js-mobile-menu.navigation-menu-button(href="") MENU
+        .nav
+          ul#navigation-menu
+            li.nav-link
+              a(href="/") Home
+            li.nav-link
+              a(href="/browse") Browse
+            li.nav-link
+              a(href="/add") Add building
+        .navigation-tools
+          .search-bar
+            .search-and-submit
+              form(action="/search", method="POST")
+                input(type="search", name="search" placeholder="Enter search")
+                button(type="submit")
+                  img(src="/images/search-icon.png", alt="Search icon")
+          if (user)
+            a.logout(href="/logout") Logout
+          else
+            a.login(href="/login") Login
+            a.signup(href="/signup") Sign up
+    
+    section.content
+      block content
 
-      form(action="/search", method="POST")
-        input(type="text", name="keyword" placeholder="Keyword", required)
-        button(type="submit") Search
-    block content
+    script(src="//cdnjs.cloudflare.com/ajax/libs/zepto/1.1.4/zepto.min.js")
+    script.
+      $(document).ready(function() {
+        var menu = $("#navigation-menu");
+        var menuToggle = $("#js-mobile-menu");
+
+        $(menuToggle).on("click", function(e) {
+          e.preventDefault();
+          menu.slideToggle(function(){
+            if(menu.is(":hidden")) {
+              menu.removeAttr("style");
+            }
+          });
+        });
+       
+        // underline under the active nav item
+        $(".nav .nav-link").click(function() {
+          $(".nav .nav-link").each(function() {
+            $(this).removeClass("active-nav-item");
+          });
+          $(this).addClass("active-nav-item");
+          $(".nav .more").removeClass("active-nav-item");
+        });
+      });

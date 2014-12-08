@@ -7,7 +7,11 @@ block content
     li #{building._id}
     li #{building.name}
     li #{building.location}
-    li #{building.models}
+    ul
+      each model, key in building.models
+        li
+          | #{model.type}: 
+          a(href="/#{model.path}") #{model.path}
     li #{building.userId}
     li #{building.createdAt}
     li #{building.updatedAt}

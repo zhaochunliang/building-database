@@ -7,3 +7,7 @@
 * Run `grunt` from the project directory
 * Open [http://localhost:3000](http://localhost:3000)
 * Sign up for a new account
+
+## Notes
+
+* For the purpose of clarity, no focus has been spent on layout or design yet

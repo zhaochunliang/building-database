@@ -1,6 +1,8 @@
 extends layout
  
 block content
+  h1 Login 
+  
   form(action="/login", method="POST")
     input(type="text", name="username" placeholder="Username", required, autofocus)
     input(type="password", name="password" placeholder="Password", required)

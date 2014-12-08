@@ -10,4 +10,4 @@
 
 ## Notes
 
-* For the purpose of clarity, no focus has been spent on layout or design yet
+* For the purpose of clarity, little focus has been spent on layout or design yet

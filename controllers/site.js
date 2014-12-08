@@ -36,9 +36,24 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /search for GET
-  var getSearch = function(req, res) {
-    res.sendStatus(404);
+  // Endpoint /search for POST
+  var postSearch = function(req, res) {
+    var keyword = req.body.keyword.toLowerCase();
+    res.redirect("/search/" + keyword);
+  };
+
+  // Endpoint /search/:search_term for GET
+  var getSearchTerm = function(req, res) {
+    Building.find({"name": new RegExp(req.params.search_term, "i")}, function(err, buildings) {
+      if (err) {
+        res.send(err);
+      }
+      
+      res.render("search", {
+        user: req.user,
+        buildings: buildings
+      });
+    });
   };
 
   // Endpoint /add for GET
@@ -52,7 +67,8 @@ module.exports = function (passport) {
     getIndex: getIndex,
     getBrowse: getBrowse,
     getBuilding: getBuilding,
-    getSearch: getSearch,
+    postSearch: postSearch,
+    getSearchTerm: getSearchTerm,
     getAdd: getAdd
   };
 };

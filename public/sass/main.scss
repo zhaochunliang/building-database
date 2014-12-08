@@ -4,11 +4,6 @@
 @import "base/base";
 @import "neat";
 
-// Fix Ember action links
-a {
-  cursor: pointer;
-}
-
 // Navigation
 
 header.navigation {
@@ -353,12 +348,6 @@ header.navigation {
   }
 }
 
-// Main content
-
-section.content {
-  @include outer-container;
-}
-
 // Building cards 
 .cards {
   @include clearfix;
@@ -493,4 +482,14 @@ section.content {
       background-color: $card-background;
     }
   }
+}
+
+// Main content
+
+section.content {
+  @include outer-container;
+}
+
+h1, h2 {
+  margin: 0.75em 0 0.5em;
 }

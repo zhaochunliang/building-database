@@ -6,7 +6,7 @@ var ModelSchema = new Schema({
   path: String
 });
 
-module.exports = mongoose.model("Building", {
+var BuildingSchema = new Schema({
   id: String,
   name: String,
   location: {
@@ -14,5 +14,18 @@ module.exports = mongoose.model("Building", {
     coordinates: []
   },
   models: [ModelSchema],
-  userId: String
+  userId: String,
+  createdAt: Date,
+  updatedAt: Date
 });
+
+BuildingSchema.pre("save", function(next) {
+  var now = new Date();
+  this.updatedAt = now;
+  if (!this.createdAt) {
+    this.createdAt = now;
+  }
+  next();
+});
+
+module.exports = mongoose.model("Building", BuildingSchema);

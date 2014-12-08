@@ -1,4 +1,4 @@
-var debug = require("debug")("buidingDatabase");
+var debug = require("debug")("buildingDatabase");
 var LocalStrategy = require("passport-local").Strategy;
 var bCrypt = require("bcrypt-nodejs");
 

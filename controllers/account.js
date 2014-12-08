@@ -1,7 +1,10 @@
 module.exports = function (passport) {
   // Endpoint /login for GET
   var getLogin = function(req, res) {
-    res.render("login", { message: req.flash("message") });
+    res.render("login", {
+      message: req.flash("message"),
+      user: req.user
+    });
   };
 
   // Endpoint /login for POST

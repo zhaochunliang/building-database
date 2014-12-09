@@ -8,6 +8,10 @@ block content
     li #{building.name}
     li #{building.location}
     ul
+      li Vertices: #{building.structure.vertices}
+      li Faces: #{building.structure.faces}
+      li Materials: #{building.structure.materials}
+    ul
       each model, key in building.models
         li
           | #{model.type}: 

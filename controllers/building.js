@@ -4,6 +4,7 @@ var Q = require("q");
 var mv = require("mv");
 var modelConverter = require("model-converter");
 var UUID = require("uuid");
+var LineByLineReader = require("line-by-line");
 
 var Building = require("../models/building");
 
@@ -73,6 +74,7 @@ module.exports = function (passport) {
       var moveFiles = [];
 
       // Move model files to permanent path
+      // Also, extract model data from .obj file
       _.each(tmpFiles, function(file, index) {
         var splitPath = file.split("tmp/");
         var permPath = "model-files/" + pathID + "/" + splitPath[1];
@@ -82,27 +84,74 @@ module.exports = function (passport) {
         movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
       });
 
+      var structureRegex = /(Vertices|Faces|Materials)+:\s(\d+)/;
+      var structurePath;
+      
       Q.all(movePromises).done(function() {
         debug("Moved files");
 
         // Add model paths to building entry
         _.each(moveFiles, function(file, index) {
+          var type = file[1];
+          var path = file[0];
+
+          if (type === "obj") {
+            structurePath = path;
+          }
+
           building.models.push({
-            type: file[1],
-            path: file[0]
+            type: type,
+            path: path
           });
         });
 
         // Attach user to building entry
         building.userId = req.user._id;
 
-        building.save(function(err, savedBuilding) {
-          if (err) {
-            res.send(err);
-          }
+        // Find model structure
+        // TODO: Make into a promise
+        if (structurePath) {
+          // Pull vertex, face and material counts from the model files
+          var vertices = false;
+          var faces = false;
+          var materials = false;
 
-          res.json({message: "Building added", building: savedBuilding});
-        });
+          var lr = new LineByLineReader(structurePath);
+
+          lr.on("line", function (line) {
+            var result = structureRegex.exec(line);
+            
+            if (!result) {
+              return;
+            }
+
+            if (result[1] === "Vertices") {
+              vertices = Number(result[2]);
+            } else if (result[1] === "Faces") {
+              faces = Number(result[2]);
+            } else if (result[1] === "Materials") {
+              materials = Number(result[2]);
+            }
+
+            // All structure gathered
+            if (vertices !== false && faces !== false && materials !== false) {
+              building.structure.vertices = vertices;
+              building.structure.faces = faces;
+              building.structure.materials = materials;
+
+              building.save(function(err, savedBuilding) {
+                if (err) {
+                  res.send(err);
+                }
+
+                // TODO: Redirect to /add/location on success
+                res.json({message: "Building added", building: savedBuilding});
+              });
+
+              lr.close();
+            }
+          });
+        }
       }, function(err) {
         // TODO: Remove temporary files on error
         debug(err);

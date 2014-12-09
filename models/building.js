@@ -13,6 +13,11 @@ var BuildingSchema = new Schema({
     type: { type: String },
     coordinates: []
   },
+  structure: {
+    vertices: { type: Number, default: 0 },
+    faces: { type: Number, default: 0 },
+    materials: { type: Number, default: 0 }
+  },
   models: [ModelSchema],
   userId: String,
   createdAt: Date,

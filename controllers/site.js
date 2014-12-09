@@ -3,7 +3,7 @@ module.exports = function (passport) {
 
   // Endpoint / for GET
   var getIndex = function(req, res) {
-    Building.find().sort({createdAt: -1}).limit(10).exec(function(err, buildings) {
+    Building.find().sort({createdAt: -1}).limit(6).exec(function(err, buildings) {
       if (err) {
         res.send(err);
       }
@@ -17,7 +17,7 @@ module.exports = function (passport) {
 
   // Endpoint /browse for GET
   var getBrowse = function(req, res) {
-    Building.find(function(err, buildings) {
+    Building.find().sort({createdAt: -1}).limit(24).exec(function(err, buildings) {
       if (err) {
         res.send(err);
       }

@@ -3,7 +3,7 @@ extends layout
 block content
   h1 Add a building
 
-  form
+  form#add-form
     label(for="name") Name:
     input#name(type="text", name="name", required)
 
@@ -18,6 +18,7 @@ block content
     button#add-button(type="submit") Add building
 
   script.
+    var addForm = document.getElementById("add-form");
     var nameInput = document.getElementById("name");
     var centerLatitudeInput = document.getElementById("center-latitude");
     var centerLongitudeInput = document.getElementById("center-longitude");
@@ -34,7 +35,8 @@ block content
     ("Microsoft Internet Explorer" == navigator.appName) ? window.attachEvent("onmessage", onHashChange) : window.addEventListener("message", onHashChange, !1);
 
     // TODO: Catch errors and notify user
-    addButton.addEventListener("click", function(event) {
+    addForm.addEventListener("submit", function(event) {
+      event.target.checkValidity();
       event.preventDefault();
 
       addButton.innerHTML = "Uploading&hellip;";

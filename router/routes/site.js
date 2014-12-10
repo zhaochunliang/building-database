@@ -23,5 +23,8 @@ module.exports = function (passport) {
   router.route("/add")
     .get(authController.isAuthenticated, siteController.getAdd);
 
+  router.route("/add/location/:building_id")
+    .get(authController.isAuthenticated, siteController.getAddLocation);
+
   return router;
 };

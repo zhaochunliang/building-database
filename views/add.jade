@@ -7,11 +7,6 @@ block content
     label(for="name") Name:
     input#name(type="text", name="name", required)
 
-    label(for="center-latitude") Location:
-    iframe#add-map(src="https://cdn.rawgit.com/pelias/demo/jump-locations/index.html" frameborder="0")
-    input#center-latitude(type="text", name="center-latitude" disabled)
-    input#center-longitude(type="text", name="center-longitude" disabled)
-
     label(for="model") Model:
     input#model(type="file", name="model", accept=".obj,.dae,.ply,.dxf", required)
 
@@ -20,19 +15,8 @@ block content
   script.
     var addForm = document.getElementById("add-form");
     var nameInput = document.getElementById("name");
-    var centerLatitudeInput = document.getElementById("center-latitude");
-    var centerLongitudeInput = document.getElementById("center-longitude");
     var fileInput = document.getElementById("model");
     var addButton = document.getElementById("add-button");
-
-    var onHashChange = function(e) {
-      var splitHash = e.data.split(",");
-
-      centerLatitudeInput.value = splitHash[1];
-      centerLongitudeInput.value = splitHash[2];
-    };
-
-    ("Microsoft Internet Explorer" == navigator.appName) ? window.attachEvent("onmessage", onHashChange) : window.addEventListener("message", onHashChange, !1);
 
     // TODO: Catch errors and notify user
     addForm.addEventListener("submit", function(event) {
@@ -72,7 +56,7 @@ block content
         contentType: false,
         type: "POST",
         success: function(data, status, xhr) {
-          window.location.href = "/building/" + data.building._id;
+          window.location.href = "/add/location/" + data.building._id;
         },
         error: function(xhr, errorType, error) {
           // TODO: Display error and course of action

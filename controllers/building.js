@@ -5,6 +5,7 @@ var mv = require("mv");
 var modelConverter = require("model-converter");
 var UUID = require("uuid");
 var LineByLineReader = require("line-by-line");
+var JXON = require("jxon");
 
 var Building = require("../models/building");
 
@@ -64,10 +65,6 @@ module.exports = function (passport) {
       var building = new Building();
 
       building.name = req.body.name;
-      building.location = {
-        type : "Point",
-        coordinates : [req.body.centerLatitude, req.body.centerLongitude]
-      };
 
       var pathID = UUID.v4();
       var movePromises = [];
@@ -77,7 +74,7 @@ module.exports = function (passport) {
       // Also, extract model data from .obj file
       _.each(tmpFiles, function(file, index) {
         var splitPath = file.split("tmp/");
-        var permPath = "model-files/" + pathID + "/" + splitPath[1];
+        var permPath = "/model-files/" + pathID + "/" + splitPath[1];
         var ext = permPath.split(".").pop();
 
         moveFiles.push([permPath, ext]);
@@ -144,7 +141,6 @@ module.exports = function (passport) {
                   res.send(err);
                 }
 
-                // TODO: Redirect to /add/location on success
                 res.json({message: "Building added", building: savedBuilding});
               });
 
@@ -162,6 +158,29 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /api/buildings for PUT
+  var putBuildings = function(req, res, next) {
+    // TODO: Check that user has access to this building
+    Building.findById(req.params.building_id, function(err, building) {
+      if (err) {
+        res.send(err);
+      }
+
+      building.location = {
+        type : "Point",
+        coordinates : [req.body.centerLatitude, req.body.centerLongitude]
+      };
+
+      building.save(function(err, savedBuilding) {
+        if (err) {
+          res.send(err);
+        }
+
+        res.json({message: "Building updated", building: savedBuilding});
+      });
+    });
+  };
+
   // Endpoint /api/building/ for GET
   var getBuilding = function(req, res) {
     Building.findById(req.params.building_id, function(err, building) {
@@ -173,9 +192,58 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /api/building/:building_id.kml for GET
+  var getBuildingKML = function(req, res) {
+    Building.findById(req.params.building_id, function(err, building) {
+      if (err) {
+        res.send(err);
+      }
+
+      var daeModel = _.find(building.models, function(model) {
+        return (model.type === "dae");
+      });
+
+      var kmlObj = {
+        "kml": {
+          "@xmlns": "http://www.opengis.net/kml/2.2",
+          "Placemark": {
+            "name": building.name,
+            "Model": {
+              "@id": building._id,
+              "altitudeMode": "relativeToGround",
+              "Location": {
+                "longitude": -0.01924,
+                "latitude": 51.50358,
+                "altitude": 0
+              },
+              "Orientation": {
+                "heading": 0,
+                "tilt": 0,
+                "roll": 0
+              },
+              "Scale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              },
+              "Link": {
+                "href": daeModel.path
+              }
+            }
+          }
+        }
+      };
+
+      res.set("content-Type", "text/xml");
+      res.send("<?xml version='1.0' encoding='UTF-8'?>" + JXON.stringify(kmlObj));
+    });
+  };
+
   return {
     getBuildings: getBuildings,
     postBuildings: postBuildings,
-    getBuilding: getBuilding
+    putBuildings: putBuildings,
+    getBuilding: getBuilding,
+    getBuildingKML: getBuildingKML
   };
 };

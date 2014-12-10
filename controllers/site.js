@@ -70,12 +70,29 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /add/location for GET
+  var getAddLocation = function(req, res) {
+    // TODO: Check user has access to this building
+    // TDOO: Check that location hasn't already been added
+    Building.findById(req.params.building_id, function(err, building) {
+      if (err) {
+        res.send(err);
+      }
+
+      res.render("add-location", {
+        user: req.user,
+        building: building
+      });
+    });
+  };
+
   return {
     getIndex: getIndex,
     getBrowse: getBrowse,
     getBuilding: getBuilding,
     postSearch: postSearch,
     getSearchTerm: getSearchTerm,
-    getAdd: getAdd
+    getAdd: getAdd,
+    getAddLocation: getAddLocation
   };
 };

@@ -1,0 +1,209 @@
+extends layout
+
+block content
+  h1 Set building location
+
+  div#vizicities-viewport
+
+  form#add-location-form
+    //- label(for="center-latitude") Location:
+    //- iframe#add-map(src="https://cdn.rawgit.com/pelias/demo/jump-locations/index.html" frameborder="0")
+    //- input#center-latitude(type="text", name="center-latitude" disabled)
+    //- input#center-longitude(type="text", name="center-longitude" disabled)
+
+    label(for="scale") Scale:
+    input#scale(type="number", name="scale" min=0 step=1 value=1)
+
+    button#add-location-button(type="submit") Set location
+
+  link(rel="stylesheet", href="https://rawgit.com/vizicities/vizicities/0.2.0/build/vizi.css")
+  script(src="https://rawgit.com/vizicities/vizicities/0.2.0/build/vizi.js")
+  script.
+    var world = new VIZI.World({
+      viewport: document.querySelector("#vizicities-viewport")
+      // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738) // Collada
+    });
+
+    // TODO: Reenable when domElement fix for controls is in
+    //- var controls = new VIZI.ControlsMap(world.camera);
+
+    var mapConfig = {
+      input: {
+        type: "BlueprintInputMapTiles",
+        options: {
+          tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png"
+        }
+      },
+      output: {
+        type: "BlueprintOutputImageTiles",
+        options: {
+          grids: [
+          //- {
+          //-   zoom: 19,
+          //-   tilesPerDirection: 3,
+          //-   cullZoom: 17
+          //- }, {
+          //-   zoom: 18,
+          //-   tilesPerDirection: 3,
+          //-   cullZoom: 16
+          //- }, {
+          //-   zoom: 17,
+          //-   tilesPerDirection: 3,
+          //-   cullZoom: 15
+          //- }, 
+          {
+            zoom: 16,
+            tilesPerDirection: 4,
+            cullZoom: 10
+          }
+          //- , {
+          //-   zoom: 15,
+          //-   tilesPerDirection: 3,
+          //-   cullZoom: 13
+          //- },{
+          //-   zoom: 14,
+          //-   tilesPerDirection: 3,
+          //-   cullZoom: 12
+          //- },{
+          //-   zoom: 13,
+          //-   tilesPerDirection: 5,
+          //-   cullZoom: 11
+          //- }
+          ]
+        }
+      },
+      triggers: [{
+        triggerObject: "output",
+        triggerName: "initialised",
+        triggerArguments: ["tiles"],
+        actionObject: "input",
+        actionName: "requestTiles",
+        actionArguments: ["tiles"],
+        actionOutput: {
+          tiles: "tiles" // actionArg: triggerArg
+        }
+      }, {
+        triggerObject: "output",
+        triggerName: "gridUpdated",
+        triggerArguments: ["tiles"],
+        actionObject: "input",
+        actionName: "requestTiles",
+        actionArguments: ["tiles"],
+        actionOutput: {
+          tiles: "tiles" // actionArg: triggerArg
+        }
+      }, {
+        triggerObject: "input",
+        triggerName: "tileReceived",
+        triggerArguments: ["image", "tile"],
+        actionObject: "output",
+        actionName: "outputImageTile",
+        actionArguments: ["image", "tile"],
+        actionOutput: {
+          image: "image", // actionArg: triggerArg
+          tile: "tile"
+        }
+      }]
+    };
+
+    var switchboardMap = new VIZI.BlueprintSwitchboard(mapConfig);
+    switchboardMap.addToWorld(world);
+
+    var colladaConfig = {
+      input: {
+        type: "BlueprintInputKML",
+        options: {
+          path: "/api/building/#{building._id}.kml"
+        }
+      },
+      output: {
+        type: "BlueprintOutputCollada",
+        options: {}
+      },
+      triggers: [{
+        triggerObject: "output",
+        triggerName: "initialised",
+        triggerArguments: [],
+        actionObject: "input",
+        actionName: "requestData",
+        actionArguments: [],
+        actionOutput: {}
+      }, {
+        triggerObject: "input",
+        triggerName: "dataReceived",
+        triggerArguments: ["kml"],
+        actionObject: "output",
+        actionName: "outputCollada",
+        actionArguments: ["collada"],
+        actionOutput: {
+          collada: {
+            process: "map",
+            itemsObject: "kml",
+            itemsProperties: "placemark.model",
+            transformation: {
+              coordinates: ["location.longitude", "location.latitude"],
+              modelPath: "link.href"
+            }
+          }
+        }
+      }]
+    };
+
+    var switchboardCollada = new VIZI.BlueprintSwitchboard(colladaConfig);
+    switchboardCollada.addToWorld(world);
+
+    var clock = new VIZI.Clock();
+
+    var update = function() {
+      var delta = clock.getDelta();
+
+      world.onTick(delta);
+      world.render();
+
+      window.requestAnimationFrame(update);
+    };
+
+    update();
+
+    var addLocationForm = document.getElementById("add-location-form");
+    var scaleInput = document.getElementById("scale");
+
+    scaleInput.addEventListener("input", function(event) {
+      var scale = event.target.value;
+
+      // TODO: Find a more respectable way of accessing the collada object
+      world.layers[1].object.children[0].children[0].scale.set(scale, scale, scale);
+    });
+
+    // TODO: Catch errors and notify user
+    addLocationForm.addEventListener("submit", function(event) {
+      event.target.checkValidity();
+      event.preventDefault();
+
+      addLocationButton.innerHTML = "Adding&hellip;";
+
+      // This requires IE 10+
+      // What are the ramifications of this?
+      // What alternatives exist for async file upload?
+      var formData = new FormData();
+      
+      // Add the coordindates to the request
+      formData.append("centerLatitude", centerLatitudeInput.value);
+      formData.append("centerLongitude", centerLongitudeInput.value);
+
+      $.ajax({
+        url: "/api/building/#{building._id}",
+        data: formData,
+        processData: false,
+        contentType: false,
+        type: "PUT",
+        success: function(data, status, xhr) {
+          window.location.href = "/building/" + data.building._id;
+        },
+        error: function(xhr, errorType, error) {
+          // TODO: Display error and course of action
+          console.log(errorType);
+          console.log(error);
+        }
+      });
+    });

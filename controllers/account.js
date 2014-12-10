@@ -29,7 +29,7 @@ module.exports = function (passport) {
 
   // Endpoint /signup for POST
   var postSignup = function(req, res, next) {
-    passport.authenticate("register", {
+    passport.authenticate("signup", {
       successRedirect: "/",
       failureRedirect: "/signup",
       failureFlash: true  

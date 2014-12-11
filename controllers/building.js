@@ -53,6 +53,8 @@ module.exports = function (passport) {
       convertQueue.push([modelConverter.convert, [modelPath, modelPath.split(modelExt)[0] + "obj"]]);
     }
 
+    console.log(convertQueue);
+
     // TODO: Wait for all conversion promises to complete before adding to db
     Q.all(convertQueue.map(function(promiseFunc) {
       return promiseFunc[0].apply(this, promiseFunc[1]).then(function(path) {
@@ -74,7 +76,7 @@ module.exports = function (passport) {
       // Also, extract model data from .obj file
       _.each(tmpFiles, function(file, index) {
         var splitPath = file.split("tmp/");
-        var permPath = "/model-files/" + pathID + "/" + splitPath[1];
+        var permPath = "model-files/" + pathID + "/" + splitPath[1];
         var ext = permPath.split(".").pop();
 
         moveFiles.push([permPath, ext]);
@@ -98,7 +100,7 @@ module.exports = function (passport) {
 
           building.models.push({
             type: type,
-            path: path
+            path: "/" + path
           });
         });
 
@@ -107,47 +109,55 @@ module.exports = function (passport) {
 
         // Find model structure
         // TODO: Make into a promise
-        if (structurePath) {
-          // Pull vertex, face and material counts from the model files
-          var vertices = false;
-          var faces = false;
-          var materials = false;
+        // if (structurePath) {
+        //   // Pull vertex, face and material counts from the model files
+        //   var vertices = false;
+        //   var faces = false;
+        //   var materials = false;
 
-          var lr = new LineByLineReader(structurePath);
+        //   var lr = new LineByLineReader(structurePath);
 
-          lr.on("line", function (line) {
-            var result = structureRegex.exec(line);
+        //   lr.on("line", function (line) {
+        //     var result = structureRegex.exec(line);
             
-            if (!result) {
-              return;
-            }
+        //     if (!result) {
+        //       return;
+        //     }
 
-            if (result[1] === "Vertices") {
-              vertices = Number(result[2]);
-            } else if (result[1] === "Faces") {
-              faces = Number(result[2]);
-            } else if (result[1] === "Materials") {
-              materials = Number(result[2]);
-            }
+        //     if (result[1] === "Vertices") {
+        //       vertices = Number(result[2]);
+        //     } else if (result[1] === "Faces") {
+        //       faces = Number(result[2]);
+        //     } else if (result[1] === "Materials") {
+        //       materials = Number(result[2]);
+        //     }
 
-            // All structure gathered
-            if (vertices !== false && faces !== false && materials !== false) {
-              building.structure.vertices = vertices;
-              building.structure.faces = faces;
-              building.structure.materials = materials;
+        //     // All structure gathered
+        //     if (vertices !== false && faces !== false && materials !== false) {
+        //       building.structure.vertices = vertices;
+        //       building.structure.faces = faces;
+        //       building.structure.materials = materials;
 
-              building.save(function(err, savedBuilding) {
-                if (err) {
-                  res.send(err);
-                }
+        //       building.save(function(err, savedBuilding) {
+        //         if (err) {
+        //           res.send(err);
+        //         }
 
-                res.json({message: "Building added", building: savedBuilding});
-              });
+        //         res.json({message: "Building added", building: savedBuilding});
+        //       });
 
-              lr.close();
-            }
-          });
-        }
+        //       lr.close();
+        //     }
+        //   });
+        // }
+
+        building.save(function(err, savedBuilding) {
+          if (err) {
+            res.send(err);
+          }
+
+          res.json({message: "Building added", building: savedBuilding});
+        });
       }, function(err) {
         // TODO: Remove temporary files on error
         debug(err);

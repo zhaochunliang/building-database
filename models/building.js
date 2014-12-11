@@ -13,6 +13,8 @@ var BuildingSchema = new Schema({
     type: { type: String },
     coordinates: []
   },
+  scale: { type: Number, default: 1 },
+  angle: { type: Number, default: 0 },
   structure: {
     vertices: { type: Number, default: 0 },
     faces: { type: Number, default: 0 },

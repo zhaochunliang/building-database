@@ -6,13 +6,17 @@ block content
   div#vizicities-viewport
 
   form#add-location-form
-    //- label(for="center-latitude") Location:
-    //- iframe#add-map(src="https://cdn.rawgit.com/pelias/demo/jump-locations/index.html" frameborder="0")
-    //- input#center-latitude(type="text", name="center-latitude" disabled)
-    //- input#center-longitude(type="text", name="center-longitude" disabled)
-
     label(for="scale") Scale:
-    input#scale(type="number", name="scale" min=0 step=1 value=1)
+    input#scale(type="number", name="scale" min=0 step=0.01 value=1)
+
+    label(for="angle") Angle:
+    input#angle(type="number", name="angle" min=0 max=360 step=0.001 value=0)
+
+    label(for="scale") Latitude:
+    input#latitude(type="number", name="latitude" min=-90 max=90 step=0.00001 value=51.50358)
+
+    label(for="scale") Longitude:
+    input#longitude(type="number", name="longitude" min=-180 max=180 step=0.00001 value="-0.01924")
 
     button#add-location-button(type="submit") Set location
 
@@ -21,11 +25,11 @@ block content
   script.
     var world = new VIZI.World({
       viewport: document.querySelector("#vizicities-viewport")
-      // center: new VIZI.LatLon(40.01000594412381, -105.2727379358738) // Collada
     });
 
-    // TODO: Reenable when domElement fix for controls is in
-    //- var controls = new VIZI.ControlsMap(world.camera);
+    var controls = new VIZI.ControlsMap(world.camera, {
+      viewport: world.options.viewport
+    });
 
     var mapConfig = {
       input: {
@@ -38,37 +42,23 @@ block content
         type: "BlueprintOutputImageTiles",
         options: {
           grids: [
-          //- {
-          //-   zoom: 19,
-          //-   tilesPerDirection: 3,
-          //-   cullZoom: 17
-          //- }, {
-          //-   zoom: 18,
-          //-   tilesPerDirection: 3,
-          //-   cullZoom: 16
-          //- }, {
-          //-   zoom: 17,
-          //-   tilesPerDirection: 3,
-          //-   cullZoom: 15
-          //- }, 
           {
+            zoom: 19,
+            tilesPerDirection: 3,
+            cullZoom: 17
+          }, {
+            zoom: 18,
+            tilesPerDirection: 3,
+            cullZoom: 16
+          }, {
+            zoom: 17,
+            tilesPerDirection: 3,
+            cullZoom: 15
+          }, {
             zoom: 16,
             tilesPerDirection: 4,
             cullZoom: 10
           }
-          //- , {
-          //-   zoom: 15,
-          //-   tilesPerDirection: 3,
-          //-   cullZoom: 13
-          //- },{
-          //-   zoom: 14,
-          //-   tilesPerDirection: 3,
-          //-   cullZoom: 12
-          //- },{
-          //-   zoom: 13,
-          //-   tilesPerDirection: 5,
-          //-   cullZoom: 11
-          //- }
           ]
         }
       },
@@ -167,12 +157,45 @@ block content
 
     var addLocationForm = document.getElementById("add-location-form");
     var scaleInput = document.getElementById("scale");
+    var angleInput = document.getElementById("angle");
+    var latitudeInput = document.getElementById("latitude");
+    var longitudeInput = document.getElementById("longitude");
+    var addLocationButton = document.getElementById("add-location-button");
 
     scaleInput.addEventListener("input", function(event) {
       var scale = event.target.value;
 
       // TODO: Find a more respectable way of accessing the collada object
-      world.layers[1].object.children[0].children[0].scale.set(scale, scale, scale);
+      world.layers[1].object.children[0].scale.set(scale, scale, scale);
+      world.layers[1].object.children[0].updateMatrix();
+    });
+
+    angleInput.addEventListener("input", function(event) {
+      var angle = event.target.value;
+
+      // TODO: Find a more respectable way of accessing the collada object
+      world.layers[1].object.children[0].rotation.y = -(angle * Math.PI / 180);
+      world.layers[1].object.children[0].updateMatrix();
+    });
+
+    latitudeInput.addEventListener("input", function(event) {
+      var latitude = event.target.value;
+
+      var projected = world.project(new VIZI.LatLon(latitude, longitudeInput.value));
+
+      // TODO: Find a more respectable way of accessing the collada object
+      world.layers[1].object.children[0].position.z = projected.y;
+      world.layers[1].object.children[0].updateMatrix();
+    });
+
+    longitudeInput.addEventListener("input", function(event) {
+      var longitude = event.target.value;
+
+      var projected = world.project(new VIZI.LatLon(latitudeInput.value, longitude));
+
+      // TODO: Find a more respectable way of accessing the collada object
+      world.layers[1].object.children[0].position.x = projected.x;
+      world.layers[1].object.children[0].updateMatrix();
     });
 
     // TODO: Catch errors and notify user
@@ -187,9 +210,10 @@ block content
       // What alternatives exist for async file upload?
       var formData = new FormData();
       
-      // Add the coordindates to the request
-      formData.append("centerLatitude", centerLatitudeInput.value);
-      formData.append("centerLongitude", centerLongitudeInput.value);
+      formData.append("scale", scaleInput.value);
+      formData.append("angle", angleInput.value);
+      formData.append("latitude", latitudeInput.value);
+      formData.append("longitude", longitudeInput.value);
 
       $.ajax({
         url: "/api/building/#{building._id}",

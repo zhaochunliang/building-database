@@ -176,10 +176,20 @@ module.exports = function (passport) {
         res.send(err);
       }
 
-      building.location = {
-        type : "Point",
-        coordinates : [req.body.centerLatitude, req.body.centerLongitude]
-      };
+      if (req.body.scale) {
+        building.scale = req.body.scale;
+      }
+
+      if (req.body.angle) {
+        building.angle = req.body.angle;
+      }
+
+      if (req.body.latitude && req.body.longitude) {
+        building.location = {
+          type : "Point",
+          coordinates : [req.body.latitude, req.body.longitude]
+        };
+      }
 
       building.save(function(err, savedBuilding) {
         if (err) {
@@ -222,19 +232,19 @@ module.exports = function (passport) {
               "@id": building._id,
               "altitudeMode": "relativeToGround",
               "Location": {
-                "longitude": -0.01924,
-                "latitude": 51.50358,
+                "longitude": building.location.coordinates[1] || -0.01924,
+                "latitude": building.location.coordinates[0] || 51.50358,
                 "altitude": 0
               },
               "Orientation": {
-                "heading": 0,
+                "heading": building.angle || 0,
                 "tilt": 0,
                 "roll": 0
               },
               "Scale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
+                "x": building.scale || 1,
+                "y": building.scale || 1,
+                "z": building.scale || 1
               },
               "Link": {
                 "href": daeModel.path

@@ -14,5 +14,7 @@
     "test",
     "tests"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "typeahead.js": "~0.10.5"
+  }
 }

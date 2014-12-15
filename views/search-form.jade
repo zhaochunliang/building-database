@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  h1 Search
+
+  form(action="/search", method="POST")
+    input(type="text", name="name", placeholder="Building name", autofocus)
+    input(type="text", name="longitude", placeholder="Longitude")
+    input(type="text", name="latitude", placeholder="Latitude")
+    input(type="text", name="distance", placeholder="Distance")
+    button(type="submit") Search

@@ -43,10 +43,33 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /search for GET
+  var getSearch = function(req, res) {
+    res.render("search-form", {
+      user: req.user
+    });
+  };
+
   // Endpoint /search for POST
   var postSearch = function(req, res) {
-    var search = req.body.search.toLowerCase();
-    res.redirect("/search/" + search);
+    // Search submitted from homepage
+    if (req.body.search) {
+      var search = req.body.search.toLowerCase();
+      res.redirect("/search/" + search);
+    // Search submitted from /search form
+    } else {
+      // Search for building by name
+      if (req.body.name) {
+        var name = req.body.name.toLowerCase();
+        res.redirect("/search/" + name);
+      } else if (req.body.longitude && req.body.latitude) {
+        var longitude = req.body.longitude;
+        var latitude = req.body.latitude;
+        var distance = req.body.distance | 100;
+
+        res.redirect("/search/near/" + longitude + "/" + latitude + "/" + distance);
+      }
+    }
   };
 
   // Endpoint /search/near/:lon/:lat for GET
@@ -114,6 +137,7 @@ module.exports = function (passport) {
     getIndex: getIndex,
     getBrowse: getBrowse,
     getBuilding: getBuilding,
+    getSearch: getSearch,
     postSearch: postSearch,
     getSearchNear: getSearchNear,
     getSearchTerm: getSearchTerm,

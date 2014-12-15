@@ -14,14 +14,15 @@ module.exports = function (passport) {
   router.route("/building/:building_id")
     .get(siteController.getBuilding);
 
-  router.route("/search")
-    .post(siteController.postSearch);
-
   router.route("/search/near/:lon/:lat/:distance")
     .get(siteController.getSearchNear);
 
   router.route("/search/:search_term")
     .get(siteController.getSearchTerm);
+
+  router.route("/search")
+    .get(siteController.getSearch)
+    .post(siteController.postSearch);
   
   router.route("/add")
     .get(authController.isAuthenticated, siteController.getAdd);

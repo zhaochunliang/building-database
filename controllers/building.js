@@ -83,7 +83,9 @@ module.exports = function (passport) {
         movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
       });
 
-      var structureRegex = /(Vertices|Faces|Materials)+:\s(\d+)/;
+      var vertexRegex = /^v /;
+      var faceRegex = /^f /;
+
       var structurePath;
       
       Q.all(movePromises).done(function() {
@@ -107,57 +109,43 @@ module.exports = function (passport) {
         // Attach user to building entry
         building.userId = req.user._id;
 
-        // Find model structure
+        // Find model structure by manually counting lines in the .obj
         // TODO: Make into a promise
-        // if (structurePath) {
-        //   // Pull vertex, face and material counts from the model files
-        //   var vertices = false;
-        //   var faces = false;
-        //   var materials = false;
+        if (structurePath) {
+          // Pull vertex, face and material counts from the model files
+          var vertices = 0;
+          var faces = 0;
 
-        //   var lr = new LineByLineReader(structurePath);
+          var lr = new LineByLineReader(structurePath);
 
-        //   lr.on("line", function (line) {
-        //     var result = structureRegex.exec(line);
+          lr.on("line", function (line) {
+            var vertexResult = vertexRegex.exec(line);
+            var faceResult = faceRegex.exec(line);
             
-        //     if (!result) {
-        //       return;
-        //     }
+            if (!vertexResult && !faceResult) {
+              return;
+            }
 
-        //     if (result[1] === "Vertices") {
-        //       vertices = Number(result[2]);
-        //     } else if (result[1] === "Faces") {
-        //       faces = Number(result[2]);
-        //     } else if (result[1] === "Materials") {
-        //       materials = Number(result[2]);
-        //     }
+            if (vertexResult) {
+              vertices++;
+            } else if (faceResult) {
+              faces++;
+            }
+          });
 
-        //     // All structure gathered
-        //     if (vertices !== false && faces !== false && materials !== false) {
-        //       building.structure.vertices = vertices;
-        //       building.structure.faces = faces;
-        //       building.structure.materials = materials;
+          lr.on("end", function() {
+            building.structure.vertices = vertices;
+            building.structure.faces = faces;
 
-        //       building.save(function(err, savedBuilding) {
-        //         if (err) {
-        //           res.send(err);
-        //         }
+            building.save(function(err, savedBuilding) {
+              if (err) {
+                res.send(err);
+              }
 
-        //         res.json({message: "Building added", building: savedBuilding});
-        //       });
-
-        //       lr.close();
-        //     }
-        //   });
-        // }
-
-        building.save(function(err, savedBuilding) {
-          if (err) {
-            res.send(err);
-          }
-
-          res.json({message: "Building added", building: savedBuilding});
-        });
+              res.json({message: "Building added", building: savedBuilding});
+            });
+          });
+        }
       }, function(err) {
         // TODO: Remove temporary files on error
         debug(err);

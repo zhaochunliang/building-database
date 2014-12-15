@@ -14,12 +14,14 @@ block content
     ul
       li Vertices: #{building.structure.vertices}
       li Faces: #{building.structure.faces}
-      li Materials: #{building.structure.materials}
     ul
       each model, key in building.models
         li
           | #{model.type}: 
           a(href="/#{model.path}") #{model.path}
+      li
+        | kml: 
+        a(href="/api/building/#{building._id}.kml") /api/building/#{building._id}.kml
     li User ID: #{building.userId}
     li Created: #{building.createdAt}
     li Updated: #{building.updatedAt}

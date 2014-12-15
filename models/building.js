@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var ModelSchema = new Schema({
   type: String,
   path: String,
-  fileSize: { type: Number, default: 1 }
+  fileSize: { type: Number, default: 0 }
 });
 
 var BuildingSchema = new Schema({
@@ -12,7 +12,7 @@ var BuildingSchema = new Schema({
   name: String,
   location: {
     type: { type: String },
-    coordinates: []
+    coordinates: [{ type: Number }, { type: Number }]
   },
   scale: { type: Number, default: 1 },
   angle: { type: Number, default: 0 },

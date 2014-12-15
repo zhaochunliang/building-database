@@ -49,6 +49,30 @@ module.exports = function (passport) {
     res.redirect("/search/" + search);
   };
 
+  // Endpoint /search/near/:lon/:lat for GET
+  var getSearchNear = function(req, res) {
+    Building.find({}).near("location", {
+      center: {
+        type: "Point",
+        coordinates: [req.params.lon, req.params.lat]
+      },
+      maxDistance: req.params.distance | 100,
+      spherical: true
+    }).exec(function(err, buildings) {
+      if (err) {
+        console.log(err);
+        res.send(err);
+      }
+
+      console.log(buildings);
+      
+      res.render("search", {
+        user: req.user,
+        buildings: buildings
+      });
+    });
+  };
+
   // Endpoint /search/:search_term for GET
   var getSearchTerm = function(req, res) {
     Building.find({"name": new RegExp(req.params.search_term, "i")}, function(err, buildings) {
@@ -91,6 +115,7 @@ module.exports = function (passport) {
     getBrowse: getBrowse,
     getBuilding: getBuilding,
     postSearch: postSearch,
+    getSearchNear: getSearchNear,
     getSearchTerm: getSearchTerm,
     getAdd: getAdd,
     getAddLocation: getAddLocation

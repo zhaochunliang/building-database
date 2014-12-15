@@ -146,6 +146,7 @@ module.exports = function (passport) {
             building.save(function(err, savedBuilding) {
               if (err) {
                 res.send(err);
+                return;
               }
 
               res.json({message: "Building added", building: savedBuilding});
@@ -168,6 +169,7 @@ module.exports = function (passport) {
     Building.findById(req.params.building_id, function(err, building) {
       if (err) {
         res.send(err);
+        return;
       }
 
       if (req.body.scale) {
@@ -181,13 +183,14 @@ module.exports = function (passport) {
       if (req.body.latitude && req.body.longitude) {
         building.location = {
           type : "Point",
-          coordinates : [req.body.latitude, req.body.longitude]
+          coordinates : [req.body.longitude, req.body.latitude]
         };
       }
 
       building.save(function(err, savedBuilding) {
         if (err) {
           res.send(err);
+          return;
         }
 
         res.json({message: "Building updated", building: savedBuilding});
@@ -200,6 +203,7 @@ module.exports = function (passport) {
     Building.findById(req.params.building_id, function(err, building) {
       if (err) {
         res.send(err);
+        return;
       }
 
       res.json(building);
@@ -211,6 +215,7 @@ module.exports = function (passport) {
     Building.findById(req.params.building_id, function(err, building) {
       if (err) {
         res.send(err);
+        return;
       }
 
       var daeModel = _.find(building.models, function(model) {
@@ -226,8 +231,8 @@ module.exports = function (passport) {
               "@id": building._id,
               "altitudeMode": "relativeToGround",
               "Location": {
-                "longitude": building.location.coordinates[1] || -0.01924,
-                "latitude": building.location.coordinates[0] || 51.50358,
+                "longitude": building.location.coordinates[0] || -0.01924,
+                "latitude": building.location.coordinates[1] || 51.50358,
                 "altitude": 0
               },
               "Orientation": {

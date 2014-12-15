@@ -81,7 +81,19 @@ block content
       latitudeInput.value = viziCoords.lat;
       longitudeInput.value = viziCoords.lon;
 
-      // TODO: Update the grid as it doesn't update until you click right now
+      var projected = world.project(new VIZI.LatLon(latitudeInput.value, longitudeInput.value));
+
+      // TODO: Find a more respectable way of accessing the collada object
+      world.layers[1].object.children[0].position.x = projected.x;
+      world.layers[1].object.children[0].position.z = projected.y;
+      world.layers[1].object.children[0].updateMatrix();
+
+      // Manually update the grid as it doesn't update until you click
+      // TODO: Replace this with a helper baked into ViziCities
+      _.each(world.switchboards[0].output.grids, function(grid) {
+        grid.grid.emit("moved", grid.grid.tiles, grid.grid.gridDiffSinceMouseUp);
+        grid.grid.gridDiffSinceMouseUp = new VIZI.Point();
+      });
     });
 
     var world = new VIZI.World({

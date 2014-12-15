@@ -33,7 +33,7 @@ block content
   script.
     var world = new VIZI.World({
       viewport: document.querySelector("#vizicities-viewport"),
-      center: new VIZI.LatLon(#{building.location.coordinates[0]}, #{building.location.coordinates[1]})
+      center: new VIZI.LatLon(#{building.location.coordinates[1]}, #{building.location.coordinates[0]})
     });
 
     var controls = new VIZI.ControlsMap(world.camera, {

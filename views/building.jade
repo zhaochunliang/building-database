@@ -19,6 +19,8 @@ block content
         li
           | #{model.type}: 
           a(href="/#{model.path}") #{model.path}
+          - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
+          |  (#{size} KB)
       li
         | kml: 
         a(href="/api/building/#{building._id}.kml") /api/building/#{building._id}.kml

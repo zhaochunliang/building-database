@@ -6,6 +6,7 @@ var modelConverter = require("model-converter");
 var UUID = require("uuid");
 var LineByLineReader = require("line-by-line");
 var JXON = require("jxon");
+var fs = require("fs");
 
 var Building = require("../models/building");
 
@@ -96,13 +97,18 @@ module.exports = function (passport) {
           var type = file[1];
           var path = file[0];
 
+          // Get file size
+          var stats = fs.statSync(path);
+          var fileSize = (stats.size) ? stats.size : 0;
+
           if (type === "obj") {
             structurePath = path;
           }
 
           building.models.push({
             type: type,
-            path: "/" + path
+            path: "/" + path,
+            fileSize: fileSize
           });
         });
 

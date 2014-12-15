@@ -3,7 +3,8 @@ var Schema = mongoose.Schema;
 
 var ModelSchema = new Schema({
   type: String,
-  path: String
+  path: String,
+  fileSize: { type: Number, default: 1 }
 });
 
 var BuildingSchema = new Schema({

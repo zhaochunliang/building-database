@@ -115,6 +115,14 @@ module.exports = function (passport) {
         // Attach user to building entry
         building.userId = req.user._id;
 
+        // Set default location (to satisfy geo-search)
+        // TODO: Remove this requirement or find a better way to detect
+        // a building that has just been added
+        building.location = {
+          type : "Point",
+          coordinates : [0, 0]
+        };
+
         // Find model structure by manually counting lines in the .obj
         // TODO: Make into a promise
         if (structurePath) {

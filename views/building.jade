@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  h1 Building
+  h1 #{building.name}
 
   div#vizicities-viewport
 
@@ -24,9 +24,19 @@ block content
       li
         | kml: 
         a(href="/api/building/#{building._id}.kml") /api/building/#{building._id}.kml
+    li
+      | License: 
+      a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/')
+        img(alt='Creative Commons License', style='border-width:0', src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png')
+        br
+        | This work is licensed under a 
+        a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/') Creative Commons Attribution-ShareAlike 4.0 International License
+        | .
     li User ID: #{building.userId}
     li Created: #{building.createdAt}
     li Updated: #{building.updatedAt}
+  p
+    a(href="#") Report building
 
   link(rel="stylesheet", href="https://rawgit.com/vizicities/vizicities/0.2.0/build/vizi.css")
   script(src="https://rawgit.com/vizicities/vizicities/0.2.0/build/vizi.js")

@@ -3,24 +3,27 @@ extends layout
 block content
   h1 Browse buildings
 
-  .cards
-    each building, key in buildings
-      a.card(href="/building/#{building._id}")
-        .card-image
-          img(src="/images/card-bg.png", alt="")
-        .card-header
-          | #{building.name}
-        .card-copy
-          p
-            | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga, officiis sunt neque facilis culpa molestiae necessitatibus delectus veniam provident.
-        .card-stats
-          ul
-            li
-              | #{building.structure.vertices}
-              span Vertices
-            li
-              | #{building.structure.faces}
-              span Faces
-            li
-              | 923
-              span Downloads
+  if buildings.length > 0
+    .cards
+      each building, key in buildings
+        a.card(href="/building/#{building._id}")
+          .card-image
+            img(src="/images/card-bg.png", alt="")
+          .card-header
+            | #{building.name}
+          .card-copy
+            p
+              | Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga, officiis sunt neque facilis culpa molestiae necessitatibus delectus veniam provident.
+          .card-stats
+            ul
+              li
+                | #{building.structure.vertices}
+                span Vertices
+              li
+                | #{building.structure.faces}
+                span Faces
+              li
+                | 923
+                span Downloads
+  else
+    p No buildings

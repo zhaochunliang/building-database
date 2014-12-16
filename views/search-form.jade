@@ -5,11 +5,22 @@ block content
 
   form(action="/search", method="POST")
     input(type="text", name="name", placeholder="Building name", autofocus)
-    p
-      strong or
-    input#pelias(type="text" placeholder="Enter place to search nearby")
-    p
-      strong or
+    button(type="submit") Search
+
+  p
+    strong or
+
+  input#pelias(type="text" placeholder="Enter place to search nearby")
+  
+  p
+    strong or
+  
+  button(type="button" id="find-near-me") Find buildings near me
+  
+  p
+    strong or
+
+  form(action="/search", method="POST")
     input(type="text", name="longitude", placeholder="Longitude")
     input(type="text", name="latitude", placeholder="Latitude")
     input(type="text", name="distance", placeholder="Distance")
@@ -17,8 +28,11 @@ block content
 
   script(src="/lib/jquery/dist/jquery.min.js")
   script(src="/lib/typeahead.js/dist/typeahead.bundle.min.js")
+  script(src="/lib/geolocator.min.js")
 
   script.
+    var findNearMeButton = document.getElementById("find-near-me");
+
     var pelias = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"),
       queryTokenizer: Bloodhound.tokenizers.whitespace,
@@ -45,3 +59,22 @@ block content
     }).on("typeahead:selected", function(event, suggestion, actionName) {
       window.location.href = "/search/near/" + suggestion.geometry.coordinates[0] + "/" + suggestion.geometry.coordinates[1] + "/1000";
     });
+
+    findNearMeButton.addEventListener("click", function(e) {
+      // Use the Geo Location API
+      var geoOptions = {
+        enableHighAccuracy: true,
+        timeout: 6000,
+        maximumAge: 0
+      };
+
+      geolocator.locate(onGeoSuccess, onGeoError, true, geoOptions);
+    });
+
+    var onGeoSuccess = function(location) {
+      window.location.href = "/search/near/" + location.coords.longitude + "/" + location.coords.latitude + "/1000";
+    };
+
+    var onGeoError = function(error) {
+      console.log(error);
+    };

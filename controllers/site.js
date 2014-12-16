@@ -119,11 +119,16 @@ module.exports = function (passport) {
 
   // Endpoint /add/location for GET
   var getAddLocation = function(req, res) {
-    // TODO: Check user has access to this building
-    // TDOO: Check that location hasn't already been added
-    Building.findById(req.params.building_id, function(err, building) {
+    // TODO: Check that location hasn't already been added
+    Building.findOne({_id: req.params.building_id, userId: req.user._id}, function(err, building) {
       if (err) {
         res.send(err);
+        return;
+      }
+
+      if (!building) {
+        res.sendStatus(403);
+        return;
       }
 
       res.render("add-location", {

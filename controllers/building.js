@@ -173,10 +173,15 @@ module.exports = function (passport) {
 
   // Endpoint /api/buildings for PUT
   var putBuildings = function(req, res, next) {
-    // TODO: Check that user has access to this building
-    Building.findById(req.params.building_id, function(err, building) {
+    // Check that user has access to this building
+    Building.findOne({_id: req.params.building_id, userId: req.user._id}, function(err, building) {
       if (err) {
         res.send(err);
+        return;
+      }
+
+      if (!building) {
+        res.sendStatus(403);
         return;
       }
 

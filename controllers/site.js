@@ -65,7 +65,7 @@ module.exports = function (passport) {
       } else if (req.body.longitude && req.body.latitude) {
         var longitude = req.body.longitude;
         var latitude = req.body.latitude;
-        var distance = req.body.distance | 100;
+        var distance = req.body.distance | 1000;
 
         res.redirect("/search/near/" + longitude + "/" + latitude + "/" + distance);
       }
@@ -79,7 +79,7 @@ module.exports = function (passport) {
         type: "Point",
         coordinates: [req.params.lon, req.params.lat]
       },
-      maxDistance: req.params.distance | 100,
+      maxDistance: req.params.distance | 1000,
       spherical: true
     }).exec(function(err, buildings) {
       if (err) {

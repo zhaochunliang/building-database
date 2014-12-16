@@ -7,7 +7,41 @@ block content
     input(type="text", name="name", placeholder="Building name", autofocus)
     p
       strong or
+    input#pelias(type="text" placeholder="Enter place to search nearby")
+    p
+      strong or
     input(type="text", name="longitude", placeholder="Longitude")
     input(type="text", name="latitude", placeholder="Latitude")
     input(type="text", name="distance", placeholder="Distance")
     button(type="submit") Search
+
+  script(src="/lib/jquery/dist/jquery.min.js")
+  script(src="/lib/typeahead.js/dist/typeahead.bundle.min.js")
+
+  script.
+    var pelias = new Bloodhound({
+      datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"),
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      remote: {
+        // TODO: Work out how to perform a non-local search with Pelias
+        url: "http://pelias.mapzen.com/suggest?input=%QUERY&lat=51&lon=0",
+        filter: function(response) {
+          return $.map(response.features, function(feature) {
+            return {
+              name: feature.properties.name,
+              geometry: feature.geometry
+            };
+          });
+        }
+      }
+    });
+     
+    pelias.initialize();
+     
+    $("#pelias").typeahead(null, {
+      name: "pelias",
+      displayKey: "name",
+      source: pelias.ttAdapter()
+    }).on("typeahead:selected", function(event, suggestion, actionName) {
+      window.location.href = "/search/near/" + suggestion.geometry.coordinates[0] + "/" + suggestion.geometry.coordinates[1] + "/1000";
+    });

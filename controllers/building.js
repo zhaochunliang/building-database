@@ -36,26 +36,28 @@ module.exports = function (passport) {
     debug(req.body);
     debug(req.files);
 
-    var modelPath = req.files.model.path;
-    var modelExt = req.files.model.extension;
+    var uploadPath = req.files.model.path;
+    var uploadExt = req.files.model.extension;
 
     // Record of temporary files created for this building
-    var tmpFiles = [];
-    var tmpName = modelPath.split("." + modelExt)[0];
+    var tmpModelFiles = [];
+    var tmpAssetFiles = [];
+    var tmpName;
 
     // Zip upload detection
     // TODO: There's probably a better way to detect a zip file
-    if (modelExt === "zip") {
+    if (uploadExt === "zip") {
       // TODO: Detect model file within zipped upload
       // TODO: Store materials contained within zipped upload
-      // TODO: Delete zip-file when finished
       // TODO: Delete temporary directory when finished
       // TODO: Find a way to neaten up / trim the resulting directory structure
+
+      tmpName = uploadPath.split("." + uploadExt)[0];
 
       // Create temporary directory
       mkdirp.sync(tmpName);
 
-      var zip = new AdmZip(modelPath);
+      var zip = new AdmZip(uploadPath);
       var zipEntries = zip.getEntries();
 
       _.each(zipEntries, function(entry) {
@@ -64,9 +66,11 @@ module.exports = function (passport) {
         // TODO: Validate each file to ensure only accepted files are added
         // Accept: model files (dae, obj, etc), images (jpg, png, etc)
         if (entryExt.match("obj|dae|ply|dxf")) {
-          // TODO: Do something with the model file
+          // Store reference to the model file
+          tmpModelFiles.push(tmpName + "/" + entry.entryName);
         } else if (entryExt.match("jpg|png")) {
-          // TODO: Do something with the textures
+          // Store reference to the assets (textures, etc)
+          tmpAssetFiles.push(tmpName + "/" + entry.entryName);
         } else {
           console.log("Zip entry file type not valid:", entryExt);
           return;
@@ -75,36 +79,48 @@ module.exports = function (passport) {
         // Unzip file to temporary directory (keeping archive directories)
         zip.extractEntryTo(entry.entryName, tmpName, true, true);
       });
+
+      // TODO: Delete zip file
     } else {
-      tmpFiles.push(modelPath);
+      tmpName = "tmp";
+      tmpModelFiles.push(uploadPath);
     }
 
-    res.sendStatus(200);
-    return;
+    if (tmpModelFiles.length < 1) {
+      console.log("No model files to process");
+      return;
+    }
+
+    // res.sendStatus(200);
+    // return;
 
     // TODO: Probably worth splitting the coversion logic into a function
 
     var convertQueue = [];
 
+    // TODO: Work out a better way than just grabbing the first file
+    var tmpModelPath = tmpModelFiles[0];
+    var tmpModelExt = tmpModelPath.split(".").pop();
+
     // Convert to Collada
-    if (modelExt !== "dae") {
-      convertQueue.push([modelConverter.convert, [modelPath, modelPath.split(modelExt)[0] + "dae"]]);
+    if (tmpModelExt !== "dae") {
+      convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split(tmpModelExt)[0] + "dae"]]);
     }
 
     // Convert to Wavefront Object
-    if (modelExt !== "obj") {
-      convertQueue.push([modelConverter.convert, [modelPath, modelPath.split(modelExt)[0] + "obj"]]);
+    if (tmpModelExt !== "obj") {
+      convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split(tmpModelExt)[0] + "obj"]]);
     }
 
     console.log(convertQueue);
 
-    // TODO: Wait for all conversion promises to complete before adding to db
+    // Wait for all conversion promises to complete before adding to db
     Q.all(convertQueue.map(function(promiseFunc) {
       return promiseFunc[0].apply(this, promiseFunc[1]).then(function(path) {
         debug("Upload promise complete");
         debug(path);
 
-        tmpFiles.push(path);
+        tmpModelFiles.push(path);
       });
     })).done(function() {
       var building = new Building();
@@ -116,13 +132,23 @@ module.exports = function (passport) {
       var moveFiles = [];
 
       // Move model files to permanent path
-      // Also, extract model data from .obj file
-      _.each(tmpFiles, function(file, index) {
-        var splitPath = file.split("tmp/");
+      // TODO: Move files created by conversion, like .mtl
+      _.each(tmpModelFiles, function(file, index) {
+        var splitPath = file.split(tmpName + "/");
         var permPath = "model-files/" + pathID + "/" + splitPath[1];
         var ext = permPath.split(".").pop();
 
         moveFiles.push([permPath, ext]);
+        movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
+      });
+
+      // Move asset files to permanent path
+      _.each(tmpAssetFiles, function(file, index) {
+        var splitPath = file.split(tmpName + "/");
+        var permPath = "model-files/" + pathID + "/" + splitPath[1];
+        var ext = permPath.split(".").pop();
+
+        // moveFiles.push([permPath, ext]);
         movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
       });
 
@@ -138,6 +164,8 @@ module.exports = function (passport) {
         _.each(moveFiles, function(file, index) {
           var type = file[1];
           var path = file[0];
+
+          debug(file);
 
           // Get file size
           var stats = fs.statSync(path);

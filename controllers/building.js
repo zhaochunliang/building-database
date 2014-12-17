@@ -7,6 +7,8 @@ var UUID = require("uuid");
 var LineByLineReader = require("line-by-line");
 var JXON = require("jxon");
 var fs = require("fs");
+var mkdirp = require("mkdirp");
+var AdmZip = require("adm-zip");
 
 var Building = require("../models/building");
 
@@ -28,6 +30,7 @@ module.exports = function (passport) {
     // - http://mongoosejs.com/docs/validation.html
     // TODO: Delete tmp file if upload or conversion fails
     // TODO: Report back progress of upload and coversion (realtime with Pusher?)
+    // TODO: Validate uploaded materials (for dodgy stuff, etc)
 
     debug(req.session);
     debug(req.body);
@@ -36,9 +39,48 @@ module.exports = function (passport) {
     var modelPath = req.files.model.path;
     var modelExt = req.files.model.extension;
 
-    // Record of files created for this building
+    // Record of temporary files created for this building
     var tmpFiles = [];
-    tmpFiles.push(modelPath);
+    var tmpName = modelPath.split("." + modelExt)[0];
+
+    // Zip upload detection
+    // TODO: There's probably a better way to detect a zip file
+    if (modelExt === "zip") {
+      // TODO: Detect model file within zipped upload
+      // TODO: Store materials contained within zipped upload
+      // TODO: Delete zip-file when finished
+      // TODO: Delete temporary directory when finished
+      // TODO: Find a way to neaten up / trim the resulting directory structure
+
+      // Create temporary directory
+      mkdirp.sync(tmpName);
+
+      var zip = new AdmZip(modelPath);
+      var zipEntries = zip.getEntries();
+
+      _.each(zipEntries, function(entry) {
+        var entryExt = entry.name.split(".").pop();
+
+        // TODO: Validate each file to ensure only accepted files are added
+        // Accept: model files (dae, obj, etc), images (jpg, png, etc)
+        if (entryExt.match("obj|dae|ply|dxf")) {
+          // TODO: Do something with the model file
+        } else if (entryExt.match("jpg|png")) {
+          // TODO: Do something with the textures
+        } else {
+          console.log("Zip entry file type not valid:", entryExt);
+          return;
+        }
+
+        // Unzip file to temporary directory (keeping archive directories)
+        zip.extractEntryTo(entry.entryName, tmpName, true, true);
+      });
+    } else {
+      tmpFiles.push(modelPath);
+    }
+
+    res.sendStatus(200);
+    return;
 
     // TODO: Probably worth splitting the coversion logic into a function
 

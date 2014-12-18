@@ -17,6 +17,9 @@ module.exports = function (passport) {
   router.route("/search/near/:lon/:lat/:distance")
     .get(siteController.getSearchNear);
 
+  router.route("/search/user/:user_id")
+    .get(siteController.getSearchUser);
+
   router.route("/search/:search_term")
     .get(siteController.getSearchTerm);
 

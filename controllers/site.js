@@ -96,6 +96,23 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /search/user/:user_id for GET
+  var getSearchUser = function(req, res) {
+    Building.find({userId: req.params.user_id}).exec(function(err, buildings) {
+      if (err) {
+        console.log(err);
+        res.send(err);
+      }
+
+      console.log(buildings);
+      
+      res.render("search", {
+        user: req.user,
+        buildings: buildings
+      });
+    });
+  };
+
   // Endpoint /search/:search_term for GET
   var getSearchTerm = function(req, res) {
     Building.find({"name": new RegExp(req.params.search_term, "i")}, function(err, buildings) {
@@ -145,6 +162,7 @@ module.exports = function (passport) {
     getSearch: getSearch,
     postSearch: postSearch,
     getSearchNear: getSearchNear,
+    getSearchUser: getSearchUser,
     getSearchTerm: getSearchTerm,
     getAdd: getAdd,
     getAddLocation: getAddLocation

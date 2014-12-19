@@ -20,6 +20,9 @@ module.exports = function (passport) {
   router.route("/search/user/:user_id")
     .get(siteController.getSearchUser);
 
+  router.route("/search/osm/:osm_type/:osm_id")
+    .get(siteController.getSearchOSM);
+
   router.route("/search/:search_term")
     .get(siteController.getSearchTerm);
 

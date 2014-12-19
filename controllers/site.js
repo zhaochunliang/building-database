@@ -113,6 +113,20 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /search/osm/:osm_type/:osm_id for GET
+  var getSearchOSM = function(req, res) {
+    Building.find({"osm.type": req.params.osm_type, "osm.id": req.params.osm_id}, function(err, buildings) {
+      if (err) {
+        res.send(err);
+      }
+      
+      res.render("search", {
+        user: req.user,
+        buildings: buildings
+      });
+    });
+  };
+
   // Endpoint /search/:search_term for GET
   var getSearchTerm = function(req, res) {
     Building.find({"name": new RegExp(req.params.search_term, "i")}, function(err, buildings) {
@@ -184,6 +198,7 @@ module.exports = function (passport) {
     postSearch: postSearch,
     getSearchNear: getSearchNear,
     getSearchUser: getSearchUser,
+    getSearchOSM: getSearchOSM,
     getSearchTerm: getSearchTerm,
     getAdd: getAdd,
     getAddLocation: getAddLocation,

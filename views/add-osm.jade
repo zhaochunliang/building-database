@@ -3,20 +3,23 @@ extends layout
 block content
   h1 Link building to OpenStreetMap
 
-  div#map
+  div.wrapper
+    section.details
+      form#add-osm-form
+        label(for="osm-id") OpenStreetMap type:
+        select#osm-type(required)
+          option(value="") Select a type
+          option(value="way") Way
+          option(value="relation") Relation
+          option(value="node") Node
 
-  form#add-osm-form
-    label(for="osm-id") OpenStreetMap type:
-    select#osm-type(required)
-      option(value="") Select a type
-      option(value="way") Way
-      option(value="relation") Relation
-      option(value="node") Node
+        label(for="osm-id") OpenStreetMap ID:
+        input#osm-id(type="text" placeholder="OpenStreetMap feature ID")
 
-    label(for="osm-id") OpenStreetMap ID:
-    input#osm-id(type="text" placeholder="OpenStreetMap feature ID")
+        button#add-osm-button(type="submit") Link with OpenStreetMap
 
-    button#add-osm-button(type="submit") Link with OpenStreetMap
+    section.view
+      div#map
 
   script(src="/lib/jquery/dist/jquery.min.js")
 

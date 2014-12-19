@@ -498,9 +498,21 @@ h1, h2 {
 
 #vizicities-viewport, #map {
   border: 2px solid #ccc;
-  height: 600px;
+  height: 400px;
   margin: 0.5em 0 1em 0;
   position: relative;
+}
+
+.wrapper {
+  @include outer-container;
+}
+
+.view {
+  @include span-columns(7);
+}
+
+.details {
+  @include span-columns(5);
 }
 
 .twitter-typeahead {

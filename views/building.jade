@@ -3,41 +3,44 @@ extends layout
 block content
   h1 #{building.name}
 
-  div#vizicities-viewport
-
-  ul
-    li ID: #{building._id}
-    li Name: #{building.name}
-    li Location: #{building.location}
-    li Scale: #{building.scale}
-    li Angle: #{building.angle}
-    ul
-      li Vertices: #{building.structure.vertices}
-      li Faces: #{building.structure.faces}
-    ul
-      each model, key in building.models
+  div.wrapper
+    section.details
+      ul
+        li ID: #{building._id}
+        li Name: #{building.name}
+        li Location: #{building.location}
+        li Scale: #{building.scale}
+        li Angle: #{building.angle}
+        ul
+          li Vertices: #{building.structure.vertices}
+          li Faces: #{building.structure.faces}
+        ul
+          each model, key in building.models
+            li
+              | #{model.type}: 
+              a(href="/#{model.path}") #{model.path}
+              - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
+              |  (#{size} KB)
+          li
+            | kml: 
+            a(href="/api/building/#{building._id}.kml") /api/building/#{building._id}.kml
         li
-          | #{model.type}: 
-          a(href="/#{model.path}") #{model.path}
-          - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
-          |  (#{size} KB)
-      li
-        | kml: 
-        a(href="/api/building/#{building._id}.kml") /api/building/#{building._id}.kml
-    li
-      | License: 
-      a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/')
-        img(alt='Creative Commons License', style='border-width:0', src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png')
-        br
-        | This work is licensed under a 
-        a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/') Creative Commons Attribution-ShareAlike 4.0 International License
-        | .
-    li OSM: #{building.osm}
-    li User ID: #{building.userId}
-    li Created: #{building.createdAt}
-    li Updated: #{building.updatedAt}
-  p
-    a(href="#") Report building
+          | License: 
+          a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/')
+            img(alt='Creative Commons License', style='border-width:0', src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png')
+            br
+            | This work is licensed under a 
+            a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/') Creative Commons Attribution-ShareAlike 4.0 International License
+            | .
+        li OSM: #{building.osm}
+        li User ID: #{building.userId}
+        li Created: #{building.createdAt}
+        li Updated: #{building.updatedAt}
+      p
+        a(href="#") Report building
+
+    section.view
+      div#vizicities-viewport
 
   link(rel="stylesheet", href="https://rawgit.com/vizicities/vizicities/0.2.0/build/vizi.css")
   script(src="https://rawgit.com/vizicities/vizicities/0.2.0/build/vizi.js")

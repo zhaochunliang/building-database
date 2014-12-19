@@ -3,25 +3,28 @@ extends layout
 block content
   h1 Set building location
 
-  div#vizicities-viewport
+  div.wrapper
+    section.details
+      form#add-location-form
+        label(for="pelias") Move to:
+        input#pelias(type="text" placeholder="Enter name of place to move to")
 
-  form#add-location-form
-    label(for="pelias") Move to:
-    input#pelias(type="text" placeholder="Enter name of place to move to")
+        label(for="scale") Scale:
+        input#scale(type="number", name="scale" min=0 step=0.01 value=1)
 
-    label(for="scale") Scale:
-    input#scale(type="number", name="scale" min=0 step=0.01 value=1)
+        label(for="angle") Angle:
+        input#angle(type="number", name="angle" min=0 max=360 step=0.001 value=0)
 
-    label(for="angle") Angle:
-    input#angle(type="number", name="angle" min=0 max=360 step=0.001 value=0)
+        label(for="scale") Latitude:
+        input#latitude(type="number", name="latitude" min=-90 max=90 step=0.00001 value=51.50358)
 
-    label(for="scale") Latitude:
-    input#latitude(type="number", name="latitude" min=-90 max=90 step=0.00001 value=51.50358)
+        label(for="scale") Longitude:
+        input#longitude(type="number", name="longitude" min=-180 max=180 step=0.00001 value=-0.01924)
 
-    label(for="scale") Longitude:
-    input#longitude(type="number", name="longitude" min=-180 max=180 step=0.00001 value=-0.01924)
+        button#add-location-button(type="submit") Set location
 
-    button#add-location-button(type="submit") Set location
+    section.view
+      div#vizicities-viewport
 
   script(src="/lib/jquery/dist/jquery.min.js")
   script(src="/lib/typeahead.js/dist/typeahead.bundle.min.js")

@@ -270,6 +270,13 @@ module.exports = function (passport) {
         };
       }
 
+      if (req.body.osmType && req.body.osmID) {
+        building.osm = {
+          type: req.body.osmType,
+          id: req.body.osmID
+        }
+      }
+
       building.save(function(err, savedBuilding) {
         if (err) {
           res.send(err);

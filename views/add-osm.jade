@@ -1,0 +1,125 @@
+extends layout
+
+block content
+  h1 Link building to OpenStreetMap
+
+  div#map
+
+  form#add-osm-form
+    label(for="osm-id") OpenStreetMap type:
+    select#osm-type(required)
+      option(value="") Select a type
+      option(value="way") Way
+      option(value="relation") Relation
+      option(value="node") Node
+
+    label(for="osm-id") OpenStreetMap ID:
+    input#osm-id(type="text" placeholder="OpenStreetMap feature ID")
+
+    button#add-osm-button(type="submit") Link with OpenStreetMap
+
+  script(src="/lib/jquery/dist/jquery.min.js")
+
+  link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
+
+  script(src="/lib/turbo.min.js")
+
+  script.
+    var addOSMForm = document.getElementById("add-osm-form");
+    var osmTypeInput = document.getElementById("osm-type");
+    var osmIDInput = document.getElementById("osm-id");
+    var addOSMButton = document.getElementById("add-osm-button");
+
+    // TODO: Catch errors and notify user
+    addOSMForm.addEventListener("submit", function(event) {
+      event.target.checkValidity();
+      event.preventDefault();
+
+      addOSMButton.innerHTML = "Linking&hellip;";
+
+      // This requires IE 10+
+      // What are the ramifications of this?
+      // What alternatives exist for async file upload?
+      var formData = new FormData();
+      
+      formData.append("osmType", osmTypeInput.value);
+      formData.append("osmID", osmIDInput.value);
+
+      $.ajax({
+        url: "/api/building/#{building._id}",
+        data: formData,
+        processData: false,
+        contentType: false,
+        type: "PUT",
+        success: function(data, status, xhr) {
+          window.location.href = "/building/" + data.building._id;
+        },
+        error: function(xhr, errorType, error) {
+          // TODO: Display error and course of action
+          console.log(errorType);
+          console.log(error);
+        }
+      });
+    });
+
+    $(document).ready(function() {
+      configs = {
+        appname: "overpass-ide-map",
+      }
+      settings = {
+        code:{},
+        server: "http://overpass-api.de/api/",
+        tileServer: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        force_simple_cors_request: true,
+        disable_poiomatic: true,
+      };
+      
+      overpass.init();
+      
+      ide.map = new L.Map("map");
+      var tilesUrl = settings.tileServer;
+      var tilesAttrib = '&copy; <a href="www.openstreetmap.org/copyright">OpenStreetMap</a> contributors&ensp;<small>Data:ODbL, Map:cc-by-sa</small>';
+      var tiles = new L.TileLayer(tilesUrl,{attribution:tilesAttrib});
+      ide.map.setView([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}], 17).addLayer(tiles);
+      scaleControl = new L.Control.Scale({metric:true,imperial:false,});
+      scaleControl.addTo(ide.map);
+      
+      ide.map.on("layeradd", function(e) {
+        if (!(e.layer instanceof L.GeoJSON)) return;
+        ide.map.setView([0,0],18,true);
+        ide.map.fitBounds(e.layer.getBounds() );
+      });
+
+      overpass.handlers["onEmptyMap"] = function(empty_msg, data_mode) {$('<div id="map_blank" style="z-index:1; display:block; position:absolute; top:42px; width:100%; text-align:center; background-color:#eee; opacity: 0.8;">This map intentionally left blank. <small>('+empty_msg+')</small></div>').appendTo("#map");};
+      overpass.handlers["onAjaxError"] = function(errmsg) {alert("An error occured during the execution of the overpass query!\n" + errmsg);};
+      overpass.handlers["onQueryError"] = function(errmsg) {alert("An error occured during the execution of the overpass query!\nThis is what overpass API returned:\n" + errmsg);};
+      overpass.handlers["onGeoJsonReady"] = function() {ide.map.addLayer(overpass.osmLayer);};
+      overpass.handlers["onPopupReady"] = function(p) {p.openOn(ide.map);};
+      overpass.handlers["onDataRecieved"] = function(amount,txt, abortCB,continueCB) {continueCB();};
+
+      overpass.handlers["onClickFeature"] = function(feature) {
+        var osmSplit = feature.id.split("/");
+        osmTypeInput.value = osmSplit[0].toLowerCase();
+        osmIDInput.value = osmSplit[1];
+      };
+      
+      // Request data
+      var query = "[out:json];((way({s},{w},{n},{e})['building'];);(._;node(w);););out;";
+
+      var bounds = ide.map.getBounds();
+      var parameters = {
+        s: bounds._southWest.lat,
+        w: bounds._southWest.lng,
+        n: bounds._northEast.lat,
+        e: bounds._northEast.lng
+      };
+
+      // Replace URL placeholders with parameter values
+      query = query.replace(/\{([swne])\}/g, function(value, key) {
+        // Replace with paramter, otherwise keep existing value
+        return parameters[key];
+      });
+
+      overpass.run_query(query, "OverpassQL");
+    });

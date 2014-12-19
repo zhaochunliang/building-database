@@ -21,6 +21,10 @@ var BuildingSchema = new Schema({
     faces: { type: Number, default: 0 }
   },
   models: [ModelSchema],
+  osm: {
+    type: { type: String },
+    id: Number
+  },
   userId: String,
   createdAt: Date,
   updatedAt: Date

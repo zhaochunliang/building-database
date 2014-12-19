@@ -155,6 +155,27 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /add/osm for GET
+  var getAddOSM = function(req, res) {
+    // TODO: Check that OSM ID hasn't already been added
+    Building.findOne({_id: req.params.building_id, userId: req.user._id}, function(err, building) {
+      if (err) {
+        res.send(err);
+        return;
+      }
+
+      if (!building) {
+        res.sendStatus(403);
+        return;
+      }
+
+      res.render("add-osm", {
+        user: req.user,
+        building: building
+      });
+    });
+  };
+
   return {
     getIndex: getIndex,
     getBrowse: getBrowse,
@@ -165,6 +186,7 @@ module.exports = function (passport) {
     getSearchUser: getSearchUser,
     getSearchTerm: getSearchTerm,
     getAdd: getAdd,
-    getAddLocation: getAddLocation
+    getAddLocation: getAddLocation,
+    getAddOSM: getAddOSM
   };
 };

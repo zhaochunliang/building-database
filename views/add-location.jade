@@ -288,7 +288,7 @@ block content
         contentType: false,
         type: "PUT",
         success: function(data, status, xhr) {
-          window.location.href = "/building/" + data.building._id;
+          window.location.href = "/add/osm/" + data.building._id;
         },
         error: function(xhr, errorType, error) {
           // TODO: Display error and course of action

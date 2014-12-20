@@ -1,3 +1,5 @@
+var nodemailer = require("nodemailer");
+
 module.exports = function (passport) {
   var Building = require("../models/building");
 
@@ -29,7 +31,7 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /building/:id for GET
+  // Endpoint /building/:building_id for GET
   var getBuilding = function(req, res) {
     Building.findById(req.params.building_id, function(err, building) {
       if (err) {
@@ -50,6 +52,38 @@ module.exports = function (passport) {
           building: building
         });
       })
+    });
+  };
+
+  // Endpoint /building/:building_id/report for GET
+  var getBuildingReport = function(req, res) {
+    res.render("building-report", {
+      message: req.flash("message"),
+      user: req.user
+    });
+  };
+
+  // Endpoint /building/:building_id/report for POST
+  var postBuildingReport = function(req, res) {
+    // TODO: Move to an external service for email
+    // - https://github.com/andris9/Nodemailer
+    var smtpTransport = nodemailer.createTransport();
+
+    // TODO: Pull to email from server-side config file
+    var mailOptions = {
+      to: "reports@polygon.city",
+      from: "reports@polygon.city",
+      subject: "Polygon City Building Report",
+      text: "The following building has been reported.\n\n" +
+        "Building: " + req.params.building_id + "\n" +
+        "Reason: " + req.body.reason + "\n" +
+        "Details: " + req.body.details + "\n" +
+        "From: " + req.body.email
+    };
+
+    smtpTransport.sendMail(mailOptions, function(err) {
+      req.flash("message", "Report received, thank you.");
+      res.redirect("/building/" + req.params.building_id + "/report");
     });
   };
 
@@ -204,6 +238,8 @@ module.exports = function (passport) {
     getIndex: getIndex,
     getBrowse: getBrowse,
     getBuilding: getBuilding,
+    getBuildingReport: getBuildingReport,
+    postBuildingReport: postBuildingReport,
     getSearch: getSearch,
     postSearch: postSearch,
     getSearchNear: getSearchNear,

@@ -14,6 +14,10 @@ module.exports = function (passport) {
   router.route("/building/:building_id")
     .get(siteController.getBuilding);
 
+  router.route("/building/:building_id/report")
+    .get(siteController.getBuildingReport)
+    .post(siteController.postBuildingReport);
+
   router.route("/search/near/:lon/:lat/:distance")
     .get(siteController.getSearchNear);
 

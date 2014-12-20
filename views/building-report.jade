@@ -1,0 +1,25 @@
+extends layout
+
+block content
+  h1 Report building
+
+  form#report-form(method="POST")
+    label(for="reason") Reason:
+    select#reason(name="reason" required)
+      option(value="") Select a reason
+      option(value="location") Building is at the wrong location
+      option(value="license") This model shouldn't have a Creative Commons license
+      option(value="ownership") The uploader doesn't own this building
+      option(value="other") Something else (provide details below)
+
+    label(for="details") Details:
+    textarea#details(name="details" placeholder="Please provide more details")
+
+    label(for="email") Email:
+    input#email(type="email" name="email" placeholder="Enter your email so we can get in touch" required) 
+
+    button#report-button(type="submit") Report building
+
+  #message
+    if message
+      h1.text-center.error-message #{message}

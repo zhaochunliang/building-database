@@ -379,8 +379,9 @@ header.navigation {
   }
 
   .card-image {
+    height: 200px;
     overflow: hidden;
-    max-height: 150px;
+    // max-height: 150px;
 
     img {
       width: 100%;

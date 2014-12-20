@@ -17,13 +17,11 @@ block content
         ul
           each model, key in building.models
             li
-              | #{model.type}: 
-              a(href="/#{model.path}") #{model.path}
+              a(href="/#{model.path}") Download .#{model.type}
               - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
               |  (#{size} KB)
           li
-            | kml: 
-            a(href="/api/building/#{building._id}.kml") /api/building/#{building._id}.kml
+            a(href="/api/building/#{building._id}.kml") Download .kml
         li
           | License: 
           a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/')

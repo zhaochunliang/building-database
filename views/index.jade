@@ -10,7 +10,7 @@ block content
       each building, key in buildings
         a.card(href="/building/#{building._id}")
           .card-image
-            img(src="/images/card-bg.png", alt="")
+            img(src="https://tyler-demo.herokuapp.com/?greyscale=true&lat=#{building.location.coordinates[1]}&lon=#{building.location.coordinates[0]}&zoom=17&width=344&height=200", alt="")
           .card-header
             | #{building.name}
           .card-copy

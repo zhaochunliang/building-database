@@ -26,6 +26,10 @@ var BuildingSchema = new Schema({
     id: Number
   },
   userId: String,
+  stats: {
+    downloads: {type: Number, default: 0},
+    views: {type: Number, default: 0}
+  },
   createdAt: Date,
   updatedAt: Date
 });

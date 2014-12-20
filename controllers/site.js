@@ -36,10 +36,20 @@ module.exports = function (passport) {
         res.send(err);
       }
 
-      res.render("building", {
-        user: req.user,
-        building: building
-      });
+      // Increment statistics
+      building.stats.views += 1;
+
+      building.save(function(err) {
+        if (err) {
+          res.send(err);
+          return;
+        }
+        
+        res.render("building", {
+          user: req.user,
+          building: building
+        });
+      })
     });
   };
 

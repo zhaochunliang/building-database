@@ -23,7 +23,10 @@ block content
                 | #{building.structure.faces}
                 span Faces
               li
-                | 923
+                | #{building.stats.views}
+                span Views
+              li
+                | #{building.stats.downloads}
                 span Downloads
   else
     p No buildings

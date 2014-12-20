@@ -6,6 +6,8 @@ var UserSchema = new Schema({
   username: String,
   password: String,
   email: String,
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
   createdAt: Date,
   updatedAt: Date
 });

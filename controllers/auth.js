@@ -111,6 +111,7 @@ module.exports = function(passport) {
   };
 
   return {
-    isAuthenticated: isAuthenticated
+    isAuthenticated: isAuthenticated,
+    createHash: createHash
   };
 };

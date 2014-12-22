@@ -17,7 +17,7 @@ block content
         ul
           each model, key in building.models.raw
             li
-              a(href="/#{model.path}") Download .#{model.type}
+              a(href="/api/building/#{building._id}/download/raw/#{model.type}") Download .#{model.type}
               - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
               |  (#{size} KB)
           li
@@ -25,7 +25,7 @@ block content
         ul
           each model, key in building.models.zip
             li
-              a(href="/#{model.path}") Download #{model.type} zip
+              a(href="/api/building/#{building._id}/download/zip/#{model.type}") Download #{model.type} zip
               - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
               |  (#{size} KB)
         li

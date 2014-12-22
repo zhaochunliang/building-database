@@ -9,6 +9,9 @@ module.exports = function (passport) {
     .get(buildingController.getBuildings)
     .post(authController.isAuthenticated, buildingController.postBuildings)
 
+  router.route("/building/:building_id/download/:file_type/:model_type")
+    .get(buildingController.getBuildingDownload);
+
   router.route("/building/:building_id.kml")
     .get(buildingController.getBuildingKML);
 

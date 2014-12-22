@@ -51,7 +51,7 @@ module.exports = function (passport) {
           user: req.user,
           building: building
         });
-      })
+      });
     });
   };
 

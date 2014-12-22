@@ -11,6 +11,7 @@ var mkdirp = require("mkdirp");
 var AdmZip = require("adm-zip");
 var archiver = require("archiver");
 var async = require("async");
+var path = require("path");
 
 var Building = require("../models/building");
 
@@ -335,6 +336,51 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /api/building/:building_id/download/:file_type/:model_type for GET
+  var getBuildingDownload = function(req, res) {
+    Building.findById(req.params.building_id, function(err, building) {
+      if (err) {
+        res.send(err);
+        return;
+      }
+
+      var fileType = req.params.file_type;
+      var modelType = req.params.model_type;
+
+      if (!building.models[fileType]) {
+        res.sendStatus(404);
+        return;
+      }
+
+      var file = _.find(building.models[fileType], function(model) {
+        return (model.type === modelType);
+      });
+
+      if (!file) {
+        res.sendStatus(404);
+        return;
+      }
+
+      var options = {
+        headers: {
+          "Content-Disposition": "attachment; filename=" + building._id + "." + ((fileType === "raw") ? modelType : fileType)
+        }
+      }
+
+      // Increment statistics
+      building.stats.downloads += 1;
+
+      building.save(function(err) {
+        if (err) {
+          res.send(err);
+          return;
+        }
+        
+        res.sendFile(path.resolve("." + file.path), options);
+      });
+    });
+  };
+
   // Endpoint /api/building/:building_id.kml for GET
   var getBuildingKML = function(req, res) {
     Building.findById(req.params.building_id, function(err, building) {
@@ -378,8 +424,18 @@ module.exports = function (passport) {
         }
       };
 
-      res.set("content-Type", "text/xml");
-      res.send("<?xml version='1.0' encoding='UTF-8'?>" + JXON.stringify(kmlObj));
+      // Increment statistics
+      building.stats.downloads += 1;
+
+      building.save(function(err) {
+        if (err) {
+          res.send(err);
+          return;
+        }
+        
+        res.set("content-Type", "text/xml");
+        res.send("<?xml version='1.0' encoding='UTF-8'?>" + JXON.stringify(kmlObj));
+      });
     });
   };
 
@@ -423,6 +479,7 @@ module.exports = function (passport) {
     postBuildings: postBuildings,
     putBuildings: putBuildings,
     getBuilding: getBuilding,
+    getBuildingDownload: getBuildingDownload,
     getBuildingKML: getBuildingKML
   };
 };

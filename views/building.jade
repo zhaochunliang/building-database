@@ -45,11 +45,25 @@ block content
         a(href="/building/#{building._id}/report") Report building
 
     section.view
+      div#map
       div#vizicities-viewport
+
+  script(src="/lib/jquery/dist/jquery.min.js")
+
+  link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
 
   link(rel="stylesheet", href="https://rawgit.com/vizicities/vizicities/0.2.0/build/vizi.css")
   script(src="https://rawgit.com/vizicities/vizicities/0.2.0/build/vizi.js")
   script.
+    var map = L.map("map").setView([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}], 4);
+
+    L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
+    }).addTo(map);
+
+    L.marker([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}]).addTo(map);
+
     var world = new VIZI.World({
       viewport: document.querySelector("#vizicities-viewport"),
       center: new VIZI.LatLon(#{building.location.coordinates[1]}, #{building.location.coordinates[0]})

@@ -15,13 +15,19 @@ block content
           li Vertices: #{building.structure.vertices}
           li Faces: #{building.structure.faces}
         ul
-          each model, key in building.models
+          each model, key in building.models.raw
             li
               a(href="/#{model.path}") Download .#{model.type}
               - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
               |  (#{size} KB)
           li
             a(href="/api/building/#{building._id}.kml") Download .kml
+        ul
+          each model, key in building.models.zip
+            li
+              a(href="/#{model.path}") Download #{model.type} zip
+              - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
+              |  (#{size} KB)
         li
           | License: 
           a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/')

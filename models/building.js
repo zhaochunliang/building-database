@@ -20,7 +20,10 @@ var BuildingSchema = new Schema({
     vertices: { type: Number, default: 0 },
     faces: { type: Number, default: 0 }
   },
-  models: [ModelSchema],
+  models: {
+    raw: [ModelSchema],
+    zip: [ModelSchema]
+  },
   osm: {
     type: { type: String },
     id: Number

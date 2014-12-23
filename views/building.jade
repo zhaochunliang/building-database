@@ -1,7 +1,12 @@
 extends layout
 
 block content
-  h1 #{building.name}
+  header.map
+    div#map
+    div.wrapper
+      section.details
+        h1 #{building.name}
+        p #{building.stats}
 
   div.wrapper
     section.details
@@ -37,7 +42,6 @@ block content
             a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/') Creative Commons Attribution-ShareAlike 4.0 International License
             | .
         li OSM: #{building.osm}
-        li Stats: #{building.stats}
         li User ID: #{building.userId}
         li Created: #{building.createdAt}
         li Updated: #{building.updatedAt}
@@ -45,7 +49,7 @@ block content
         a(href="/building/#{building._id}/report") Report building
 
     section.view
-      div#map
+      //- div#map
       div#vizicities-viewport
 
   script(src="/lib/jquery/dist/jquery.min.js")
@@ -58,8 +62,13 @@ block content
   script.
     var map = L.map("map").setView([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}], 4);
 
-    L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
-      attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
+    // Offset map
+    map.panBy(L.point(-330, -50), {animate: false});
+
+    //- L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
+    L.tileLayer("http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png", {
+      //- attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
+      attribution: "&copy; <a href='http://stamen.com'>Stamen</a> & <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
     }).addTo(map);
 
     L.marker([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}]).addTo(map);

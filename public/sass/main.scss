@@ -497,7 +497,7 @@ h1, h2 {
 
 // Add building
 
-#vizicities-viewport, #map {
+#vizicities-viewport, #add-osm.leaflet-container {
   border: 2px solid #ccc;
   height: 400px;
   margin: 0.5em 0 1em 0;
@@ -509,11 +509,11 @@ h1, h2 {
 }
 
 .view {
-  @include span-columns(7);
+  @include span-columns(5);
 }
 
 .details {
-  @include span-columns(5);
+  @include span-columns(7);
 }
 
 .twitter-typeahead {
@@ -582,4 +582,60 @@ h1, h2 {
 
 .tt-suggestion p {
   margin: 0;
+}
+
+
+// Individual building page
+
+body#building {
+  header.map {
+    height: 500px;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: -100;
+
+    .leaflet-container {
+      border-bottom: 15px solid #eee;
+      height: 500px;
+      margin: 0;
+      position: static;
+      width: 100%;
+    }
+    
+    .wrapper {
+      bottom: 0;
+      left: 50%;
+      position: absolute;
+      margin: 0 0 0 -34em;
+      width: 68em; // Override grid width
+      
+      .details {
+        background: #fff;
+        box-shadow: 0 0 40px #999;
+        margin: -30px -40px 0;
+        padding: 30px 40px;
+
+        h1 {
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+  .wrapper {
+    margin-top: 440px;
+
+    .details {
+      h1 {
+        
+      }
+    }
+
+    .view {
+      
+    }
+  }
 }

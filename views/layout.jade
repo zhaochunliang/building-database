@@ -1,9 +1,10 @@
 doctype html
 html
   head
-    title= PolygonCity
+    title Polygon City
     link(rel="stylesheet", href="/style/main.css")
-  body
+  - var body = (bodyId) ? bodyId : "";
+  body(id="#{body}")
     header.navigation
       .navigation-wrapper
         a.logo(href="/")

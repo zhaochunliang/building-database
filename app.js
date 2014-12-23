@@ -62,6 +62,11 @@ app.use(multer({dest: "./tmp/"}));
 app.use("/", express.static(path.join(__dirname, "public")));
 app.use("/model-files", express.static(path.join(__dirname, "model-files")));
 
+// Pretty HTML output
+if (app.get("env") === "development") {
+  app.locals.pretty = true;
+}
+
 // Routes
 var routes = require("./router")(app, passport);
 

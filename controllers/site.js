@@ -36,6 +36,12 @@ module.exports = function (passport) {
     Building.findById(req.params.building_id, function(err, building) {
       if (err) {
         res.send(err);
+        return;
+      }
+
+      if (!building) {
+        res.sendStatus(404);
+        return;
       }
 
       // Increment statistics

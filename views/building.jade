@@ -6,45 +6,39 @@ block content
     div.wrapper
       section.details
         h1 #{building.name}
+
         p #{building.locality.district}, #{building.locality.country}
-        p #{building.stats}
-        a(rel="license", href="http://creativecommons.org/licenses/by-sa/4.0/")
+
+        each model, key in building.models.raw
+          - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
+          button(href="/api/building/#{building._id}/download/raw/#{model.type}") Download .#{model.type} (#{size} KB)
+        button(href="/api/building/#{building._id}.kml") Download .kml
+        each model, key in building.models.zip
+          - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
+          button(href="/api/building/#{building._id}/download/zip/#{model.type}") Download #{model.type} zip (#{size} KB)
+
+        a.license(rel="license", href="http://creativecommons.org/licenses/by-sa/4.0/")
           img(alt="Creative Commons License", style="border-width:0", src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png")
 
   div.wrapper
     section.details
       ul
         li ID: #{building._id}
-        li Name: #{building.name}
         li Location: #{building.location}
-        li Scale: #{building.scale}
-        li Angle: #{building.angle}
+        li Stats: #{building.stats}
         ul
           li Vertices: #{building.structure.vertices}
-          li Faces: #{building.structure.faces}
-        ul
-          each model, key in building.models.raw
-            li
-              a(href="/api/building/#{building._id}/download/raw/#{model.type}") Download .#{model.type}
-              - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
-              |  (#{size} KB)
-          li
-            a(href="/api/building/#{building._id}.kml") Download .kml
-        ul
-          each model, key in building.models.zip
-            li
-              a(href="/api/building/#{building._id}/download/zip/#{model.type}") Download #{model.type} zip
-              - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
-              |  (#{size} KB)
-        li OSM: #{building.osm}
+          li Faces: #{building.structure.faces} 
+        li OSM: 
+          a(href="http://www.openstreetmap.org/#{building.osm.type}/#{building.osm.id}") View on OSM
         li User ID: #{building.userId}
         li Created: #{building.createdAt}
         li Updated: #{building.updatedAt}
+      hr
       p
         a(href="/building/#{building._id}/report") Report building
 
     section.view
-      //- div#map
       div#vizicities-viewport
 
   script(src="/lib/jquery/dist/jquery.min.js")

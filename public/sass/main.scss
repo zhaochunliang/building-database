@@ -595,14 +595,13 @@ body#building {
     position: absolute;
     top: 0;
     width: 100%;
-    z-index: -100;
 
     .leaflet-container {
       border-bottom: 15px solid #eee;
       height: 500px;
       margin: 0;
-      position: static;
       width: 100%;
+      z-index: -10;
     }
     
     .wrapper {
@@ -611,26 +610,38 @@ body#building {
       position: absolute;
       margin: 0 0 0 -34em;
       width: 68em; // Override grid width
+      z-index: 10;
       
       .details {
         background: #fff;
+        border-radius: 5px 5px 0 0;
         box-shadow: 0 0 40px #999;
         margin: -30px -40px 0;
         padding: 30px 40px;
+        position: relative;
 
         h1 {
+          margin-bottom: 0;
           margin-top: 0;
+        }
+
+        .license {
+          position: absolute;
+          right: 40px;
+          top: 40px;
         }
       }
     }
   }
 
   .wrapper {
-    margin-top: 480px;
+    margin-top: 440px;
 
     .details {
-      h1 {
-        
+      h1 {}
+
+      button {
+        margin: 3px 0;
       }
     }
 

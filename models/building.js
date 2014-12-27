@@ -14,6 +14,11 @@ var BuildingSchema = new Schema({
     type: { type: String },
     coordinates: [{ type: Number }, { type: Number }]
   },
+  locality: {
+    countryCode: String,
+    country: String,
+    district: String
+  },
   scale: { type: Number, default: 1 },
   angle: { type: Number, default: 0 },
   structure: {

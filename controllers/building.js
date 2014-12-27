@@ -12,6 +12,7 @@ var AdmZip = require("adm-zip");
 var archiver = require("archiver");
 var async = require("async");
 var path = require("path");
+var request = require("request");
 
 var Building = require("../models/building");
 
@@ -291,36 +292,65 @@ module.exports = function (passport) {
         return;
       }
 
-      if (req.body.scale) {
-        building.scale = req.body.scale;
-      }
-
-      if (req.body.angle) {
-        building.angle = req.body.angle;
-      }
-
-      if (req.body.latitude && req.body.longitude) {
-        building.location = {
-          type : "Point",
-          coordinates : [req.body.longitude, req.body.latitude]
-        };
-      }
-
-      if (req.body.osmType && req.body.osmID) {
-        building.osm = {
-          type: req.body.osmType,
-          id: req.body.osmID
-        }
-      }
-
-      building.save(function(err, savedBuilding) {
-        if (err) {
-          res.send(err);
-          return;
+      if (!req.body.latitude && !req.body.longitude) {
+        if (req.body.scale) {
+          building.scale = req.body.scale;
         }
 
-        res.json({message: "Building updated", building: savedBuilding});
-      });
+        if (req.body.angle) {
+          building.angle = req.body.angle;
+        }
+
+        if (req.body.osmType && req.body.osmID) {
+          building.osm = {
+            type: req.body.osmType,
+            id: req.body.osmID
+          }
+        }
+
+        building.save(function(err, savedBuilding) {
+          if (err) {
+            res.send(err);
+            return;
+          }
+
+          res.json({message: "Building updated", building: savedBuilding});
+        });
+      } else if (req.body.latitude && req.body.longitude) {
+        var url = "http://pelias.mapzen.com/reverse?lat=" + req.body.latitude + "&lon=" + req.body.longitude
+        
+        // Find location country and admin
+        request(url, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            var pelias = JSON.parse(body);
+            var featureProperties = pelias.features[0].properties;
+
+            var countryCode = featureProperties.alpha3;
+            var country = featureProperties.admin0;
+            var district = featureProperties.admin1;
+
+            building.locality = {
+              countryCode: countryCode,
+              country: country,
+              district: district
+            }
+
+            building.location = {
+              type : "Point",
+              coordinates : [req.body.longitude, req.body.latitude]
+            };
+
+            building.save(function(err, savedBuilding) {
+              if (err) {
+                res.send(err);
+                return;
+              }
+
+              res.json({message: "Building updated", building: savedBuilding});
+            });
+          }
+        });
+      }
     });
   };
 

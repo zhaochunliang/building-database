@@ -7,6 +7,8 @@ block content
       section.details
         h1 #{building.name}
         p #{building.stats}
+        a(rel="license", href="http://creativecommons.org/licenses/by-sa/4.0/")
+          img(alt="Creative Commons License", style="border-width:0", src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png")
 
   div.wrapper
     section.details
@@ -33,14 +35,6 @@ block content
               a(href="/api/building/#{building._id}/download/zip/#{model.type}") Download #{model.type} zip
               - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
               |  (#{size} KB)
-        li
-          | License: 
-          a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/')
-            img(alt='Creative Commons License', style='border-width:0', src='https://i.creativecommons.org/l/by-sa/4.0/88x31.png')
-            br
-            | This work is licensed under a 
-            a(rel='license', href='http://creativecommons.org/licenses/by-sa/4.0/') Creative Commons Attribution-ShareAlike 4.0 International License
-            | .
         li OSM: #{building.osm}
         li User ID: #{building.userId}
         li Created: #{building.createdAt}
@@ -94,20 +88,8 @@ block content
         options: {
           grids: [
           {
-            zoom: 19,
-            tilesPerDirection: 3,
-            cullZoom: 17
-          }, {
             zoom: 18,
             tilesPerDirection: 3,
-            cullZoom: 16
-          }, {
-            zoom: 17,
-            tilesPerDirection: 3,
-            cullZoom: 15
-          }, {
-            zoom: 16,
-            tilesPerDirection: 4,
             cullZoom: 10
           }
           ]

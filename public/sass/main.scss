@@ -626,7 +626,7 @@ body#building {
   }
 
   .wrapper {
-    margin-top: 440px;
+    margin-top: 480px;
 
     .details {
       h1 {
@@ -635,7 +635,10 @@ body#building {
     }
 
     .view {
-      
+      #vizicities-viewport {
+        border: none;
+        margin: 0;
+      }
     }
   }
 }

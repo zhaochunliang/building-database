@@ -97,9 +97,17 @@ module.exports = function(passport) {
     if (req.isAuthenticated()) {
       return next();
     }
-
-    req.session.returnTo = req.path;
-    res.redirect("/login");
+    
+    // Send 403 on AJAX
+    if (req.xhr) {
+      res.sendStatus(403);
+      return;
+    // Else, redirect to login
+    } else {
+      req.session.returnTo = req.path;
+      res.redirect("/login");
+      return;
+    }
   };
 
   var isValidPassword = function(user, password){

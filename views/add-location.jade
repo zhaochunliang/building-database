@@ -295,6 +295,14 @@ block content
         },
         error: function(xhr, errorType, error) {
           // TODO: Display error and course of action
+
+          // Unauthenticated
+          if (xhr.status === 403) {
+            // Redirect to login page
+            window.location.href = "/login";
+          }
+
+          console.log(xhr.status);
           console.log(errorType);
           console.log(error);
         }

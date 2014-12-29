@@ -648,7 +648,10 @@ body#building {
     .view {
       #vizicities-viewport {
         border: none;
-        margin: 0;
+        height: 800px;
+        margin: 0 0 -400px;
+        overflow: hidden;
+        top: -180px;
       }
     }
   }

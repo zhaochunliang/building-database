@@ -46,8 +46,8 @@ block content
   link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
 
-  link(rel="stylesheet", href="https://rawgit.com/vizicities/vizicities/0.2.0/build/vizi.css")
-  script(src="https://rawgit.com/vizicities/vizicities/0.2.0/build/vizi.js")
+  link(rel="stylesheet", href="/lib/vizicities/vizi.css")
+  script(src="/lib/vizicities/vizi.min.js")
   script.
     var map = L.map("map").setView([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}], 4);
 
@@ -70,56 +70,43 @@ block content
     var controls = new VIZI.ControlsMap(world.camera, {
       viewport: world.options.viewport
     });
+    
+    controls.controls.rotateUp(-16 * Math.PI / 180)
+    controls.controls.dollyOut(1.15);
+    controls.controls.autoRotate = true;
 
     var mapConfig = {
       input: {
-        type: "BlueprintInputMapTiles",
+        type: "BlueprintInputStaticMapImage",
         options: {
-          tilePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{z}/{x}/{y}@2x.png"
+          imagePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{lon},{lat},{z}/{w}x{h}@2x.png"
         }
       },
       output: {
-        type: "BlueprintOutputImageTiles",
+        type: "BlueprintOutputImage",
         options: {
-          grids: [
-          {
-            zoom: 18,
-            tilesPerDirection: 3,
-            cullZoom: 10
-          }
-          ]
+          distance: 200 // Distance from center in metres
         }
       },
       triggers: [{
         triggerObject: "output",
         triggerName: "initialised",
-        triggerArguments: ["tiles"],
+        triggerArguments: ["bounds"],
         actionObject: "input",
-        actionName: "requestTiles",
-        actionArguments: ["tiles"],
+        actionName: "requestImage",
+        actionArguments: ["bounds"],
         actionOutput: {
-          tiles: "tiles" // actionArg: triggerArg
-        }
-      }, {
-        triggerObject: "output",
-        triggerName: "gridUpdated",
-        triggerArguments: ["tiles"],
-        actionObject: "input",
-        actionName: "requestTiles",
-        actionArguments: ["tiles"],
-        actionOutput: {
-          tiles: "tiles" // actionArg: triggerArg
+          bounds: "bounds"
         }
       }, {
         triggerObject: "input",
-        triggerName: "tileReceived",
-        triggerArguments: ["image", "tile"],
+        triggerName: "imageReceived",
+        triggerArguments: ["image"],
         actionObject: "output",
-        actionName: "outputImageTile",
-        actionArguments: ["image", "tile"],
+        actionName: "outputImage",
+        actionArguments: ["image"],
         actionOutput: {
-          image: "image", // actionArg: triggerArg
-          tile: "tile"
+          image: "image"
         }
       }]
     };
@@ -174,6 +161,8 @@ block content
 
     var update = function() {
       var delta = clock.getDelta();
+
+      controls.onTick(delta);
 
       world.onTick(delta);
       world.render();

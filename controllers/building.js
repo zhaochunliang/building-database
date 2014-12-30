@@ -92,7 +92,8 @@ module.exports = function (passport) {
           zip.extractEntryTo(entry.entryName, tmpName, true, true);
         });
 
-        // TODO: Delete zip file
+        // Delete zip file
+        fs.unlinkSync(uploadPath);
       } else {
         tmpName = "tmp";
         tmpModelFiles.push(uploadPath);
@@ -169,7 +170,9 @@ module.exports = function (passport) {
         debug("Moved files");
         done(null, moveFiles, moveAssetFiles);
       }, function(err) {
-        // TODO: Remove temporary files on error
+        // Delete temporary directories
+        deleteFolderRecursive(tmpName);
+
         done(err);
       });  
     }, function(moveFiles, moveAssetFiles, done) {
@@ -215,7 +218,9 @@ module.exports = function (passport) {
         // TODO: Call this only when all archives have been created
         done(null, structurePath);
       }, function(err) {
-        // TODO: Remove temporary files on error
+        // Delete temporary directories
+        deleteFolderRecursive(tmpName);
+
         done(err);
       });
     }, function(structurePath, done) {
@@ -270,6 +275,9 @@ module.exports = function (passport) {
             res.json({message: "Building added", building: savedBuilding});
             done(null);
           });
+
+          // Delete temporary directories
+          deleteFolderRecursive(tmpName);
         });
       }
     }], function (err, result) {
@@ -502,6 +510,21 @@ module.exports = function (passport) {
     archive.finalize();
 
     return deferred.promise;
+  };
+
+  // From: http://www.geedew.com/2012/10/24/remove-a-directory-that-is-not-empty-in-nodejs/
+  var deleteFolderRecursive = function(path) {
+    if( fs.existsSync(path) ) {
+      fs.readdirSync(path).forEach(function(file,index){
+        var curPath = path + "/" + file;
+        if(fs.lstatSync(curPath).isDirectory()) { // recurse
+          deleteFolderRecursive(curPath);
+        } else { // delete file
+          fs.unlinkSync(curPath);
+        }
+      });
+      fs.rmdirSync(path);
+    }
   };
 
   return {

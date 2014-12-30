@@ -1,13 +1,14 @@
 extends layout
 
 block content
-  h1 Sign up
+  section.details
+    h1 Sign up
 
-  form(action="/signup", method="POST")
-    input(type="text", name="username", placeholder="Username", required, autofocus)
-    input(type="password", name="password", placeholder="Password", required)
-    input(type="email", name="email", placeholder="Email", required)
-    button(type="submit") Register
-  #message
-    if message
-      h1 #{message}
+    form(action="/signup", method="POST")
+      input(type="text", name="username", placeholder="Username", required, autofocus)
+      input(type="password", name="password", placeholder="Password", required)
+      input(type="email", name="email", placeholder="Email", required)
+      button(type="submit") Register
+    #message
+      if message
+        h1 #{message}

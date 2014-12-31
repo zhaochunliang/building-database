@@ -141,7 +141,9 @@ module.exports = function (passport) {
       console.log(buildings);
       
       res.render("search", {
+        bodyId: "search",
         user: req.user,
+        near: [req.params.lon, req.params.lat],
         buildings: buildings
       });
     });

@@ -660,3 +660,26 @@ body#building {
     }
   }
 }
+
+body#search {
+  header.map {
+    height: 400px;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 100%;
+
+    .leaflet-container {
+      border-bottom: 15px solid #eee;
+      height: 400px;
+      margin: 0;
+      width: 100%;
+      z-index: -10;
+    }
+  }
+
+  .wrapper {
+    margin-top: 360px;
+  }
+}

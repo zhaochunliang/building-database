@@ -32,7 +32,6 @@ module.exports = function (passport) {
   var postBuildings = function(req, res, next) {
     // TODO: Perform validation on received data
     // - http://mongoosejs.com/docs/validation.html
-    // TODO: Delete tmp file if upload or conversion fails
     // TODO: Report back progress of upload and coversion (realtime with Pusher?)
     // TODO: Validate uploaded materials (for dodgy stuff, etc)
     // TODO: Generally tidy things up and move logic out into external methods
@@ -57,11 +56,6 @@ module.exports = function (passport) {
       // Zip upload detection
       // TODO: There's probably a better way to detect a zip file
       if (uploadExt === "zip") {
-        // TODO: Detect model file within zipped upload
-        // TODO: Store materials contained within zipped upload
-        // TODO: Delete temporary directory when finished
-        // TODO: Find a way to neaten up / trim the resulting directory structure
-
         tmpName = uploadPath.split("." + uploadExt)[0];
 
         // Create temporary directory
@@ -75,7 +69,7 @@ module.exports = function (passport) {
         _.each(zipEntries, function(entry) {
           var entryExt = entry.name.split(".").pop();
 
-          // TODO: Validate each file to ensure only accepted files are added
+          // Validate each file to ensure only accepted files are added
           // Accept: model files (dae, obj, etc), images (jpg, png, etc)
           if (entryExt.match("obj|dae|ply|dxf")) {
             // Store reference to the model file
@@ -215,7 +209,7 @@ module.exports = function (passport) {
           });
         });
       })).done(function() {
-        // TODO: Call this only when all archives have been created
+        // All archives have been created
         done(null, structurePath);
       }, function(err) {
         // Delete temporary directories

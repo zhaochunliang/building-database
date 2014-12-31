@@ -203,8 +203,9 @@ module.exports = function (passport) {
 
   // Endpoint /add/location for GET
   var getAddLocation = function(req, res) {
-    // TODO: Check that location hasn't already been added
-    Building.findOne({_id: req.params.building_id, userId: req.user._id}, function(err, building) {
+    // Check that user owns this building
+    // Check that location hasn't already been added
+    Building.findOne({_id: req.params.building_id, userId: req.user._id, "location.coordinates": [0,0]}, function(err, building) {
       if (err) {
         res.send(err);
         return;
@@ -224,8 +225,9 @@ module.exports = function (passport) {
 
   // Endpoint /add/osm for GET
   var getAddOSM = function(req, res) {
-    // TODO: Check that OSM ID hasn't already been added
-    Building.findOne({_id: req.params.building_id, userId: req.user._id}, function(err, building) {
+    // Check that user owns this building
+    // Check that OSM hasn't already been linked
+    Building.findOne({_id: req.params.building_id, userId: req.user._id, osm: {$exists: false}}, function(err, building) {
       if (err) {
         res.send(err);
         return;

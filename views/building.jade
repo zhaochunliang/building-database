@@ -8,6 +8,8 @@ block content
         h1 #{building.name}
 
         p #{building.locality.district}, #{building.locality.country}
+          if building.locality.countryCode
+            flag-icon(key="#{building.locality.countryCode}" img)
 
         each model, key in building.models.raw
           - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
@@ -40,6 +42,9 @@ block content
       div#vizicities-viewport
 
   script(src="/lib/jquery/dist/jquery.min.js")
+
+  script(src="/lib/webcomponentsjs/webcomponents.min.js")
+  link(rel="import" href="/lib/flag-icon/flag-icon.html")
 
   link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")

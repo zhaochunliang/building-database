@@ -15,6 +15,8 @@ block content
             | #{building.name}
           .card-copy
             p #{building.locality.district}, #{building.locality.country}
+              if building.locality.countryCode
+                flag-icon(key="#{building.locality.countryCode}" img)
           .card-stats
             ul
               li
@@ -31,3 +33,6 @@ block content
                 span Downloads
   else
     p No buildings
+
+  script(src="/lib/webcomponentsjs/webcomponents.min.js")
+  link(rel="import" href="/lib/flag-icon/flag-icon.html")

@@ -47,7 +47,7 @@ block content
     script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
 
     script.
-      var map = L.map("map").setView([#{near[1]}, #{near[0]}], 4);
+      var map = L.map("map", {zoomControl:false}).setView([#{near[1]}, #{near[0]}], 4);
 
       // Offset map
       map.panBy(L.point(0, -50), {animate: false});

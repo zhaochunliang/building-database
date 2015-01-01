@@ -420,14 +420,14 @@ header.navigation {
   .card-header {
     @include transition (all 0.2s ease-in-out);
     background-color: $card-header-background;
-    border-bottom: $card-border;
     border-radius: $base-border-radius $base-border-radius 0 0;
     font-weight: bold;
-    padding: $base-spacing/3 $gutter/2;
+    padding: $base-spacing/3 $gutter/2 0;
   }
 
   .card-copy {
-    padding: $base-spacing/2 $gutter/2;
+    border-bottom: $card-border;
+    padding: 0 $gutter/2;
     font-size: .9em;
     line-height: 1.5em;
   }

@@ -1,0 +1,16 @@
+web:
+  build: .
+  links:
+   - db
+  ports:
+   - "3000:3000"
+   - "35729:35729"
+  volumes:
+   - .:/home/polygon-city
+  environment: 
+   NODE_ENV: development
+   DEBUG: buildingDatabase
+db:
+  image: mongo:latest
+  ports: 
+   - "27017:27017"

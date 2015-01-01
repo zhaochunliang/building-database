@@ -21,7 +21,8 @@ var mongoose = require("mongoose");
 // SET UP MONGOOSE
 // --------------------------------------------------------------------
 
-mongoose.connect(dbConfig.url);
+var dbURL = (process.env.DB_PORT && process.env.DB_NAME) ? process.env.DB_PORT + DB_NAME : dbConfig.url;
+mongoose.connect(dbURL);
 
 
 // --------------------------------------------------------------------

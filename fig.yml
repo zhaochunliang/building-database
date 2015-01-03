@@ -10,6 +10,9 @@ web:
   environment: 
    NODE_ENV: development
    DEBUG: buildingDatabase
+  dns:
+    - 8.8.8.8
+    - 9.9.9.9
 db:
   image: mongo:latest
   ports: 

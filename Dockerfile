@@ -5,6 +5,15 @@ MAINTAINER Robin Hawkes, rob@vizicities.com
 # Should be available via VOLUME link in fig.yml
 WORKDIR /home/polygon-city
 
+# Add apt-get repo
+RUN add-apt-repository -y "deb http://nl.archive.ubuntu.com/ubuntu precise main universe"
+
+# Update apt-get
+RUN apt-get update -y
+
+# Install assimp
+RUN apt-get install -y assimp-utils
+
 # Install Mean.JS Prerequisites
 RUN npm install -g grunt-cli
 RUN npm install -g bower

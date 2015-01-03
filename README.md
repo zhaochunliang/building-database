@@ -19,7 +19,7 @@ _Note: It's easiest to [use Docker](#using-docker) if you want to reliably get s
 
 * [Install Docker](https://docs.docker.com/installation/)
 * [Install fig](http://www.fig.sh/install.html)
-* If on Mac, start boot2docker usiing: `boot2docker up`
+* If on Mac, start boot2docker using: `boot2docker up`
 * Run `fig build` from the polygon-city directory
 * Run `fig up` from the polygon-city directory
 * Find your Docker IP

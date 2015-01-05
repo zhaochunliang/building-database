@@ -3,6 +3,7 @@ html
   head
     title Polygon City
     link(rel="stylesheet", href="/style/main.css")
+    script(src="/lib/jquery/dist/jquery.min.js")
   - var body = (bodyId) ? bodyId : "";
   body(id="#{body}")
     header.navigation
@@ -36,7 +37,6 @@ html
     section.content
       block content
 
-    script(src="//cdnjs.cloudflare.com/ajax/libs/zepto/1.1.4/zepto.min.js")
     script.
       $(document).ready(function() {
         var menu = $("#navigation-menu");

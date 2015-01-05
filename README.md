@@ -1,4 +1,4 @@
-# Building database
+# Polygon City
 
 * [Install MongoDB](http://docs.mongodb.org/manual/installation/)
 * [Start a MongoDB instance](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/#run-mongodb)

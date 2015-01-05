@@ -2,6 +2,8 @@ var async = require("async");
 var crypto = require("crypto");
 var nodemailer = require("nodemailer");
 
+var config = require("../config/config.js");
+
 var User = require("../models/user");
 
 module.exports = function (passport) {
@@ -64,6 +66,7 @@ module.exports = function (passport) {
       function(token, done) {
         User.findOne({ email: req.body.email }, function(err, user) {
           if (!user) {
+            // TODO: Should probably change this as to not reveal users with an account in the system
             req.flash("message", "No account with that email address exists.");
             return res.redirect("/forgot");
           }
@@ -77,15 +80,22 @@ module.exports = function (passport) {
         });
       },
       function(token, user, done) {
+        // Skip if email hasn't been set up
+        if (!config.email.reset.fromAddress) {
+          debug("Email reset.fromAddress not found in configuration");
+          done();
+          return;
+        }
+
         // TODO: Move to an external service for email
         // - https://github.com/andris9/Nodemailer
         var smtpTransport = nodemailer.createTransport();
 
         var mailOptions = {
           to: user.email,
-          from: "passwordreset@polygon.city",
-          subject: "Polygon City Password Reset",
-          text: "You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n" +
+          from: config.email.reset.fromAddress,
+          subject: (config.email.reset.subject) ? config.email.reset.subject : "Password reset",
+          text: "You are receiving this because a password reset has been requested for your account.\n\n" +
             "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
             "http://" + req.headers.host + "/reset/" + token + "\n\n" +
             "If you did not request this, please ignore this email and your password will remain unchanged.\n"
@@ -145,16 +155,23 @@ module.exports = function (passport) {
         });
       },
       function(user, done) {
+        // Skip if email hasn't been set up
+        if (!config.email.reset.fromAddress) {
+          debug("Email reset.fromAddress not found in configuration");
+          done();
+          return;
+        }
+
         // TODO: Move to an external service for email
         // - https://github.com/andris9/Nodemailer
         var smtpTransport = nodemailer.createTransport();
 
         var mailOptions = {
           to: user.email,
-          from: "passwordreset@polygon.city",
-          subject: "Your password has been changed",
+          from: config.email.reset.fromAddress,
+          subject: (config.email.reset.subject) ? config.email.reset.subject : "Password reset",
           text: "Hello,\n\n" +
-            "This is a confirmation that the password for your account " + user.email + " has just been changed.\n"
+            "This is a confirmation that the password for your account " + user.email + " has been changed.\n"
         };
         smtpTransport.sendMail(mailOptions, function(err) {
           req.flash("message", "Success! Your password has been changed.");

@@ -1,4 +1,4 @@
-var debug = require("debug")("buildingDatabase");
+var debug = require("debug")("polygoncity");
 var path = require("path");
 
 var express = require("express");
@@ -13,7 +13,7 @@ var multer = require("multer");
 
 var authController = require("./controllers/auth")(passport);
 
-var dbConfig = require("./config/db.js");
+var config = require("./config/config.js");
 var mongoose = require("mongoose");
 
 
@@ -21,7 +21,12 @@ var mongoose = require("mongoose");
 // SET UP MONGOOSE
 // --------------------------------------------------------------------
 
-mongoose.connect(dbConfig.url);
+if (!config.db || !config.db.url) {
+  throw new Error("Database connection settings not found");
+  return;
+}
+
+mongoose.connect(config.db.url);
 
 
 // --------------------------------------------------------------------
@@ -34,10 +39,13 @@ var app = express();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-// Uncomment after placing your favicon in /public
+// Uncomment after placing favicon in /public
 //app.use(favicon(path.join(__dirname, "/public/favicon.ico")));
 
-app.use(logger("dev"));
+// Log errors (anything above HTTP 400)
+app.use(logger("dev", {
+  skip: function (req, res) { return res.statusCode < 400 }
+}));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -45,8 +53,13 @@ app.use(cookieParser());
 app.use(flash());
 
 // Session handler
+if (!config.session.secret) {
+  throw new Error("Session secret settings not found");
+  return;
+}
+
 app.use(session({
-  secret: "m@pzen&v1ziciti3s",
+  secret: config.session.secret,
   resave: true,
   saveUninitialized: true
 }));

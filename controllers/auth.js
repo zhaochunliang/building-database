@@ -1,4 +1,4 @@
-var debug = require("debug")("buildingDatabase");
+var debug = require("debug")("polygoncity");
 var LocalStrategy = require("passport-local").Strategy;
 var bCrypt = require("bcrypt-nodejs");
 
@@ -32,12 +32,12 @@ module.exports = function(passport) {
           // Username does not exist, log the error and redirect back
           if (!user){
             debug("User Not Found with username "+username);
-            return done(null, false, req.flash("message", "User Not found."));                 
+            return done(null, false, req.flash("message", "User not found"));                 
           }
           // User exists but wrong password, log the error 
           if (!isValidPassword(user, password)){
             debug("Invalid Password");
-              return done(null, false, req.flash("message", "Invalid Password"));
+              return done(null, false, req.flash("message", "Invalid password"));
               // redirect back to login page
             }
           // User and password both match, return user from done method
@@ -63,7 +63,7 @@ module.exports = function(passport) {
           // already exists
           if (user) {
             debug("User already exists with username: "+username);
-            return done(null, false, req.flash("message","User Already Exists"));
+            return done(null, false, req.flash("message","User already exists"));
           } else {
             // if there is no user with that email
             // create the user
@@ -77,10 +77,10 @@ module.exports = function(passport) {
             // save the user
             newUser.save(function(err) {
               if (err){
-                debug("Error in Saving user: "+err);  
+                debug("Error in saving user: "+err);  
                 throw err;  
               }
-              debug("User Registration succesful");    
+              debug("User registration succesful");    
               return done(null, newUser);
             });
           }

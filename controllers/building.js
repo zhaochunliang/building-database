@@ -1,4 +1,4 @@
-var debug = require("debug")("buildingDatabase");
+var debug = require("debug")("polygoncity");
 var _ = require("underscore");
 var Q = require("q");
 var mv = require("mv");
@@ -78,7 +78,7 @@ module.exports = function (passport) {
             // Store reference to the assets (textures, etc)
             tmpAssetFiles.push(tmpName + "/" + entry.entryName);
           } else {
-            console.log("Zip entry file type not valid:", entryExt);
+            debug("Zip entry file type not valid:", entryExt);
             return;
           }
 
@@ -94,7 +94,7 @@ module.exports = function (passport) {
       }
 
       if (tmpModelFiles.length < 1) {
-        console.log("No model files to process");
+        debug("No model files to process");
         return;
       }
 
@@ -116,8 +116,6 @@ module.exports = function (passport) {
       if (tmpModelExt !== "obj") {
         convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split(tmpModelExt)[0] + "obj"]]);
       }
-
-      console.log(convertQueue);
 
       // Wait for all conversion promises to complete before adding to db
       Q.all(convertQueue.map(function(promiseFunc) {

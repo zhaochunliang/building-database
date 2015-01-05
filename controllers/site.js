@@ -72,15 +72,22 @@ module.exports = function (passport) {
 
   // Endpoint /building/:building_id/report for POST
   var postBuildingReport = function(req, res) {
+    // Skip if email hasn't been set up
+    if (!config.email.report.fromAddress || !config.email.report.toAddress) {
+      debug("Email report from or to address not found in configuration");
+      res.sendStatus(500);
+      return;
+    }
+
     // TODO: Move to an external service for email
     // - https://github.com/andris9/Nodemailer
     var smtpTransport = nodemailer.createTransport();
 
     // TODO: Pull to email from server-side config file
     var mailOptions = {
-      to: "reports@polygon.city",
-      from: "reports@polygon.city",
-      subject: "Polygon City Building Report",
+      to: config.email.report.toAddress,
+      from: config.email.report.fromAddress,
+      subject: (config.email.report.subject) ? config.email.report.subject : "Building report",
       text: "The following building has been reported.\n\n" +
         "Building: " + req.params.building_id + "\n" +
         "Reason: " + req.body.reason + "\n" +
@@ -137,8 +144,6 @@ module.exports = function (passport) {
         console.log(err);
         res.send(err);
       }
-
-      console.log(buildings);
       
       res.render("search", {
         bodyId: "search",
@@ -156,8 +161,6 @@ module.exports = function (passport) {
         console.log(err);
         res.send(err);
       }
-
-      console.log(buildings);
       
       res.render("search", {
         user: req.user,

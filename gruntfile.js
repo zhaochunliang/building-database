@@ -53,19 +53,7 @@ module.exports = function(grunt) {
       options: {
         logConcurrentOutput: true
       }
-    },
-    // env: {
-    //   test: {
-    //     NODE_ENV: "test"
-    //   }
-    // },
-    // mochaTest: {
-    //   src: ["test/**/*.js"],
-    //   options: {
-    //     reporter: "spec",
-    //     require: "server.js"
-    //   }
-    // },        
+    },    
     clean: {
       server: [".tmp", "tmp"]
     }

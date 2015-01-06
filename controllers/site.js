@@ -26,6 +26,7 @@ module.exports = function (passport) {
       }
       
       res.render("browse", {
+        bodyId: "browse",
         user: req.user,
         buildings: buildings
       });
@@ -164,6 +165,7 @@ module.exports = function (passport) {
       }
       
       res.render("search", {
+        bodyId: "search",
         user: req.user,
         buildings: buildings
       });
@@ -178,6 +180,7 @@ module.exports = function (passport) {
       }
       
       res.render("search", {
+        bodyId: "search",
         user: req.user,
         buildings: buildings
       });
@@ -192,6 +195,7 @@ module.exports = function (passport) {
       }
       
       res.render("search", {
+        bodyId: "search",
         user: req.user,
         buildings: buildings
       });

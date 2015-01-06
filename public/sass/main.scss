@@ -707,7 +707,8 @@ body#search {
   }
 }
 
-body#home {
+body#home,
+body#browse {
   header.map {
     height: 400px;
     left: 0;

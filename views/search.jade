@@ -1,9 +1,8 @@
 extends layout
 
 block content
-  if near
-    header.map
-      div#map
+  header.map
+    div#map
 
   div.wrapper
     h1 Search buildings
@@ -40,20 +39,38 @@ block content
   script(src="/lib/webcomponentsjs/webcomponents.min.js")
   link(rel="import" href="/lib/flag-icon/flag-icon.html")
   
-  if near
-    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css")
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
+  link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css")
+  script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
+  
+  script.
+    var near = "!{near}".split(",");
 
-    script.
-      var map = L.map("map", {zoomControl:false}).setView([#{near[1]}, #{near[0]}], 4);
+    var map = L.map("map", {zoomControl:false});
 
-      // Offset map
+    if (near[0] !== "") {
+      map.setView([near[1], near[0]], 16);
       map.panBy(L.point(0, -50), {animate: false});
+    } else {
+      map.setView([50, 0], 3);
+      map.panBy(L.point(0, -50), {animate: false});
+    }
 
-      //- L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
-      L.tileLayer("http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png", {
-        //- attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
-        attribution: "&copy; <a href='http://stamen.com'>Stamen</a> & <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
-      }).addTo(map);
+    L.tileLayer("http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png", {
+      //- attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
+      attribution: "&copy; <a href='http://stamen.com'>Stamen</a> & <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
+    }).addTo(map);
+  
+    var buildings = !{JSON.stringify(buildings)};
 
-      L.marker([#{near[1]}, #{near[0]}]).addTo(map);
+    if (buildings.length > 0) {
+      buildings.forEach(function(building, index) {
+        var circle = L.circleMarker([building.location.coordinates[1], building.location.coordinates[0]], {
+          radius: 5,
+          weight: 2,
+          color: "#fff",
+          opacity: 1,
+          fillColor: "#477DCA",
+          fillOpacity: 1
+        }).addTo(map);
+      });
+    }

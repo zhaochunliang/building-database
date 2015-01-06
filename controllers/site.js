@@ -11,6 +11,7 @@ module.exports = function (passport) {
       }
       
       res.render("index", {
+        bodyId: "home",
         user: req.user,
         buildings: buildings
       });

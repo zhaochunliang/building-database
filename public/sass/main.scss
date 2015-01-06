@@ -677,6 +677,75 @@ body#search {
       width: 100%;
       z-index: -10;
     }
+
+    .wrapper {
+      bottom: 0;
+      left: 50%;
+      position: absolute;
+      margin: 0 0 0 -34em;
+      width: 68em; // Override grid width
+      z-index: 10;
+      
+      .details {
+        background: #fff;
+        border-radius: 5px 5px 0 0;
+        box-shadow: 0 0 40px #999;
+        margin: -30px -40px 0;
+        padding: 30px 40px;
+        position: relative;
+
+        h1 {
+          margin-bottom: 0;
+          margin-top: 0;
+        }
+      }
+    }
+  }
+
+  .wrapper {
+    margin-top: 360px;
+  }
+}
+
+body#home {
+  header.map {
+    height: 400px;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 100%;
+
+    .leaflet-container {
+      border-bottom: 15px solid #eee;
+      height: 400px;
+      margin: 0;
+      width: 100%;
+      z-index: -10;
+    }
+
+    .wrapper {
+      bottom: 0;
+      left: 50%;
+      position: absolute;
+      margin: 0 0 0 -34em;
+      width: 68em; // Override grid width
+      z-index: 10;
+      
+      .details {
+        background: #fff;
+        border-radius: 5px 5px 0 0;
+        box-shadow: 0 0 40px #999;
+        margin: -30px -40px 0;
+        padding: 30px 40px;
+        position: relative;
+
+        h1 {
+          margin-bottom: 0;
+          margin-top: 0;
+        }
+      }
+    }
   }
 
   .wrapper {

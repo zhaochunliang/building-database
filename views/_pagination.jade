@@ -1,0 +1,8 @@
+.pagination
+  ul
+    if paginate.hasPreviousPages
+      li.page-prev
+        a(href=paginate.href(true)) Prev
+    if paginate.hasNextPages(pageCount)
+      li.page-next
+        a(href=paginate.href()) Next

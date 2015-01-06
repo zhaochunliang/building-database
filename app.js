@@ -10,6 +10,7 @@ var passport = require("passport");
 var session = require("express-session")
 var flash = require("connect-flash");
 var multer = require("multer");
+var paginate = require("express-paginate");
 
 var authController = require("./controllers/auth")(passport);
 
@@ -70,6 +71,9 @@ app.use(passport.session());
 
 // Handle file uploads
 app.use(multer({dest: "./tmp/"}));
+
+// Pagination defaults
+app.use(paginate.middleware(15, 50));
 
 // Serve static files from directory
 app.use("/", express.static(path.join(__dirname, "public")));

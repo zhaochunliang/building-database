@@ -51,4 +51,6 @@ BuildingSchema.pre("save", function(next) {
   next();
 });
 
+BuildingSchema.plugin(require("mongoose-paginate"));
+
 module.exports = mongoose.model("Building", BuildingSchema);

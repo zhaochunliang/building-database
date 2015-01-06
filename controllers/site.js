@@ -5,7 +5,7 @@ module.exports = function (passport) {
 
   // Endpoint / for GET
   var getIndex = function(req, res) {
-    Building.find({"location.coordinates": {$ne: [0,0]}}).sort({createdAt: -1}).limit(6).exec(function(err, buildings) {
+    Building.find({"location.coordinates": {$ne: [0,0]}}).limit(6).sort({createdAt: -1}).exec(function(err, buildings) {
       if (err) {
         res.send(err);
       }
@@ -13,14 +13,14 @@ module.exports = function (passport) {
       res.render("index", {
         bodyId: "home",
         user: req.user,
-        buildings: buildings
+        buildings: buildings,
       });
     });
   };
 
   // Endpoint /browse for GET
   var getBrowse = function(req, res) {
-    Building.find({"location.coordinates": {$ne: [0,0]}}).sort({createdAt: -1}).limit(24).exec(function(err, buildings) {
+    Building.paginate({"location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
       }
@@ -28,9 +28,10 @@ module.exports = function (passport) {
       res.render("browse", {
         bodyId: "browse",
         user: req.user,
+        pageCount: pageCount,
         buildings: buildings
       });
-    });
+    }, {sortBy: {createdAt: -1}});
   };
 
   // Endpoint /building/:building_id for GET
@@ -134,14 +135,15 @@ module.exports = function (passport) {
 
   // Endpoint /search/near/:lon/:lat for GET
   var getSearchNear = function(req, res) {
-    Building.find({"location.coordinates": {$ne: [0,0]}}).near("location", {
-      center: {
-        type: "Point",
-        coordinates: [req.params.lon, req.params.lat]
-      },
-      maxDistance: req.params.distance | 1000,
-      spherical: true
-    }).exec(function(err, buildings) {
+    Building.paginate({"location": {
+      $nearSphere: {
+        $geometry: {
+          type: "Point",
+          coordinates: [req.params.lon, req.params.lat]
+        },
+        $maxDistance: req.params.distance | 1000
+      }
+    }}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         console.log(err);
         res.send(err);
@@ -151,6 +153,7 @@ module.exports = function (passport) {
         bodyId: "search",
         user: req.user,
         near: [req.params.lon, req.params.lat],
+        pageCount: pageCount,
         buildings: buildings
       });
     });
@@ -158,7 +161,7 @@ module.exports = function (passport) {
 
   // Endpoint /search/user/:user_id for GET
   var getSearchUser = function(req, res) {
-    Building.find({userId: req.params.user_id, "location.coordinates": {$ne: [0,0]}}).exec(function(err, buildings) {
+    Building.paginate({"location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         console.log(err);
         res.send(err);
@@ -167,14 +170,15 @@ module.exports = function (passport) {
       res.render("search", {
         bodyId: "search",
         user: req.user,
+        pageCount: pageCount,
         buildings: buildings
       });
-    });
+    }, {sortBy: {createdAt: -1}});
   };
 
   // Endpoint /search/osm/:osm_type/:osm_id for GET
   var getSearchOSM = function(req, res) {
-    Building.find({"osm.type": req.params.osm_type, "osm.id": req.params.osm_id, "location.coordinates": {$ne: [0,0]}}, function(err, buildings) {
+    Building.paginate({"osm.type": req.params.osm_type, "osm.id": req.params.osm_id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
       }
@@ -182,14 +186,15 @@ module.exports = function (passport) {
       res.render("search", {
         bodyId: "search",
         user: req.user,
+        pageCount: pageCount,
         buildings: buildings
       });
-    });
+    }, {sortBy: {createdAt: -1}});
   };
 
   // Endpoint /search/:search_term for GET
   var getSearchTerm = function(req, res) {
-    Building.find({"name": new RegExp(req.params.search_term, "i"), "location.coordinates": {$ne: [0,0]}}, function(err, buildings) {
+    Building.paginate({"name": new RegExp(req.params.search_term, "i"), "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
       }
@@ -197,9 +202,10 @@ module.exports = function (passport) {
       res.render("search", {
         bodyId: "search",
         user: req.user,
+        pageCount: pageCount,
         buildings: buildings
       });
-    });
+    }, {sortBy: {createdAt: -1}});
   };
 
   // Endpoint /add for GET

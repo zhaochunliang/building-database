@@ -4,6 +4,10 @@
 
 _Note: It's easiest to [use Docker](#using-docker) if you want to reliably get something up and running quickly._
 
+## Installation
+
+_Note: It's easiest to [use Docker](#using-docker) if you want to reliably get something up and running quickly._
+
 * [Install MongoDB](http://docs.mongodb.org/manual/installation/)
 * [Start a MongoDB instance](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/#run-mongodb)
 * [Create a 2D-sphere index](http://docs.mongodb.org/manual/tutorial/build-a-2dsphere-index/) (for geo search)

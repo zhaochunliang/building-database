@@ -2,7 +2,7 @@ doctype html
 html
   head
     title Polygon City
-    link(rel="stylesheet", href="/style/main.css")
+    link(rel="stylesheet", href="/style/main_new.css")
     script(src="/lib/jquery/dist/jquery.min.js")
   - var body = (bodyId) ? bodyId : "";
   body(id="#{body}")
@@ -33,9 +33,21 @@ html
           else
             a.login(href="/login") Login
             a.signup(href="/signup") Sign up
-    
+
+      if body
+        .banner-wrapper
+          .banner
+            .navigation-wrapper
+              h1 PolygonCity
+              p.tagline Free and open 3D building library
+              p.cta
+                button Find a building
+                button Add a building
+      
     section.content
       block content
+
+    footer
 
     script.
       $(document).ready(function() {

@@ -36,7 +36,8 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          "<%= config.app %>/style/main.css": "<%= config.app %>/sass/main.scss"
+          "<%= config.app %>/style/main.css": "<%= config.app %>/sass/main.scss",
+          "<%= config.app %>/style/main_new.css": "<%= config.app %>/sass/main_new.scss"
         }
       }
     },

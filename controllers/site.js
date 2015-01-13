@@ -10,7 +10,7 @@ module.exports = function (passport) {
         res.send(err);
       }
       
-      res.render("index", {
+      res.render("index_new", {
         bodyId: "home",
         user: req.user,
         buildings: buildings,

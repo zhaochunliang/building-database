@@ -52,6 +52,15 @@ a.button {
 
 
 // ************************************************
+// Grid
+// ************************************************
+
+.col-7 {
+  @include span-columns(7);
+}
+
+
+// ************************************************
 // Navigation
 // ************************************************
 
@@ -515,6 +524,66 @@ body > footer {
       position: absolute;
       top: 0;
       width: 10px;
+    }
+  }
+}
+
+
+// ************************************************
+// Login
+// ************************************************
+
+#login {
+  & > section.content {
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
+// Sign up
+// ************************************************
+
+#register {
+  & > section.content {
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
+// Search form
+// ************************************************
+
+#search-form {
+  & > section.content {
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
+// Add building
+// ************************************************
+
+#building-add {
+  & > section.content {
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
     }
   }
 }

@@ -557,6 +557,14 @@ body > section.content {
 a.button {
   color: #fff; }
 
+.col-7 {
+  float: left;
+  display: block;
+  margin-right: 2.3576515979%;
+  width: 57.3509785009%; }
+  .col-7:last-child {
+    margin-right: 0; }
+
 header.navigation {
   background-image: url("/images/polygon-bg.png");
   background-image: url("/images/polygon-bg.png");
@@ -889,3 +897,47 @@ body > footer {
     position: absolute;
     top: 0;
     width: 10px; }
+
+#login > section.content {
+  padding: 40px 0; }
+  #login > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #login > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+
+#register > section.content {
+  padding: 40px 0; }
+  #register > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #register > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+
+#search-form > section.content {
+  padding: 40px 0; }
+  #search-form > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #search-form > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+
+#building-add > section.content {
+  padding: 40px 0; }
+  #building-add > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #building-add > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }

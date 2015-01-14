@@ -106,7 +106,8 @@ module.exports = function (passport) {
 
   // Endpoint /search for GET
   var getSearch = function(req, res) {
-    res.render("search-form", {
+    res.render("search-form_new", {
+      bodyId: "search-form",
       user: req.user
     });
   };
@@ -210,7 +211,8 @@ module.exports = function (passport) {
 
   // Endpoint /add for GET
   var getAdd = function(req, res) {
-    res.render("add", {
+    res.render("add_new", {
+      bodyId: "building-add",
       user: req.user
     });
   };

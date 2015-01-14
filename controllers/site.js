@@ -25,7 +25,7 @@ module.exports = function (passport) {
         res.send(err);
       }
       
-      res.render("browse", {
+      res.render("browse_new", {
         bodyId: "browse",
         user: req.user,
         pageCount: pageCount,

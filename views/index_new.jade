@@ -5,6 +5,7 @@ block content
     div#home-map-overlay
       h2
       p
+      p.buttons
       span.stalk
 
   script(src="/lib/webcomponentsjs/webcomponents.min.js")
@@ -15,9 +16,8 @@ block content
 
   script.
     // TODO: Update to 0.8/1.0 with .flyTo method when available
-    var map = L.map("home-map", {zoomControl:false}).setView([51.50517, -0.01937], 16);
-
     // https://github.com/Leaflet/Leaflet/pull/2382
+    var map = L.map("home-map", {zoomControl:false}).setView([51.50517, -0.01937], 16);
 
     // Disable drag and zoom handlers.
     map.dragging.disable();
@@ -37,14 +37,16 @@ block content
 
     var buildingOverlay = document.getElementById("home-map-overlay");
     var buildingTitle = document.querySelector("#home-map-overlay h2");
-    var buildingLocation = document.querySelector("#home-map-overlay p");
+    var buildingLocation = document.querySelector("#home-map-overlay > p");
+    var buildingButtons = document.querySelector("#home-map-overlay p.buttons");
 
     var buildingIndex = 0;
     var changeBuilding = function() {
       var building = buildings[buildingIndex];
 
-      buildingTitle.innerHTML = building.name;
+      buildingTitle.innerHTML = "<a href='/building/" + building._id + "''>" + building.name + "</a>";
       buildingLocation.innerHTML = building.locality.district + ", " + building.locality.country + ((building.locality.countryCode) ? " <flag-icon key='" + building.locality.countryCode + "' img>" : "");
+      buildingButtons.innerHTML = "<a class='button' href='/building/" + building._id + "'>View building</a>";
 
       if (!buildingOverlay.style.display || buildingOverlay.style.display === "none") {
         buildingOverlay.style.display = "block";

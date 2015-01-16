@@ -100,21 +100,39 @@ app.use(function(req, res, next) {
 // Will print stacktrace
 if (app.get("env") === "development") {
   app.use(function(err, req, res, next) {
+    console.error(err.stack);
+
     res.status(err.status || 500);
-    res.render("error", {
-      message: err.message,
-      error: err
-    });
+
+    if (req.xhr) {
+      res.json({error: {status: err.status, stack: err.stack, message: err.message}});
+      return;
+    } else {
+      res.render("error", {
+        status: err.status,
+        message: err.message,
+        error: err
+      });
+    }
   });
 } else {
   // Production error handler
   // No stacktraces leaked to user
   app.use(function(err, req, res, next) {
+    console.error(err.stack);
+
     res.status(err.status || 500);
-    res.render("error", {
-      message: err.message,
-      error: {}
-    });
+
+    if (req.xhr) {
+      res.json({status: err.status, message: err.message});
+      return;
+    } else {
+      res.render("error", {
+        status: err.status,
+        message: err.message,
+        error: {}
+      });
+    }
   });
 }
 

@@ -433,14 +433,14 @@ body > footer {
 // ************************************************
 
 #browse {
-  & > section.content {
-    height: 100%;
-  }
+  & > section.content {}
 
   #browse-map {
     height: 100%;
     // Move up by sum of navigation and footer heights
     margin-top: -163px;
+    position: absolute;
+    width: 100%;
 
     .leaflet-control-container > div {
       margin-top: 183px;
@@ -476,14 +476,9 @@ body > footer {
     border-bottom: 10px solid #2D2D2D;
     border-top: 10px solid #2D2D2D;
     box-shadow: 0 0 100px #999;
-    // display: none;
-    // left: 50%;
     margin: 95px 0 0;
     padding: 20px;
-    // position: absolute;
-    // top: 300px;
     width: 450px;
-    // z-index: 10;
 
     h2 {
       font-size: 2.5em;
@@ -585,5 +580,96 @@ body > footer {
     .container {
       @include outer-container;
     }
+  }
+}
+
+
+// ************************************************
+// Building
+// ************************************************
+
+#building {
+  & > section.content {
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+
+      position: relative;
+      z-index: 10;
+    }
+
+    .details {
+      background: #fff;
+    }
+  }
+
+  #building-map {
+    height: 100%;
+    // Move up by sum of navigation and footer heights
+    margin-top: -163px;
+    position: absolute;
+    width: 100%;
+
+    .leaflet-control-container > div {
+      margin-top: 183px;
+    }
+
+    .leaflet-popup {
+      // Override inline styling on popup
+      top: -5px !important;
+    }
+
+    // Reset popup wrapper styles
+    .leaflet-popup-content-wrapper {
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    .leaflet-popup-content {
+      line-height: 1;
+      margin: 0;
+    }
+
+    // Hide default popup styling
+    .leaflet-popup-close-button, 
+    .leaflet-popup-tip-container {
+      display: none;
+    }
+  }
+
+  #building-map-overlay {
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom: 10px solid #2D2D2D;
+    border-top: 10px solid #2D2D2D;
+    box-shadow: 0 0 100px #999;
+    left: 50%;
+    // map offset - halfWidth
+    margin: 40px 0 0 155px;
+    padding: 20px;
+    position: absolute;
+    top: 50%;
+    width: 350px;
+    z-index: 10;
+
+    p {}
+
+    .stalk {
+      @include background-image(url("/images/map-marker.png"));
+
+      display: block;
+      height: 100px;
+      left: 50%;
+      margin: 0 0 0 -5px;
+      position: absolute;
+      top: -105px;
+      width: 10px;
+    }
+  }
+
+  #vizicities-viewport {
+    height: 300px;
   }
 }

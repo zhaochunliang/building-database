@@ -844,11 +844,11 @@ body > footer {
     top: -105px;
     width: 10px; }
 
-#browse > section.content {
-  height: 100%; }
 #browse #browse-map {
   height: 100%;
-  margin-top: -163px; }
+  margin-top: -163px;
+  position: absolute;
+  width: 100%; }
   #browse #browse-map .leaflet-control-container > div {
     margin-top: 183px; }
   #browse #browse-map .leaflet-popup {
@@ -941,3 +941,61 @@ body > footer {
       content: "";
       display: table;
       clear: both; }
+
+#building > section.content {
+  padding: 40px 0; }
+  #building > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 10; }
+    #building > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+  #building > section.content .details {
+    background: #fff; }
+#building #building-map {
+  height: 100%;
+  margin-top: -163px;
+  position: absolute;
+  width: 100%; }
+  #building #building-map .leaflet-control-container > div {
+    margin-top: 183px; }
+  #building #building-map .leaflet-popup {
+    top: -5px !important; }
+  #building #building-map .leaflet-popup-content-wrapper {
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0; }
+  #building #building-map .leaflet-popup-content {
+    line-height: 1;
+    margin: 0; }
+  #building #building-map .leaflet-popup-close-button, #building #building-map .leaflet-popup-tip-container {
+    display: none; }
+#building #building-map-overlay {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 10px solid #2D2D2D;
+  border-top: 10px solid #2D2D2D;
+  box-shadow: 0 0 100px #999;
+  left: 50%;
+  margin: 40px 0 0 155px;
+  padding: 20px;
+  position: absolute;
+  top: 50%;
+  width: 350px;
+  z-index: 10; }
+  #building #building-map-overlay .stalk {
+    background-image: url("/images/map-marker.png");
+    background-image: url("/images/map-marker.png");
+    display: block;
+    height: 100px;
+    left: 50%;
+    margin: 0 0 0 -5px;
+    position: absolute;
+    top: -105px;
+    width: 10px; }
+#building #vizicities-viewport {
+  height: 300px; }

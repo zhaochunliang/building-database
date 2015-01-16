@@ -56,7 +56,7 @@ module.exports = function (passport) {
           return;
         }
         
-        res.render("building", {
+        res.render("building_new", {
           bodyId: "building",
           user: req.user,
           building: building

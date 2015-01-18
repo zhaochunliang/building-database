@@ -515,7 +515,9 @@ module.exports = function (passport) {
           fs.unlinkSync(curPath);
         }
       });
-      fs.rmdirSync(path);
+      
+      // Do not delete root directory
+      // fs.rmdirSync(path);
     }
   };
 

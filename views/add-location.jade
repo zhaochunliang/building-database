@@ -57,9 +57,24 @@ block content
     pelias.initialize();
      
     $("#pelias").typeahead(null, {
+      autoselect: true,
       name: "pelias",
       displayKey: "name",
       source: pelias.ttAdapter()
+    }).keypress(function (event) {
+      // Prevent form submission when selecting an autocomplete item
+      if (event.which == 13) {
+        event.preventDefault();
+  
+        // Auto-select first suggestion
+        var e = jQuery.Event("keydown")
+        e.keyCode = e.which = 9;
+        
+        $("#pelias").triggerHandler(e);
+
+        // Close drop down
+        $("#pelias").trigger("blur");
+      }
     }).on("typeahead:selected", function(event, suggestion, actionName) {
       // TODO: Tidy this up (probably within ViziCities core)
       // - Right now ViziCities doesn't let you change camera position easily

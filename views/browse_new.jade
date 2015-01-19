@@ -3,38 +3,20 @@ extends layout_new
 block content
   div#browse-map
 
-  //- div.wrapper
-  //-   h1 Browse buildings
-    
-  //-   if buildings.length > 0
-  //-     .cards
-  //-       each building, key in buildings
-  //-         a.card(href="/building/#{building._id}")
-  //-           .card-image
-  //-             img(src="https://tyler-demo.herokuapp.com/?greyscale=true&lat=#{building.location.coordinates[1]}&lon=#{building.location.coordinates[0]}&zoom=17&width=344&height=200", alt="")
-  //-           .card-header
-  //-             | #{building.name}
-  //-           .card-copy
-  //-             p #{building.locality.district}, #{building.locality.country}
-  //-               if building.locality.countryCode
-  //-                 flag-icon(key="#{building.locality.countryCode}" img)
-  //-           .card-stats
-  //-             ul
-  //-               li
-  //-                 | #{building.structure.vertices}
-  //-                 span Vertices
-  //-               li
-  //-                 | #{building.structure.faces}
-  //-                 span Faces
-  //-               li
-  //-                 | #{building.stats.views}
-  //-                 span Views
-  //-               li
-  //-                 | #{building.stats.downloads}
-  //-                 span Downloads
-  //-     include _pagination
-  //-   else
-  //-     p No buildings
+  section.container
+    div.col-4.details
+      if buildings.length > 0
+        ul.building-list
+          each building, key in buildings
+            li
+              a(href="##{building._id}" data-id="#{building._id}")
+                h2 #{building.name}
+                p
+                  small #{building.locality.district}, #{building.locality.country}
+        
+        include _pagination
+      else
+        p No buildings
 
   script(src="/lib/webcomponentsjs/webcomponents.min.js")
   link(rel="import" href="/lib/flag-icon/flag-icon.html")
@@ -43,7 +25,10 @@ block content
   script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
 
   script.
-    var map = L.map("browse-map", {}).setView([50, 0], 3);
+    var map = L.map("browse-map", {zoomControl: false}).setView([50, 0], 3);
+
+    // Offset map
+    map.panBy(L.point(-200, 50), {animate: false});
 
     L.tileLayer("http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png", {
       //- attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
@@ -51,6 +36,7 @@ block content
     }).addTo(map);
 
     var buildings = !{JSON.stringify(buildings)};
+    var buildingsById = {};
 
     // TODO: Cluster markers
     // https://github.com/Leaflet/Leaflet.markercluster
@@ -70,6 +56,8 @@ block content
             closeButton: false
           }).setLatLng(circle.getLatLng())
           .setContent("<div id='browse-map-overlay'><h2><a href='/building/" + building._id + "'>" + building.name + "</a></h2><p>" + building.locality.district + ", " + building.locality.country + ((building.locality.countryCode) ? " <flag-icon key='" + building.locality.countryCode + "' img>" : "") + "</p><p class='buttons'><a class='button' href='/building/" + building._id + "'>View building</a></p><span class='stalk'></span>");
+        
+        building.popup = popup;
 
         circle.on("click", function() {
           popup.openOn(map);
@@ -80,5 +68,24 @@ block content
         if (index + 1 === buildings.length) {
           popup.openOn(map);
         }
+
+        buildingsById[building._id] = building;
       });
     }
+
+    // Set up building list handlers
+    var buildingList = $("ul.building-list");
+    var buildingListItems = $("ul.building-list li a");
+    
+    buildingListItems.on("click", function(event) {
+      var id = this.dataset.id;
+      var building = buildingsById[id];
+
+      map.setView([building.location.coordinates[1], building.location.coordinates[0]], 3);
+
+      // Offset map
+      map.panBy(L.point(-200, 50), {animate: true});
+
+      building.popup.openOn(map);
+    // Prevent children from hijacking click
+    });

@@ -942,6 +942,28 @@ body > footer {
       display: table;
       clear: both; }
 
+#building-add-location > section.content {
+  padding: 40px 0; }
+  #building-add-location > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #building-add-location > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+
+#building-add-osm > section.content {
+  padding: 40px 0; }
+  #building-add-osm > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #building-add-osm > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+
 #building > section.content {
   padding: 40px 0; }
   #building > section.content .container {

@@ -232,7 +232,8 @@ module.exports = function (passport) {
         return;
       }
 
-      res.render("add-location", {
+      res.render("add-location_new", {
+        bodyId: "building-add-location",
         user: req.user,
         building: building
       });
@@ -254,8 +255,8 @@ module.exports = function (passport) {
         return;
       }
 
-      res.render("add-osm", {
-        bodyId: "add-osm",
+      res.render("add-osm_new", {
+        bodyId: "building-add-osm",
         user: req.user,
         building: building
       });

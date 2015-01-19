@@ -585,6 +585,36 @@ body > footer {
 
 
 // ************************************************
+// Add building location
+// ************************************************
+
+#building-add-location {
+  & > section.content {
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
+// Add building OSM linkage
+// ************************************************
+
+#building-add-osm {
+  & > section.content {
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
 // Building
 // ************************************************
 

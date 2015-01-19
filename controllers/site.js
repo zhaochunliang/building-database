@@ -149,14 +149,22 @@ module.exports = function (passport) {
         console.log(err);
         res.send(err);
       }
-      
-      res.render("search", {
+
+      res.render("browse_new", {
         bodyId: "search",
         user: req.user,
         near: [req.params.lon, req.params.lat],
         pageCount: pageCount,
         buildings: buildings
       });
+      
+      // res.render("search", {
+      //   bodyId: "search",
+      //   user: req.user,
+      //   near: [req.params.lon, req.params.lat],
+      //   pageCount: pageCount,
+      //   buildings: buildings
+      // });
     });
   };
 
@@ -167,13 +175,20 @@ module.exports = function (passport) {
         console.log(err);
         res.send(err);
       }
-      
-      res.render("search", {
+
+      res.render("browse_new", {
         bodyId: "search",
         user: req.user,
         pageCount: pageCount,
         buildings: buildings
       });
+      
+      // res.render("search", {
+      //   bodyId: "search",
+      //   user: req.user,
+      //   pageCount: pageCount,
+      //   buildings: buildings
+      // });
     }, {sortBy: {createdAt: -1}});
   };
 
@@ -183,13 +198,20 @@ module.exports = function (passport) {
       if (err) {
         res.send(err);
       }
-      
-      res.render("search", {
+
+      res.render("browse_new", {
         bodyId: "search",
         user: req.user,
         pageCount: pageCount,
         buildings: buildings
       });
+      
+      // res.render("search", {
+      //   bodyId: "search",
+      //   user: req.user,
+      //   pageCount: pageCount,
+      //   buildings: buildings
+      // });
     }, {sortBy: {createdAt: -1}});
   };
 
@@ -199,13 +221,20 @@ module.exports = function (passport) {
       if (err) {
         res.send(err);
       }
-      
-      res.render("search", {
+
+      res.render("browse_new", {
         bodyId: "search",
         user: req.user,
         pageCount: pageCount,
         buildings: buildings
       });
+      
+      // res.render("search", {
+      //   bodyId: "search",
+      //   user: req.user,
+      //   pageCount: pageCount,
+      //   buildings: buildings
+      // });
     }, {sortBy: {createdAt: -1}});
   };
 

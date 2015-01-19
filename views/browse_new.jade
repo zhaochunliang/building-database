@@ -25,18 +25,31 @@ block content
   script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
 
   script.
-    var map = L.map("browse-map", {zoomControl: false}).setView([50, 0], 3);
+    var coords = [50, 0];
+    var zoom = 3;
+
+    var near = "!{near}".split(",");
+
+    var buildings = !{JSON.stringify(buildings)};
+    var buildingsById = {};
+  
+    if (buildings.length > 0) {
+      var building = buildings[0];
+      coords = [building.location.coordinates[1], building.location.coordinates[0]];
+    }
+
+    if (near[0] !== "") {
+      zoom = 16;
+    }
+
+    var map = L.map("browse-map", {zoomControl: false}).setView(coords, zoom);
 
     // Offset map
     map.panBy(L.point(-200, 50), {animate: false});
 
     L.tileLayer("http://{s}.tile.stamen.com/toner-lite/{z}/{x}/{y}.png", {
-      //- attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
       attribution: "&copy; <a href='http://stamen.com'>Stamen</a> & <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
     }).addTo(map);
-
-    var buildings = !{JSON.stringify(buildings)};
-    var buildingsById = {};
 
     // TODO: Cluster markers
     // https://github.com/Leaflet/Leaflet.markercluster
@@ -64,8 +77,9 @@ block content
 
           // TODO: Zoom in on marker
         });
-
-        if (index + 1 === buildings.length) {
+  
+        // TODO: Open on building id defined in URL hash 
+        if (index === 0) {
           popup.openOn(map);
         }
 
@@ -81,11 +95,10 @@ block content
       var id = this.dataset.id;
       var building = buildingsById[id];
 
-      map.setView([building.location.coordinates[1], building.location.coordinates[0]], 3);
+      map.setView([building.location.coordinates[1], building.location.coordinates[0]], zoom);
 
       // Offset map
       map.panBy(L.point(-200, 50), {animate: true});
 
       building.popup.openOn(map);
-    // Prevent children from hijacking click
     });

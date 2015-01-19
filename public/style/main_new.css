@@ -931,55 +931,55 @@ header.navigation {
     top: -105px;
     width: 10px; }
 
-#browse header.navigation {
+#browse header.navigation, #search header.navigation {
   border-bottom: 10px solid #4a4a4a; }
-#browse > section.content .container {
+#browse > section.content .container, #search > section.content .container {
   max-width: 68em;
   margin-left: auto;
   margin-right: auto;
   pointer-events: none;
   position: relative;
   z-index: 10; }
-  #browse > section.content .container:after {
+  #browse > section.content .container:after, #search > section.content .container:after {
     content: "";
     display: table;
     clear: both; }
-#browse > section.content .details {
+#browse > section.content .details, #search > section.content .details {
   background: #fff;
   pointer-events: auto;
   margin: 40px 0; }
-  #browse > section.content .details ul li {
+  #browse > section.content .details ul li, #search > section.content .details ul li {
     padding: 10px; }
-    #browse > section.content .details ul li a {
+    #browse > section.content .details ul li a, #search > section.content .details ul li a {
       color: inherit; }
-    #browse > section.content .details ul li h2 {
+    #browse > section.content .details ul li h2, #search > section.content .details ul li h2 {
       font-size: 1.2em;
       line-height: 1;
       margin: 0; }
-    #browse > section.content .details ul li p {
+    #browse > section.content .details ul li p, #search > section.content .details ul li p {
       line-height: 1;
       margin: 0; }
-#browse #browse-map {
+#browse #browse-map, #search #browse-map {
   border-bottom: 10px solid #4a4a4a;
   height: 100%;
   margin-top: -163px;
   position: absolute;
   width: 100%; }
-  #browse #browse-map .leaflet-control-container > div {
+  #browse #browse-map .leaflet-control-container > div, #search #browse-map .leaflet-control-container > div {
     margin-top: 183px; }
-  #browse #browse-map .leaflet-popup {
+  #browse #browse-map .leaflet-popup, #search #browse-map .leaflet-popup {
     top: -5px !important; }
-  #browse #browse-map .leaflet-popup-content-wrapper {
+  #browse #browse-map .leaflet-popup-content-wrapper, #search #browse-map .leaflet-popup-content-wrapper {
     background: none;
     border-radius: 0;
     box-shadow: none;
     padding: 0; }
-  #browse #browse-map .leaflet-popup-content {
+  #browse #browse-map .leaflet-popup-content, #search #browse-map .leaflet-popup-content {
     line-height: 1;
     margin: 0; }
-  #browse #browse-map .leaflet-popup-close-button, #browse #browse-map .leaflet-popup-tip-container {
+  #browse #browse-map .leaflet-popup-close-button, #browse #browse-map .leaflet-popup-tip-container, #search #browse-map .leaflet-popup-close-button, #search #browse-map .leaflet-popup-tip-container {
     display: none; }
-#browse #browse-map-overlay {
+#browse #browse-map-overlay, #search #browse-map-overlay {
   background: #fff;
   border-bottom: 10px solid #2D2D2D;
   border-top: 10px solid #2D2D2D;
@@ -987,23 +987,23 @@ header.navigation {
   margin: 95px 0 0;
   padding: 20px;
   width: 450px; }
-  #browse #browse-map-overlay h2 {
+  #browse #browse-map-overlay h2, #search #browse-map-overlay h2 {
     font-size: 2.5em;
     text-align: center;
     text-transform: uppercase; }
-    #browse #browse-map-overlay h2 a {
+    #browse #browse-map-overlay h2 a, #search #browse-map-overlay h2 a {
       color: inherit; }
-  #browse #browse-map-overlay p {
+  #browse #browse-map-overlay p, #search #browse-map-overlay p {
     font-size: 1.2em;
     margin: 0;
     text-align: center; }
-    #browse #browse-map-overlay p flag-icon {
+    #browse #browse-map-overlay p flag-icon, #search #browse-map-overlay p flag-icon {
       vertical-align: middle; }
-    #browse #browse-map-overlay p.buttons {
+    #browse #browse-map-overlay p.buttons, #search #browse-map-overlay p.buttons {
       margin-top: 15px; }
-      #browse #browse-map-overlay p.buttons a {
+      #browse #browse-map-overlay p.buttons a, #search #browse-map-overlay p.buttons a {
         color: #fff; }
-  #browse #browse-map-overlay .stalk {
+  #browse #browse-map-overlay .stalk, #search #browse-map-overlay .stalk {
     background-image: url("/images/map-marker.png");
     background-image: url("/images/map-marker.png");
     display: block;

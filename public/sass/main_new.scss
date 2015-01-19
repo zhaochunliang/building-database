@@ -594,6 +594,10 @@ body > footer {
 
     .container {
       @include outer-container;
+
+      #vizicities-viewport {
+        height: 400px;
+      }
     }
   }
 }
@@ -609,6 +613,10 @@ body > footer {
 
     .container {
       @include outer-container;
+
+      #add-osm-map {
+        height: 400px;
+      }
     }
   }
 }

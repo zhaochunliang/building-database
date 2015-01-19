@@ -20,7 +20,7 @@ block content
         button#add-osm-button(type="submit") Link with OpenStreetMap
         a#skip-button.button(href="/building/#{building._id}") Skip
 
-      div#map
+      div#add-osm-map
 
   link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
@@ -87,7 +87,7 @@ block content
       
       overpass.init();
       
-      ide.map = new L.Map("map");
+      ide.map = new L.Map("add-osm-map");
       var tilesUrl = settings.tileServer;
       var tilesAttrib = '&copy; <a href="www.openstreetmap.org/copyright">OpenStreetMap</a> contributors&ensp;<small>Data:ODbL, Map:cc-by-sa</small>';
       var tiles = new L.TileLayer(tilesUrl,{attribution:tilesAttrib});

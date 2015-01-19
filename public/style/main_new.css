@@ -952,6 +952,8 @@ body > footer {
       content: "";
       display: table;
       clear: both; }
+    #building-add-location > section.content .container #vizicities-viewport {
+      height: 400px; }
 
 #building-add-osm > section.content {
   padding: 40px 0; }
@@ -963,6 +965,8 @@ body > footer {
       content: "";
       display: table;
       clear: both; }
+    #building-add-osm > section.content .container #add-osm-map {
+      height: 400px; }
 
 #building > section.content {
   padding: 40px 0; }

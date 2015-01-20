@@ -658,7 +658,7 @@ header.navigation {
   background-image: url("/images/polygon-bg.png");
   background-color: #333;
   background-position: top center;
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 10px solid #4a4a4a;
   position: relative;
   width: 100%;
   z-index: 999; }
@@ -844,9 +844,7 @@ header.navigation {
           box-sizing: border-box;
           display: block; } }
   header.navigation .banner-wrapper {
-    border-bottom: 10px solid #4a4a4a;
     height: 450px;
-    margin-bottom: -1px;
     position: relative; }
     header.navigation .banner-wrapper .banner {
       max-width: 68em;
@@ -885,6 +883,44 @@ header.navigation {
             font-weight: normal; }
             header.navigation .banner-wrapper .banner .navigation-wrapper p.cta a:first-child {
               margin: 0 15px 0 0; }
+
+#search-form .twitter-typeahead, #building-add-location .twitter-typeahead {
+  width: 100%; }
+#search-form .typeahead, #search-form .tt-query, #search-form .tt-hint, #building-add-location .typeahead, #building-add-location .tt-query, #building-add-location .tt-hint {
+  width: 100%;
+  outline: none; }
+#search-form .typeahead, #building-add-location .typeahead {
+  background-color: #fff; }
+#search-form .typeahead:focus, #building-add-location .typeahead:focus {
+  border: 2px solid #0097cf; }
+#search-form .tt-query, #building-add-location .tt-query {
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075); }
+#search-form .tt-hint, #building-add-location .tt-hint {
+  color: #999; }
+#search-form .tt-dropdown-menu, #building-add-location .tt-dropdown-menu {
+  width: 422px;
+  margin-top: 0;
+  padding: 8px 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border-radius: 8px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); }
+#search-form .tt-suggestion, #building-add-location .tt-suggestion {
+  padding: 3px 20px;
+  font-size: 18px;
+  line-height: 24px; }
+#search-form .tt-suggestion.tt-cursor, #building-add-location .tt-suggestion.tt-cursor {
+  color: #fff;
+  background-color: #0097cf; }
+#search-form .tt-suggestion p, #building-add-location .tt-suggestion p {
+  margin: 0; }
 
 #home #home-map {
   border-bottom: 10px solid #4a4a4a;
@@ -931,8 +967,6 @@ header.navigation {
     top: -105px;
     width: 10px; }
 
-#browse header.navigation, #search header.navigation {
-  border-bottom: 10px solid #4a4a4a; }
 #browse > section.content .container, #search > section.content .container {
   max-width: 68em;
   margin-left: auto;
@@ -946,22 +980,29 @@ header.navigation {
     clear: both; }
 #browse > section.content .details, #search > section.content .details {
   background: #fff;
+  background: #fff;
+  border-bottom: 10px solid #2D2D2D;
+  border-top: 10px solid #2D2D2D;
+  box-shadow: 0 0 100px #999;
   pointer-events: auto;
-  margin: 40px 0; }
-  #browse > section.content .details ul li, #search > section.content .details ul li {
+  margin: 80px 0 0; }
+  #browse > section.content .details ul, #search > section.content .details ul {
     padding: 10px; }
-    #browse > section.content .details ul li a, #search > section.content .details ul li a {
-      color: inherit; }
-    #browse > section.content .details ul li h2, #search > section.content .details ul li h2 {
-      font-size: 1.2em;
-      line-height: 1;
-      margin: 0; }
-    #browse > section.content .details ul li p, #search > section.content .details ul li p {
-      line-height: 1;
-      margin: 0; }
+    #browse > section.content .details ul li, #search > section.content .details ul li {
+      padding: 10px; }
+      #browse > section.content .details ul li a, #search > section.content .details ul li a {
+        color: inherit; }
+      #browse > section.content .details ul li h2, #search > section.content .details ul li h2 {
+        font-size: 1.2em;
+        line-height: 1;
+        margin: 0; }
+      #browse > section.content .details ul li p, #search > section.content .details ul li p {
+        line-height: 1;
+        margin: 0; }
 #browse #browse-map, #search #browse-map {
   border-bottom: 10px solid #4a4a4a;
   height: 100%;
+  min-height: 950px;
   margin-top: -163px;
   position: absolute;
   width: 100%; }
@@ -1015,6 +1056,7 @@ header.navigation {
     width: 10px; }
 
 #login > section.content {
+  border-bottom: 10px solid #4a4a4a;
   padding: 40px 0; }
   #login > section.content .container {
     max-width: 68em;
@@ -1026,6 +1068,7 @@ header.navigation {
       clear: both; }
 
 #register > section.content {
+  border-bottom: 10px solid #4a4a4a;
   padding: 40px 0; }
   #register > section.content .container {
     max-width: 68em;
@@ -1036,7 +1079,20 @@ header.navigation {
       display: table;
       clear: both; }
 
+#forgot > section.content {
+  border-bottom: 10px solid #4a4a4a;
+  padding: 40px 0; }
+  #forgot > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #forgot > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+
 #search-form > section.content {
+  border-bottom: 10px solid #4a4a4a;
   padding: 40px 0; }
   #search-form > section.content .container {
     max-width: 68em;
@@ -1048,6 +1104,7 @@ header.navigation {
       clear: both; }
 
 #building-add > section.content {
+  border-bottom: 10px solid #4a4a4a;
   padding: 40px 0; }
   #building-add > section.content .container {
     max-width: 68em;
@@ -1059,6 +1116,7 @@ header.navigation {
       clear: both; }
 
 #building-add-location > section.content {
+  border-bottom: 10px solid #4a4a4a;
   padding: 40px 0; }
   #building-add-location > section.content .container {
     max-width: 68em;
@@ -1072,6 +1130,7 @@ header.navigation {
       height: 400px; }
 
 #building-add-osm > section.content {
+  border-bottom: 10px solid #4a4a4a;
   padding: 40px 0; }
   #building-add-osm > section.content .container {
     max-width: 68em;
@@ -1100,6 +1159,7 @@ header.navigation {
     background: #fff; }
 #building #building-map {
   height: 100%;
+  min-height: 900px;
   margin-top: -163px;
   position: absolute;
   width: 100%; }

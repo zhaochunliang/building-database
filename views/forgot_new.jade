@@ -1,0 +1,13 @@
+extends layout_new
+ 
+block content
+  section.container
+    div.col-7
+      h1 Account recovery
+      
+      form(action="/forgot", method="POST")
+        input(type="email", name="email" placeholder="Email", required, autofocus)
+        button(type="submit") Reset password
+      #message
+        if message
+          h1.text-center.error-message #{message}

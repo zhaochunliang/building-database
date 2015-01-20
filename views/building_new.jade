@@ -30,8 +30,9 @@ block content
         li #{building.stats.views} views
         li #{building.structure.vertices} vertices
         li #{building.structure.faces} faces
-        li
-          a(href="http://www.openstreetmap.org/#{building.osm.type}/#{building.osm.id}") View on OSM
+        if building.osm.id
+          li
+            a(href="http://www.openstreetmap.org/#{building.osm.type}/#{building.osm.id}") View on OSM
         li Added by 
           a(href="/search/user/#{buildingUser.id}") #{buildingUser.username}
       hr

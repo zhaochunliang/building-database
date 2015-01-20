@@ -688,6 +688,10 @@ header.navigation {
 
     .container {
       @include outer-container;
+
+      form {
+        margin-bottom: 20px;
+      }
     }
   }
 }
@@ -788,6 +792,10 @@ header.navigation {
 
     .container {
       @include outer-container;
+
+      #add-osm-button {
+        margin-right: 4px;
+      }
 
       #add-osm-map {
         height: 400px;

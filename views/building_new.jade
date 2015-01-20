@@ -1,13 +1,11 @@
 extends layout_new
 
 block content
+  div#vizicities-viewport
   div#building-map
-    div#building-map-overlay
-      div#vizicities-viewport
-      span.stalk
 
   section.container
-    div.col-7.details
+    div.col-5.details
       h1 #{building.name}
 
       p #{building.locality.district}, #{building.locality.country}
@@ -17,24 +15,25 @@ block content
       each model, key in building.models.raw
         - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
         button(href="/api/building/#{building._id}/download/raw/#{model.type}") Download .#{model.type} (#{size} KB)
-      button(href="/api/building/#{building._id}.kml") Download .kml
       each model, key in building.models.zip
         - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
         button(href="/api/building/#{building._id}/download/zip/#{model.type}") Download #{model.type} zip (#{size} KB)
+      button(href="/api/building/#{building._id}.kml") Download .kml
 
       a.license(rel="license", href="http://creativecommons.org/licenses/by-sa/4.0/")
         img(alt="Creative Commons License", style="border-width:0", src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png")
 
+      hr
+
       ul
-        li Stats: #{building.stats}
-        ul
-          li Vertices: #{building.structure.vertices}
-          li Faces: #{building.structure.faces} 
-        li OSM: 
+        li #{building.stats.downloads} downloads
+        li #{building.stats.views} views
+        li #{building.structure.vertices} vertices
+        li #{building.structure.faces} faces
+        li
           a(href="http://www.openstreetmap.org/#{building.osm.type}/#{building.osm.id}") View on OSM
-        li User ID: #{building.userId}
-        li Created: #{building.createdAt}
-        li Updated: #{building.updatedAt}
+        li Added by 
+          a(href="/search/user/#{building.userId}") #{building.userId}
       hr
       p
         a(href="/building/#{building._id}/report") Report building
@@ -48,7 +47,7 @@ block content
   link(rel="stylesheet", href="/lib/vizicities/vizi.css")
   script(src="/lib/vizicities/vizi.min.js")
   script.
-    var map = L.map("building-map", {zoomControl:false}).setView([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}], 4);
+    var map = L.map("building-map", {zoomControl:false}).setView([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}], 16);
 
     // Offset map
     map.panBy(L.point(-330, 50), {animate: false});

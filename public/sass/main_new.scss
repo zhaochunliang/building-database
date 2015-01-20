@@ -793,17 +793,41 @@ header.navigation {
 
 #building {
   & > section.content {
-    padding: 40px 0;
-
     .container {
       @include outer-container;
-
+      
+      pointer-events: none;
       position: relative;
       z-index: 10;
     }
 
     .details {
       background: #fff;
+      background: #fff;
+      border-bottom: 10px solid #2D2D2D;
+      border-top: 10px solid #2D2D2D;
+      box-shadow: 0 0 100px #999;
+      padding: 20px;
+      pointer-events: auto;
+      margin: 80px 0 0;
+
+      ul {
+        li {}
+      }
+
+      button {
+        margin: 5px 0;
+        width: 100%;
+      }
+
+      .license {
+        display: inline-block;
+        margin: 5px 0;
+      }
+
+      hr {
+        margin: 1em 0;
+      }
     }
   }
 
@@ -814,66 +838,21 @@ header.navigation {
     margin-top: -163px;
     position: absolute;
     width: 100%;
-
-    .leaflet-control-container > div {
-      margin-top: 183px;
-    }
-
-    .leaflet-popup {
-      // Override inline styling on popup
-      top: -5px !important;
-    }
-
-    // Reset popup wrapper styles
-    .leaflet-popup-content-wrapper {
-      background: none;
-      border-radius: 0;
-      box-shadow: none;
-      padding: 0;
-    }
-
-    .leaflet-popup-content {
-      line-height: 1;
-      margin: 0;
-    }
-
-    // Hide default popup styling
-    .leaflet-popup-close-button, 
-    .leaflet-popup-tip-container {
-      display: none;
-    }
-  }
-
-  #building-map-overlay {
-    background: rgba(255, 255, 255, 0.9);
-    border-bottom: 10px solid #2D2D2D;
-    border-top: 10px solid #2D2D2D;
-    box-shadow: 0 0 100px #999;
-    left: 50%;
-    // map offset - halfWidth
-    margin: 40px 0 0 155px;
-    padding: 20px;
-    position: absolute;
-    top: 50%;
-    width: 350px;
-    z-index: 10;
-
-    p {}
-
-    .stalk {
-      @include background-image(url("/images/map-marker.png"));
-
-      display: block;
-      height: 100px;
-      left: 50%;
-      margin: 0 0 0 -5px;
-      position: absolute;
-      top: -105px;
-      width: 10px;
-    }
   }
 
   #vizicities-viewport {
-    height: 300px;
+    border-bottom: 10px solid #4a4a4a;
+    height: 100%;
+    min-height: 900px;
+    margin-top: -163px;
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+
+    canvas {
+      margin-left: 250px;
+      margin-top: 100px;
+    }
   }
 }

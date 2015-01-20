@@ -1143,61 +1143,49 @@ header.navigation {
     #building-add-osm > section.content .container #add-osm-map {
       height: 400px; }
 
-#building > section.content {
-  padding: 40px 0; }
-  #building > section.content .container {
-    max-width: 68em;
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
-    z-index: 10; }
-    #building > section.content .container:after {
-      content: "";
-      display: table;
-      clear: both; }
-  #building > section.content .details {
-    background: #fff; }
+#building > section.content .container {
+  max-width: 68em;
+  margin-left: auto;
+  margin-right: auto;
+  pointer-events: none;
+  position: relative;
+  z-index: 10; }
+  #building > section.content .container:after {
+    content: "";
+    display: table;
+    clear: both; }
+#building > section.content .details {
+  background: #fff;
+  background: #fff;
+  border-bottom: 10px solid #2D2D2D;
+  border-top: 10px solid #2D2D2D;
+  box-shadow: 0 0 100px #999;
+  padding: 20px;
+  pointer-events: auto;
+  margin: 80px 0 0; }
+  #building > section.content .details button, #building > section.content .details a.button, #building > section.content .details header.navigation .signup, header.navigation #building > section.content .details .signup, #building > section.content .details header.navigation .login, header.navigation #building > section.content .details .login, #building > section.content .details header.navigation .logout, header.navigation #building > section.content .details .logout, #building > section.content .details header.navigation .banner-wrapper .banner .navigation-wrapper p.cta a, header.navigation .banner-wrapper .banner .navigation-wrapper p.cta #building > section.content .details a {
+    margin: 5px 0;
+    width: 100%; }
+  #building > section.content .details .license {
+    display: inline-block;
+    margin: 5px 0; }
+  #building > section.content .details hr {
+    margin: 1em 0; }
 #building #building-map {
   height: 100%;
   min-height: 900px;
   margin-top: -163px;
   position: absolute;
   width: 100%; }
-  #building #building-map .leaflet-control-container > div {
-    margin-top: 183px; }
-  #building #building-map .leaflet-popup {
-    top: -5px !important; }
-  #building #building-map .leaflet-popup-content-wrapper {
-    background: none;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 0; }
-  #building #building-map .leaflet-popup-content {
-    line-height: 1;
-    margin: 0; }
-  #building #building-map .leaflet-popup-close-button, #building #building-map .leaflet-popup-tip-container {
-    display: none; }
-#building #building-map-overlay {
-  background: rgba(255, 255, 255, 0.9);
-  border-bottom: 10px solid #2D2D2D;
-  border-top: 10px solid #2D2D2D;
-  box-shadow: 0 0 100px #999;
-  left: 50%;
-  margin: 40px 0 0 155px;
-  padding: 20px;
-  position: absolute;
-  top: 50%;
-  width: 350px;
-  z-index: 10; }
-  #building #building-map-overlay .stalk {
-    background-image: url("/images/map-marker.png");
-    background-image: url("/images/map-marker.png");
-    display: block;
-    height: 100px;
-    left: 50%;
-    margin: 0 0 0 -5px;
-    position: absolute;
-    top: -105px;
-    width: 10px; }
 #building #vizicities-viewport {
-  height: 300px; }
+  border-bottom: 10px solid #4a4a4a;
+  height: 100%;
+  min-height: 900px;
+  margin-top: -163px;
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  z-index: 10; }
+  #building #vizicities-viewport canvas {
+    margin-left: 250px;
+    margin-top: 100px; }

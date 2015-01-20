@@ -1177,6 +1177,10 @@ header.navigation {
   margin-top: -163px;
   position: absolute;
   width: 100%; }
+  #building #building-map .leaflet-bottom {
+    bottom: 10px; }
+  #building #building-map .leaflet-right {
+    right: 130px; }
 #building #vizicities-viewport {
   border-bottom: 10px solid #4a4a4a;
   height: 100%;

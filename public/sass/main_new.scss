@@ -838,6 +838,14 @@ header.navigation {
     margin-top: -163px;
     position: absolute;
     width: 100%;
+
+    .leaflet-bottom {
+      bottom: 10px;
+    }
+
+    .leaflet-right {
+      right: 130px;
+    }
   }
 
   #vizicities-viewport {

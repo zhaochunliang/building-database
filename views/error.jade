@@ -1,7 +1,8 @@
-extends layout
+extends layout_new
 
 block content
-  section.details
-    h1= message
-    h2= error.status
-    pre #{error.stack}
+  section.container
+    div.col-7
+      h1 message
+      h2 error.status
+      pre #{error.stack}

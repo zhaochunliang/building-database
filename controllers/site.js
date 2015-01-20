@@ -2,6 +2,7 @@ var nodemailer = require("nodemailer");
 
 module.exports = function (passport) {
   var Building = require("../models/building");
+  var User = require("../models/user");
 
   // Endpoint / for GET
   var getIndex = function(req, res) {
@@ -10,7 +11,7 @@ module.exports = function (passport) {
         res.send(err);
       }
       
-      res.render("index", {
+      res.render("index_new", {
         bodyId: "home",
         user: req.user,
         buildings: buildings,
@@ -25,7 +26,7 @@ module.exports = function (passport) {
         res.send(err);
       }
       
-      res.render("browse", {
+      res.render("browse_new", {
         bodyId: "browse",
         user: req.user,
         pageCount: pageCount,
@@ -47,19 +48,38 @@ module.exports = function (passport) {
         return;
       }
 
-      // Increment statistics
-      building.stats.views += 1;
-
-      building.save(function(err) {
+      // Find uploading user
+      User.findById(building.userId, function(err, user) {
         if (err) {
           res.send(err);
           return;
         }
-        
-        res.render("building", {
-          bodyId: "building",
-          user: req.user,
-          building: building
+
+        if (!user) {
+          res.sendStatus(404);
+          return;
+        }
+
+        buildingUser = {
+          id: user._id,
+          username: user.username
+        };
+
+        // Increment statistics
+        building.stats.views += 1;
+
+        building.save(function(err) {
+          if (err) {
+            res.send(err);
+            return;
+          }
+          
+          res.render("building_new", {
+            bodyId: "building",
+            user: req.user,
+            building: building,
+            buildingUser: buildingUser
+          });
         });
       });
     });
@@ -67,7 +87,8 @@ module.exports = function (passport) {
 
   // Endpoint /building/:building_id/report for GET
   var getBuildingReport = function(req, res) {
-    res.render("building-report", {
+    res.render("building-report_new", {
+      bodyId: "building-report",
       message: req.flash("message"),
       user: req.user
     });
@@ -106,7 +127,8 @@ module.exports = function (passport) {
 
   // Endpoint /search for GET
   var getSearch = function(req, res) {
-    res.render("search-form", {
+    res.render("search-form_new", {
+      bodyId: "search-form",
       user: req.user
     });
   };
@@ -148,14 +170,22 @@ module.exports = function (passport) {
         console.log(err);
         res.send(err);
       }
-      
-      res.render("search", {
+
+      res.render("browse_new", {
         bodyId: "search",
         user: req.user,
         near: [req.params.lon, req.params.lat],
         pageCount: pageCount,
         buildings: buildings
       });
+      
+      // res.render("search", {
+      //   bodyId: "search",
+      //   user: req.user,
+      //   near: [req.params.lon, req.params.lat],
+      //   pageCount: pageCount,
+      //   buildings: buildings
+      // });
     });
   };
 
@@ -166,13 +196,20 @@ module.exports = function (passport) {
         console.log(err);
         res.send(err);
       }
-      
-      res.render("search", {
+
+      res.render("browse_new", {
         bodyId: "search",
         user: req.user,
         pageCount: pageCount,
         buildings: buildings
       });
+      
+      // res.render("search", {
+      //   bodyId: "search",
+      //   user: req.user,
+      //   pageCount: pageCount,
+      //   buildings: buildings
+      // });
     }, {sortBy: {createdAt: -1}});
   };
 
@@ -182,13 +219,20 @@ module.exports = function (passport) {
       if (err) {
         res.send(err);
       }
-      
-      res.render("search", {
+
+      res.render("browse_new", {
         bodyId: "search",
         user: req.user,
         pageCount: pageCount,
         buildings: buildings
       });
+      
+      // res.render("search", {
+      //   bodyId: "search",
+      //   user: req.user,
+      //   pageCount: pageCount,
+      //   buildings: buildings
+      // });
     }, {sortBy: {createdAt: -1}});
   };
 
@@ -198,19 +242,27 @@ module.exports = function (passport) {
       if (err) {
         res.send(err);
       }
-      
-      res.render("search", {
+
+      res.render("browse_new", {
         bodyId: "search",
         user: req.user,
         pageCount: pageCount,
         buildings: buildings
       });
+      
+      // res.render("search", {
+      //   bodyId: "search",
+      //   user: req.user,
+      //   pageCount: pageCount,
+      //   buildings: buildings
+      // });
     }, {sortBy: {createdAt: -1}});
   };
 
   // Endpoint /add for GET
   var getAdd = function(req, res) {
-    res.render("add", {
+    res.render("add_new", {
+      bodyId: "building-add",
       user: req.user
     });
   };
@@ -231,7 +283,8 @@ module.exports = function (passport) {
         return;
       }
 
-      res.render("add-location", {
+      res.render("add-location_new", {
+        bodyId: "building-add-location",
         user: req.user,
         building: building
       });
@@ -254,8 +307,8 @@ module.exports = function (passport) {
         return;
       }
 
-      res.render("add-osm", {
-        bodyId: "add-osm",
+      res.render("add-osm_new", {
+        bodyId: "building-add-osm",
         user: req.user,
         building: building
       });

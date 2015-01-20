@@ -1,0 +1,17 @@
+extends layout_new
+ 
+block content
+  section.container
+    div.col-7
+      h1 Login 
+      
+      form(action="/login", method="POST")
+        input(type="text", name="username" placeholder="Username", required, autofocus)
+        input(type="password", name="password" placeholder="Password", required)
+        button(type="submit") Sign in
+      a(href="/forgot") Forgot your login details?
+      br
+      a(href="/signup") Create an account
+      #message
+        if message
+          h2.text-center.error-message #{message}

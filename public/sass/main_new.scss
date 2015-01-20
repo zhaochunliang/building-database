@@ -1,0 +1,900 @@
+@import "normalize";
+
+@import "bourbon";
+@import "base/base";
+@import "neat";
+
+
+// ************************************************
+// Typography
+// ************************************************
+
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700italic,700,900,900italic);
+@include font-face(Lovelo, "/fonts/Lovelo/lovelo_black-webfont");
+
+body {
+  font-family: Roboto, Helvectica Neue, Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Roboto, Helvectica Neue, Helvetica, Arial, sans-serif;
+}
+
+body > section.content {
+  h1 {
+    border-bottom: 1px solid #333;
+    color: #333;
+    margin: 0 0 20px 0;
+    padding: 0 0 10px;
+    text-transform: uppercase;
+  }
+}
+
+textarea, input[type="email"], input[type="number"], input[type="password"], input[type="search"], input[type="tel"], input[type="text"], input[type="url"], input[type="color"], input[type="date"], input[type="datetime"], input[type="datetime-local"], input[type="month"], input[type="time"], input[type="week"], select[multiple=multiple] {
+  font-family: Roboto, Helvectica Neue, Helvetica, Arial, sans-serif;
+  font-weight: 200;
+}
+
+
+// ************************************************
+// Body styles
+// ************************************************
+
+html, body {
+  height: 100%;
+}
+
+body {
+  // Set background to give illusion of extended footer
+  @include background-image(url("/images/polygon-bg.png"));
+  background-position: top center;
+}
+
+body > section.content {
+  background: #fff;
+}
+
+a.button {
+  @extend button;
+
+  color: #fff;
+}
+
+
+// ************************************************
+// Grid
+// ************************************************
+
+.col-1 {
+  @include span-columns(1);
+}
+
+.col-2 {
+  @include span-columns(2);
+}
+
+.col-3 {
+  @include span-columns(3);
+}
+
+.col-4 {
+  @include span-columns(4);
+}
+
+.col-5 {
+  @include span-columns(5);
+}
+
+.col-6 {
+  @include span-columns(6);
+}
+
+.col-7 {
+  @include span-columns(7);
+}
+
+.col-8 {
+  @include span-columns(8);
+}
+
+.col-9 {
+  @include span-columns(9);
+}
+
+.col-10 {
+  @include span-columns(10);
+}
+
+.col-11 {
+  @include span-columns(11);
+}
+
+.col-12 {
+  @include span-columns(12);
+}
+
+
+// ************************************************
+// Navigation
+// ************************************************
+
+header.navigation {
+  $navigation-padding: 1em;
+  $navigation-background: $dark-gray;
+  $navigation-color: transparentize(white, 0.3);
+  $navigation-color-hover: white;
+  $navigation-height: 60px;
+  $navigation-nav-button-background: $base-accent-color;
+  $navigation-nav-button-background-hover: lighten($navigation-background, 10);
+  $navigation-nav-button-border: 1px solid lighten($navigation-nav-button-background, 20);
+  $navigation-search-background: lighten($navigation-background, 5);
+  $navigation-search-border: 1px solid darken($navigation-background, 5);
+  $navigation-active-link-color: transparentize(white, 0.5);
+  $navigation-submenu-padding: 1em;
+  $navigation-submenu-width: 12em;
+  $horizontal-bar-mode: $large-screen;
+
+  @include background-image(url("/images/polygon-bg.png"));
+
+  background-color: $navigation-background;
+  background-position: top center;
+  border-bottom: 10px solid #4a4a4a;
+  position: relative;
+  width: 100%;
+  z-index: 999;
+
+  .navigation-wrapper {
+    @include clearfix;
+    @include outer-container;
+    position: relative;
+    z-index: 9999;
+  }
+
+  .logo {
+    float: left;    
+    max-height: $navigation-height;
+    padding-left: $navigation-padding;
+    padding-right: 2em;
+
+    img {
+      max-height: $navigation-height;
+      padding: .8em 0;
+    }
+  }
+
+  
+  // Mobile view
+
+  .navigation-menu-button {
+    color: $navigation-color;
+    display: block;
+    float: right;
+    font-family: $sans-serif;
+    font-weight: 700;
+    line-height: $navigation-height;
+    margin: 0;
+    padding-right: 1em;
+    text-transform: uppercase;
+
+    @include media ($horizontal-bar-mode) {
+      display: none;
+    }
+
+    &:hover {
+      color: $navigation-color-hover;
+    }
+  }
+
+  
+  // Nav menu
+
+  .nav {
+    z-index: 9999999;
+    float: none;
+    @include media ($horizontal-bar-mode) {
+      float: left;
+    }
+  }
+
+  ul#navigation-menu {    
+    -webkit-transform-style: preserve-3d; 
+    // stop webkit flicker
+    clear: both;
+    display: none;
+    margin: 0 auto;
+    overflow: visible;
+    padding: 0;
+    width: 100%;
+    z-index: 9999;
+
+    @include media ($horizontal-bar-mode) {
+      display: inline;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  
+  // The nav items
+
+  ul li.nav-link {
+    background: $navigation-background;
+    display: block;
+    line-height: $navigation-height;
+    overflow: hidden;
+    padding-right: .8em;
+    text-align: right;
+    width: 100%;
+    z-index: 9999;
+
+    @include media ($horizontal-bar-mode) {
+      background: transparent;
+      display: inline;
+      line-height: $navigation-height;
+      text-decoration: none;
+      width: auto;
+    }
+
+    a {
+      color: $navigation-color;
+      display: inline-block;
+      font-weight: 400;
+
+      @include media ($horizontal-bar-mode) {
+        padding-right: 1em;
+      }
+
+      &:hover {
+        color: $navigation-color-hover;
+      }
+    }
+  }
+
+  // .active-nav-item a {
+  //   border-bottom: 1px solid $navigation-active-link-color;
+  //   padding-bottom: 3px;
+  // }
+
+  
+  // Elements on the far right
+
+  .navigation-tools {
+    @include clearfix;
+    display: block;
+    padding-right: $navigation-padding;
+    padding-left: $navigation-padding/2;
+    clear: both;
+    background: #505050;
+
+    @include media($large-screen) {
+      background: transparent;
+      float: right;
+      clear: none;
+    }
+  }
+
+  .signup, .login, .logout {
+    @extend button;
+    margin-left: 0;
+    margin-top: 1.1em;
+    float: right;
+    display: inline;
+    font-size: .8em;  
+    text-transform: uppercase;
+    padding: .75em 1em;
+  }
+
+  .login {
+    margin-left: 0.75em;
+  }
+
+  
+  // Search bar
+
+  .search-bar {
+    $search-bar-border-color: $base-border-color;
+    $search-bar-border: 1px solid $search-bar-border-color;
+    $search-bar-background: lighten($search-bar-border-color, 10);
+
+    padding: .75em .6em; 
+    width: 60%;
+    float: left;
+
+    .search-and-submit {
+      position: relative;
+
+      input[type=search] {
+        background: $navigation-search-background;
+        border: $navigation-search-border;
+        padding: .6em 1em;
+        font-size: .9em;
+        font-style: italic;
+        color: $navigation-color;
+        border-radius: $base-border-radius * 2;
+        margin: 0;
+
+        @include media($large-screen) {
+          width: 100%;
+        }
+      }
+
+      button[type=submit] {
+        @include button(flat, $navigation-search-background);
+        position: absolute;
+        top: 0.3em;
+        right: 0.3em;
+        bottom: 0.3em;
+        left: auto;
+        outline: none;
+        padding: 0 15px;
+
+        img {
+          height: 12px;
+          opacity: .7;
+        }
+      }
+    }
+
+    @include media($horizontal-bar-mode) {
+      width: 16em;
+      position: relative; 
+      display: inline-block;
+
+      input {
+        @include box-sizing(border-box);
+        display: block;
+      }
+    }
+  }
+
+  .banner-wrapper {
+    height: 450px;
+    position: relative;
+
+    .banner {
+      @include outer-container;
+
+      .navigation-wrapper {
+        position: absolute;
+        top: 25%;
+        width: 100%;
+
+        h1 {
+          color: #fff;
+          font-family: Lovelo;
+          font-size: 5.15em;
+          line-height: 1em;
+          margin: 0;
+          text-align: center;
+          width: 100%;
+        }
+
+        p.tagline {
+          color: #fff;
+          font-family: Roboto;
+          font-size: 2em;
+          font-weight: 200;
+          line-height: 1em;
+          margin: 0;
+          text-align: center;
+          text-transform: uppercase;
+        }
+
+        p.cta {
+          margin: 50px 0 0;
+          text-align: center;
+
+          a {
+            @extend button;
+
+            font-size: 1.5em;
+            font-weight: normal;
+
+            &:first-child {
+              margin: 0 15px 0 0;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+// ************************************************
+// Typeahead
+// ************************************************
+
+#search-form, #building-add-location {
+  .twitter-typeahead {
+    width: 100%;
+  }
+
+  .typeahead,
+  .tt-query,
+  .tt-hint {
+    width: 100%;
+    outline: none;
+  }
+
+  .typeahead {
+    background-color: #fff;
+  }
+
+  .typeahead:focus {
+    border: 2px solid #0097cf;
+  }
+
+  .tt-query {
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+       -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  }
+
+  .tt-hint {
+    color: #999
+  }
+
+  .tt-dropdown-menu {
+    width: 422px;
+    margin-top: 0;
+    padding: 8px 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    -webkit-border-radius: 8px;
+       -moz-border-radius: 8px;
+            border-radius: 8px;
+    -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+       -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+            box-shadow: 0 5px 10px rgba(0,0,0,.2);
+  }
+
+  .tt-suggestion {
+    padding: 3px 20px;
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .tt-suggestion.tt-cursor {
+    color: #fff;
+    background-color: #0097cf;
+
+  }
+
+  .tt-suggestion p {
+    margin: 0;
+  }
+}
+
+
+// ************************************************
+// Home
+// ************************************************
+
+#home {
+  #home-map {
+    border-bottom: 10px solid #4a4a4a;
+    box-sizing: border-box;
+    cursor: default;
+    height: 600px;
+    margin-bottom: 100px;
+  }
+
+  #home-map-overlay {
+    background: #fff;
+    border-bottom: 10px solid #2D2D2D;
+    border-top: 10px solid #2D2D2D;
+    box-shadow: 0 0 100px #999;
+    display: none;
+    left: 50%;
+    margin: 0 0 0 -225px;
+    padding: 20px;
+    position: absolute;
+    top: 300px;
+    width: 450px;
+    z-index: 10;
+
+    h2 {
+      font-size: 2.5em;
+      text-align: center;
+      text-transform: uppercase;
+
+      a {
+        color: inherit;
+      }
+    }
+
+    p {
+      font-size: 1.2em;
+      margin: 0;
+      text-align: center;
+
+      flag-icon {
+        vertical-align: middle;
+      }
+
+      &.buttons {
+        margin-top: 15px;
+
+        // Override Leaflet link styles
+        a {
+          color: #fff;
+        }
+      }
+    }
+
+    .stalk {
+      @include background-image(url("/images/map-marker.png"));
+
+      display: block;
+      height: 100px;
+      left: 50%;
+      position: absolute;
+      top: -105px;
+      width: 10px;
+    }
+  }
+}
+
+
+// ************************************************
+// Browse & Search
+// ************************************************
+
+#browse, #search {
+  & > section.content { 
+    .container {
+      @include outer-container;
+      
+      pointer-events: none;
+      position: relative;
+      z-index: 10;
+    }
+
+    .details {
+      background: #fff;
+      background: #fff;
+      border-bottom: 10px solid #2D2D2D;
+      border-top: 10px solid #2D2D2D;
+      box-shadow: 0 0 100px #999;
+      pointer-events: auto;
+      margin: 80px 0 0;
+
+      ul {
+        padding: 10px;
+
+        li {
+          padding: 10px;
+
+          a {
+            color: inherit;
+          }
+
+          h2 {
+            font-size: 1.2em;
+            line-height: 1;
+            margin: 0;
+          }
+
+          p {
+            line-height: 1;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+
+  #browse-map {
+    border-bottom: 10px solid #4a4a4a;
+    height: 100%;
+    min-height: 950px;
+    // Move up by sum of navigation and footer heights
+    margin-top: -163px;
+    position: absolute;
+    width: 100%;
+
+    .leaflet-control-container > div {
+      margin-top: 183px;
+    }
+
+    .leaflet-popup {
+      // Override inline styling on popup
+      top: -5px !important;
+    }
+
+    // Reset popup wrapper styles
+    .leaflet-popup-content-wrapper {
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+      padding: 0;
+    }
+
+    .leaflet-popup-content {
+      line-height: 1;
+      margin: 0;
+    }
+
+    // Hide default popup styling
+    .leaflet-popup-close-button, 
+    .leaflet-popup-tip-container {
+      display: none;
+    }
+  }
+
+  #browse-map-overlay {
+    background: #fff;
+    border-bottom: 10px solid #2D2D2D;
+    border-top: 10px solid #2D2D2D;
+    box-shadow: 0 0 100px #999;
+    margin: 95px 0 0;
+    padding: 20px;
+    width: 450px;
+
+    h2 {
+      font-size: 2.5em;
+      text-align: center;
+      text-transform: uppercase;
+
+      a {
+        color: inherit;
+      }
+    }
+
+    p {
+      font-size: 1.2em;
+      margin: 0;
+      text-align: center;
+
+      flag-icon {
+        vertical-align: middle;
+      }
+
+      &.buttons {
+        margin-top: 15px;
+
+        // Override Leaflet link styles
+        a {
+          color: #fff;
+        }
+      }
+    }
+
+    .stalk {
+      @include background-image(url("/images/map-marker.png"));
+
+      display: block;
+      height: 100px;
+      left: 50%;
+      margin: 0 0 0 -5px;
+      position: absolute;
+      top: 0;
+      width: 10px;
+    }
+  }
+}
+
+
+// ************************************************
+// Login
+// ************************************************
+
+#login {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+
+      form {
+        margin-bottom: 20px;
+      }
+    }
+  }
+}
+
+
+// ************************************************
+// Sign up
+// ************************************************
+
+#register {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
+// Forgot
+// ************************************************
+
+#forgot {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
+// Search form
+// ************************************************
+
+#search-form {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
+// Add building
+// ************************************************
+
+#building-add {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
+// Add building location
+// ************************************************
+
+#building-add-location {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+
+      #vizicities-viewport {
+        height: 400px;
+      }
+    }
+  }
+}
+
+
+// ************************************************
+// Add building OSM linkage
+// ************************************************
+
+#building-add-osm {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+
+      #add-osm-button {
+        margin-right: 4px;
+      }
+
+      #add-osm-map {
+        height: 400px;
+      }
+    }
+  }
+}
+
+
+// ************************************************
+// Report building
+// ************************************************
+
+#building-report {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
+// Building
+// ************************************************
+
+#building {
+  & > section.content {
+    .container {
+      @include outer-container;
+      
+      pointer-events: none;
+      position: relative;
+      z-index: 10;
+    }
+
+    .details {
+      background: #fff;
+      background: #fff;
+      border-bottom: 10px solid #2D2D2D;
+      border-top: 10px solid #2D2D2D;
+      box-shadow: 0 0 100px #999;
+      padding: 20px;
+      pointer-events: auto;
+      margin: 80px 0 0;
+
+      ul {
+        li {}
+      }
+
+      button {
+        margin: 5px 0;
+        width: 100%;
+      }
+
+      .license {
+        display: inline-block;
+        margin: 5px 0;
+      }
+
+      hr {
+        margin: 1em 0;
+      }
+    }
+  }
+
+  #building-map {
+    height: 100%;
+    min-height: 900px;
+    // Move up by sum of navigation and footer heights
+    margin-top: -163px;
+    position: absolute;
+    width: 100%;
+
+    .leaflet-bottom {
+      bottom: 10px;
+    }
+
+    .leaflet-right {
+      right: 130px;
+    }
+  }
+
+  #vizicities-viewport {
+    border-bottom: 10px solid #4a4a4a;
+    height: 100%;
+    min-height: 900px;
+    margin-top: -163px;
+    overflow: hidden;
+    position: absolute;
+    width: 100%;
+    z-index: 10;
+
+    canvas {
+      margin-left: 250px;
+      margin-top: 100px;
+    }
+  }
+}

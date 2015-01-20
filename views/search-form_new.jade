@@ -1,0 +1,81 @@
+extends layout_new
+
+block content
+  section.container
+    div.col-7
+      h1 Search
+
+      form(action="/search", method="POST")
+        input(type="text", name="name", placeholder="Building name", autofocus)
+        button(type="submit") Search
+
+      p
+        strong or
+
+      input#pelias(type="text" placeholder="Enter place to search nearby")
+      
+      p
+        strong or
+      
+      button(type="button" id="find-near-me") Find buildings near me
+      
+      p
+        strong or
+
+      form(action="/search", method="POST")
+        input(type="text", name="longitude", placeholder="Longitude")
+        input(type="text", name="latitude", placeholder="Latitude")
+        input(type="text", name="distance", placeholder="Distance")
+        button(type="submit") Search
+
+  script(src="/lib/typeahead.js/dist/typeahead.bundle.min.js")
+  script(src="/lib/geolocator.min.js")
+
+  script.
+    var findNearMeButton = document.getElementById("find-near-me");
+
+    var pelias = new Bloodhound({
+      datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"),
+      queryTokenizer: Bloodhound.tokenizers.whitespace,
+      remote: {
+        // TODO: Work out how to perform a non-local search with Pelias
+        url: "http://pelias.mapzen.com/suggest?input=%QUERY&lat=51&lon=0",
+        filter: function(response) {
+          return $.map(response.features, function(feature) {
+            return {
+              name: feature.properties.name,
+              geometry: feature.geometry
+            };
+          });
+        }
+      }
+    });
+     
+    pelias.initialize();
+     
+    $("#pelias").typeahead(null, {
+      name: "pelias",
+      displayKey: "name",
+      source: pelias.ttAdapter()
+    }).on("typeahead:selected", function(event, suggestion, actionName) {
+      window.location.href = "/search/near/" + suggestion.geometry.coordinates[0] + "/" + suggestion.geometry.coordinates[1] + "/1000";
+    });
+
+    findNearMeButton.addEventListener("click", function(e) {
+      // Use the Geo Location API
+      var geoOptions = {
+        enableHighAccuracy: true,
+        timeout: 6000,
+        maximumAge: 0
+      };
+
+      geolocator.locate(onGeoSuccess, onGeoError, true, geoOptions);
+    });
+
+    var onGeoSuccess = function(location) {
+      window.location.href = "/search/near/" + location.coords.longitude + "/" + location.coords.latitude + "/1000";
+    };
+
+    var onGeoError = function(error) {
+      console.log(error);
+    };

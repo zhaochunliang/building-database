@@ -11,7 +11,8 @@ module.exports = function (passport) {
 
   // Endpoint /login for GET
   var getLogin = function(req, res) {
-    res.render("login", {
+    res.render("login_new", {
+      bodyId: "login",
       message: req.flash("message"),
       user: req.user
     });
@@ -34,7 +35,10 @@ module.exports = function (passport) {
 
   // Endpoint /signup for GET
   var getSignup = function(req, res) {
-    res.render("register", { message: req.flash("message") });
+    res.render("register_new", {
+      bodyId: "register",
+      message: req.flash("message")
+    });
   };
 
   // Endpoint /signup for POST
@@ -48,7 +52,8 @@ module.exports = function (passport) {
 
   // Endpoint /forgot for GET
   var getForgot = function(req, res) {
-    res.render("forgot", {
+    res.render("forgot_new", {
+      bodyId: "forgot",
       message: req.flash("message"),
       user: req.user
     });
@@ -119,7 +124,8 @@ module.exports = function (passport) {
         req.flash("message", "Password reset token is invalid or has expired.");
         return res.redirect("/forgot");
       }
-      res.render("reset", {
+      res.render("reset_new", {
+        bodyId: "reset",
         token: req.params.token,
         message: req.flash("message"),
         user: req.user

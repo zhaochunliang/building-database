@@ -788,6 +788,22 @@ header.navigation {
 
 
 // ************************************************
+// Report building
+// ************************************************
+
+#building-report {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
 // Building
 // ************************************************
 

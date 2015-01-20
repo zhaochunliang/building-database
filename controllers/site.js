@@ -67,7 +67,8 @@ module.exports = function (passport) {
 
   // Endpoint /building/:building_id/report for GET
   var getBuildingReport = function(req, res) {
-    res.render("building-report", {
+    res.render("building-report_new", {
+      bodyId: "building-report",
       message: req.flash("message"),
       user: req.user
     });

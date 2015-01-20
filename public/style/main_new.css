@@ -1143,6 +1143,18 @@ header.navigation {
     #building-add-osm > section.content .container #add-osm-map {
       height: 400px; }
 
+#building-report > section.content {
+  border-bottom: 10px solid #4a4a4a;
+  padding: 40px 0; }
+  #building-report > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #building-report > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+
 #building > section.content .container {
   max-width: 68em;
   margin-left: auto;

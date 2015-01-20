@@ -33,7 +33,7 @@ block content
         li
           a(href="http://www.openstreetmap.org/#{building.osm.type}/#{building.osm.id}") View on OSM
         li Added by 
-          a(href="/search/user/#{building.userId}") #{building.userId}
+          a(href="/search/user/#{buildingUser.id}") #{buildingUser.username}
       hr
       p
         a(href="/building/#{building._id}/report") Report building

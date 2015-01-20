@@ -2,6 +2,7 @@ var nodemailer = require("nodemailer");
 
 module.exports = function (passport) {
   var Building = require("../models/building");
+  var User = require("../models/user");
 
   // Endpoint / for GET
   var getIndex = function(req, res) {
@@ -47,19 +48,38 @@ module.exports = function (passport) {
         return;
       }
 
-      // Increment statistics
-      building.stats.views += 1;
-
-      building.save(function(err) {
+      // Find uploading user
+      User.findById(building.userId, function(err, user) {
         if (err) {
           res.send(err);
           return;
         }
-        
-        res.render("building_new", {
-          bodyId: "building",
-          user: req.user,
-          building: building
+
+        if (!user) {
+          res.sendStatus(404);
+          return;
+        }
+
+        buildingUser = {
+          id: user._id,
+          username: user.username
+        };
+
+        // Increment statistics
+        building.stats.views += 1;
+
+        building.save(function(err) {
+          if (err) {
+            res.send(err);
+            return;
+          }
+          
+          res.render("building_new", {
+            bodyId: "building",
+            user: req.user,
+            building: building,
+            buildingUser: buildingUser
+          });
         });
       });
     });

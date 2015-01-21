@@ -9,12 +9,23 @@ block content
         label(for="osm-id") OpenStreetMap type:
         select#osm-type(required)
           option(value="") Select a type
-          option(value="way") Way
-          option(value="relation") Relation
-          option(value="node") Node
+          if building.osm.type === "way"
+            option(value="way" selected) Way
+          else
+            option(value="way") Way
+          
+          if building.osm.type === "relation"
+            option(value="relation" selected) Relation
+          else
+            option(value="relation") Relation
+
+          if building.osm.type === "node"
+            option(value="node" selected) Node
+          else
+            option(value="node") Node
 
         label(for="osm-id") OpenStreetMap ID:
-        input#osm-id(type="text" placeholder="OpenStreetMap feature ID")
+        input#osm-id(type="text" placeholder="OpenStreetMap feature ID" value=(building.osm.id ? building.osm.id : ""))
         
         a#back-button.button(href="/add/location/#{building._id}") Back
         button#add-osm-button(type="submit") Link with OpenStreetMap

@@ -35,6 +35,8 @@ block content
             a(href="http://www.openstreetmap.org/#{building.osm.type}/#{building.osm.id}") View on OSM
         li Added by 
           a(href="/search/user/#{buildingUser.id}") #{buildingUser.username}
+        li 
+          a(href="/search/near/#{building.location.coordinates[0]}/#{building.location.coordinates[1]}/1000") See nearby buildings
       hr
       p
         a(href="/building/#{building._id}/report") Report building

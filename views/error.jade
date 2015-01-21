@@ -2,7 +2,7 @@ extends layout_new
 
 block content
   section.container
-    div.col-7
-      h1 message
-      h2 error.status
+    div.col-12
+      h1 #{message}
+      h2 #{error.status}
       pre #{error.stack}

@@ -929,6 +929,18 @@ header.navigation {
 #search-form .tt-suggestion p, #building-add-location .tt-suggestion p {
   margin: 0; }
 
+#error > section.content {
+  border-bottom: 10px solid #4a4a4a;
+  padding: 40px 0; }
+  #error > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #error > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+
 #home #home-map {
   border-bottom: 10px solid #4a4a4a;
   box-sizing: border-box;

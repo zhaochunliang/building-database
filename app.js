@@ -109,6 +109,7 @@ if (app.get("env") === "development") {
       return;
     } else {
       res.render("error", {
+        bodyId: "error",
         status: err.status,
         message: err.message,
         error: err
@@ -128,6 +129,7 @@ if (app.get("env") === "development") {
       return;
     } else {
       res.render("error", {
+        bodyId: "error",
         status: err.status,
         message: err.message,
         error: {}

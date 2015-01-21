@@ -13,7 +13,7 @@ block content
         input#scale(type="text", name="scale")
 
         label(for="angle") Angle:
-        input#angle(type="number", name="angle" min=0 max=360 step=0.001 value=0)
+        input#angle(type="text", name="angle")
 
         label(for="scale") Latitude:
         input#latitude(type="number", name="latitude" min=-90 max=90 step=0.00001 value=51.50358)
@@ -261,18 +261,39 @@ block content
       scaleInput.value = (world.layers[1].object.children[0].scale.x) ? world.layers[1].object.children[0].scale.x : 1;
     }, 750);
 
-    scaleInput.addEventListener("input", function(event) {
-      var scale = event.target.value;
-
-      updateScale(scale);
-    });
-
     angleInput.addEventListener("input", function(event) {
       var angle = event.target.value;
 
+      updateAngle(angle);
+    });
+
+    var onAngleChange = function(event) {
+      event.preventDefault();
+
+      if (event.wheelDelta > 0 || event.detail < 0) {
+        // Scroll up
+        angleInput.value = (!angleInput.value || angleInput.value === 0) ? 0.05 : Number(angleInput.value) + 0.05;
+      } else {
+        // Scroll down
+        angleInput.value = (!angleInput.value || angleInput.value === 0) ? -0.05 : Number(angleInput.value) - 0.05;
+      }
+
+      updateAngle(angleInput.value);
+    };
+
+    var updateAngle = function(angle) {
       // TODO: Find a more respectable way of accessing the collada object
       world.layers[1].object.children[0].rotation.y = -(angle * Math.PI / 180);
       world.layers[1].object.children[0].updateMatrix();
+    }
+
+    // Implement custom stepper logic for scale input
+    angleInput.addEventListener("mousewheel", onAngleChange);
+    angleInput.addEventListener("DOMMouseScroll", onAngleChange);
+
+    angleInput.addEventListener("input", function(event) {
+      var angle = event.target.value;
+      updateAngle(angle);
     });
 
     latitudeInput.addEventListener("input", function(event) {

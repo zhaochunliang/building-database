@@ -228,6 +228,13 @@ block content
     };
 
     update();
+  
+    // TODO: Work out a way to intelligently run this once the collada model has finished loading
+    setTimeout(function() {
+      // Set initial scale value
+      // TODO: Find a more respectable way of accessing the collada object
+      scaleInput.value = world.layers[1].object.children[0].scale.x;
+    }, 500);
 
     scaleInput.addEventListener("input", function(event) {
       var scale = event.target.value;

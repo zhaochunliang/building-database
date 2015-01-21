@@ -2,7 +2,7 @@ extends layout_new
 
 block content
   section.container
-    div.col-7
+    div.col-5
       h1 Link building to OpenStreetMap
 
       form#add-osm-form
@@ -30,7 +30,8 @@ block content
         a#back-button.button(href="/add/location/#{building._id}") Back
         button#add-osm-button(type="submit") Link with OpenStreetMap
         a#skip-button.button(href="/building/#{building._id}") Skip
-
+    
+    div.col-7
       div#add-osm-map
 
   link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css")

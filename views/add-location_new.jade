@@ -10,7 +10,7 @@ block content
         input#pelias(type="text" placeholder="Enter name of place to move to")
 
         label(for="scale") Scale:
-        input#scale(type="number", name="scale" min=0 step=0.01 value=1)
+        input#scale(type="text", name="scale")
 
         label(for="angle") Angle:
         input#angle(type="number", name="angle" min=0 max=360 step=0.001 value=0)
@@ -228,20 +228,42 @@ block content
     };
 
     update();
+
+    var onScaleChange = function(event) {
+      event.preventDefault();
+
+      if (event.wheelDelta > 0 || event.detail < 0) {
+        // Scroll (and scale) up
+        scaleInput.value *= 1.05;
+      } else {
+        // Scroll (and scale) down
+        scaleInput.value *= 0.95;
+      }
+
+      updateScale(scaleInput.value);
+    };
+
+    var updateScale = function(scale) {
+      // TODO: Find a more respectable way of accessing the collada object
+      world.layers[1].object.children[0].scale.set(scale, scale, scale);
+      world.layers[1].object.children[0].updateMatrix();
+    }
+
+    // Implement custom stepper logic for scale input
+    scaleInput.addEventListener("mousewheel", onScaleChange);
+    scaleInput.addEventListener("DOMMouseScroll", onScaleChange);
   
     // TODO: Work out a way to intelligently run this once the collada model has finished loading
     setTimeout(function() {
       // Set initial scale value
       // TODO: Find a more respectable way of accessing the collada object
-      scaleInput.value = world.layers[1].object.children[0].scale.x;
-    }, 500);
+      scaleInput.value = (world.layers[1].object.children[0].scale.x) ? world.layers[1].object.children[0].scale.x : 1;
+    }, 750);
 
     scaleInput.addEventListener("input", function(event) {
       var scale = event.target.value;
 
-      // TODO: Find a more respectable way of accessing the collada object
-      world.layers[1].object.children[0].scale.set(scale, scale, scale);
-      world.layers[1].object.children[0].updateMatrix();
+      updateScale(scale);
     });
 
     angleInput.addEventListener("input", function(event) {

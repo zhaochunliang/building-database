@@ -256,6 +256,7 @@ block content
     // TODO: Work out a way to intelligently run this once the collada model has finished loading
     setTimeout(function() {
       // Set initial scale value
+      // TODO: Use database scale if it exists (would need to remove default)
       // TODO: Find a more respectable way of accessing the collada object
       scaleInput.value = (world.layers[1].object.children[0].scale.x) ? world.layers[1].object.children[0].scale.x : 1;
     }, 750);

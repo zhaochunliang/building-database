@@ -231,7 +231,8 @@ block content
 
     var onScaleChange = function(event) {
       event.preventDefault();
-
+  
+      // TODO: Implement intelligent fractional change based on speed of scroll
       if (event.wheelDelta > 0 || event.detail < 0) {
         // Scroll (and scale) up
         scaleInput.value *= 1.05;
@@ -269,7 +270,8 @@ block content
 
     var onAngleChange = function(event) {
       event.preventDefault();
-
+      
+      // TODO: Implement intelligent fractional change based on speed of scroll
       if (event.wheelDelta > 0 || event.detail < 0) {
         // Scroll up
         angleInput.value = (!angleInput.value || angleInput.value === 0) ? 0.05 : Number(angleInput.value) + 0.05;

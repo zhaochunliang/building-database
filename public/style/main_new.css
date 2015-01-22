@@ -1018,6 +1018,11 @@ header.navigation {
       #browse > section.content .details ul li p, #search > section.content .details ul li p {
         line-height: 1;
         margin: 0; }
+  #browse > section.content .details .pagination ul, #search > section.content .details .pagination ul {
+    margin: 0 10px 10px;
+    padding: 0; }
+    #browse > section.content .details .pagination ul li, #search > section.content .details .pagination ul li {
+      padding: 0 10px 10px; }
 #browse #browse-map, #search #browse-map {
   border-bottom: 10px solid #4a4a4a;
   height: 100%;

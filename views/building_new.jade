@@ -38,6 +38,8 @@ block content
       hr
       p
         a(href="/building/#{building._id}/report") Report building
+        if (user && user._id.toString() === buildingUser.id.toString())
+          a.right(href="/add/location/#{building._id}") Edit location
 
   script(src="/lib/webcomponentsjs/webcomponents.min.js")
   link(rel="import" href="/lib/flag-icon/flag-icon.html")

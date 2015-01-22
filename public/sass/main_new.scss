@@ -889,12 +889,16 @@ header.navigation {
       hr {
         margin: 1em 0;
       }
+
+      a.right {
+        float: right;
+      }
     }
   }
 
   #building-map {
     height: 100%;
-    min-height: 900px;
+    min-height: 1000px;
     // Move up by sum of navigation and footer heights
     margin-top: -163px;
     position: absolute;
@@ -912,7 +916,7 @@ header.navigation {
   #vizicities-viewport {
     border-bottom: 10px solid #4a4a4a;
     height: 100%;
-    min-height: 900px;
+    min-height: 1000px;
     margin-top: -163px;
     overflow: hidden;
     position: absolute;

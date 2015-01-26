@@ -1005,6 +1005,8 @@ header.navigation {
   box-shadow: 0 0 100px #999;
   pointer-events: auto;
   margin: 80px 0 0; }
+  #browse > section.content .details p, #search > section.content .details p {
+    margin: 10px; }
   #browse > section.content .details ul, #search > section.content .details ul {
     padding: 10px; }
     #browse > section.content .details ul li, #search > section.content .details ul li {
@@ -1235,3 +1237,46 @@ header.navigation {
   #building #vizicities-viewport canvas {
     margin-left: 250px;
     margin-top: 100px; }
+
+#user > section.content {
+  border-bottom: 10px solid #4a4a4a;
+  padding: 40px 0; }
+  #user > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #user > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+  #user > section.content .button {
+    margin-right: 4px; }
+  #user > section.content h1 img {
+    margin-right: 10px; }
+  #user > section.content h2 {
+    margin: 20px 0 10px; }
+  #user > section.content .details {
+    background: #fff;
+    border-bottom: 5px solid #2D2D2D;
+    border-top: 10px solid #2D2D2D;
+    margin: 20px 0; }
+    #user > section.content .details p {
+      margin: 10px 0; }
+    #user > section.content .details ul {
+      padding: 10px 0; }
+      #user > section.content .details ul li {
+        padding: 10px 0; }
+        #user > section.content .details ul li a {
+          color: inherit; }
+        #user > section.content .details ul li h2 {
+          font-size: 1.2em;
+          line-height: 1;
+          margin: 0; }
+        #user > section.content .details ul li p {
+          line-height: 1;
+          margin: 0; }
+    #user > section.content .details .pagination ul {
+      margin: 0 0 10px;
+      padding: 0; }
+      #user > section.content .details .pagination ul li {
+        padding: 0 0 10px; }

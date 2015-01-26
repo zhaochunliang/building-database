@@ -191,7 +191,7 @@ module.exports = function (passport) {
 
   // Endpoint /search/user/:user_id for GET
   var getSearchUser = function(req, res) {
-    Building.paginate({"location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+    Building.paginate({"userId": req.params.user_id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         console.log(err);
         res.send(err);
@@ -315,6 +315,45 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /user/:user_id for GET
+  var getUser = function(req, res) {
+    // Find uploading user
+    User.findById(req.params.user_id, function(err, user) {
+      if (err) {
+        res.send(err);
+        return;
+      }
+
+      if (!user) {
+        res.sendStatus(404);
+        return;
+      }
+
+      profile = {
+        id: user._id,
+        username: user.username,
+        gravatar: user.gravatar,
+        twitter: user.twitter,
+        website: user.website
+      };
+
+      Building.paginate({"userId": req.params.user_id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+        if (err) {
+          console.log(err);
+          res.send(err);
+        }
+
+        res.render("user", {
+          bodyId: "user",
+          user: req.user,
+          profile: profile,
+          buildings: buildings,
+          pageCount: pageCount
+        });
+      }, {sortBy: {createdAt: -1}});
+    });
+  };
+
   return {
     getIndex: getIndex,
     getBrowse: getBrowse,
@@ -329,6 +368,7 @@ module.exports = function (passport) {
     getSearchTerm: getSearchTerm,
     getAdd: getAdd,
     getAddLocation: getAddLocation,
-    getAddOSM: getAddOSM
+    getAddOSM: getAddOSM,
+    getUser: getUser
   };
 };

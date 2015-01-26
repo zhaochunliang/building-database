@@ -1,6 +1,7 @@
 var debug = require("debug")("polygoncity");
 var LocalStrategy = require("passport-local").Strategy;
 var bCrypt = require("bcrypt-nodejs");
+var gravatar = require("gravatar");
 
 var User = require("../models/user");
 
@@ -53,28 +54,40 @@ module.exports = function(passport) {
     },
     function(req, username, password, done) {
       findOrCreateUser = function() {
-        // find a user in Mongo with provided username
-        User.findOne({ "username" :  username }, function(err, user) {
+        // Find a user in Mongo with provided email
+        User.findOne({ "email" :  req.param("email") }, function(err, user) {
           // In case of any error, return using the done method
           if (err){
             debug("Error in SignUp: "+err);
             return done(err);
           }
-          // already exists
+          // Already exists
           if (user) {
             debug("User already exists with username: "+username);
             return done(null, false, req.flash("message","User already exists"));
           } else {
-            // if there is no user with that email
+            // If there is no user with that email
             // create the user
             var newUser = new User();
 
-            // set the user"s local credentials
+            // Set the user"s local credentials
             newUser.username = username;
             newUser.password = createHash(password);
             newUser.email = req.param("email");
 
-            // save the user
+            if (req.param("website")) {
+              newUser.website = req.param("website");
+            }
+
+            if (req.param("twitter")) {
+              newUser.twitter = req.param("twitter");
+            }
+
+            // Get gravatar
+            var grav = gravatar.url(req.param("email"));
+            newUser.gravatar = grav;
+
+            // Save the user
             newUser.save(function(err) {
               if (err){
                 debug("Error in saving user: "+err);  

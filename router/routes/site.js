@@ -43,5 +43,8 @@ module.exports = function (passport) {
   router.route("/add/osm/:building_id")
     .get(authController.isAuthenticated, siteController.getAddOSM);
 
+  router.route("/user/:user_id")
+    .get(siteController.getUser);
+
   return router;
 };

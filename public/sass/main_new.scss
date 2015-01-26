@@ -577,6 +577,10 @@ header.navigation {
       pointer-events: auto;
       margin: 80px 0 0;
 
+      p {
+        margin: 10px;
+      }
+
       ul {
         padding: 10px;
 
@@ -926,6 +930,81 @@ header.navigation {
     canvas {
       margin-left: 250px;
       margin-top: 100px;
+    }
+  }
+}
+
+
+// ************************************************
+// User profile
+// ************************************************
+
+#user {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+
+    .button {
+      margin-right: 4px;
+    }
+
+    h1 {
+      img {
+        margin-right: 10px;
+      }
+    }
+
+    h2 {
+      margin: 20px 0 10px;
+    }
+
+    .details {
+      background: #fff;
+      border-bottom: 5px solid #2D2D2D;
+      border-top: 10px solid #2D2D2D;
+      margin: 20px 0;
+
+      p {
+        margin: 10px 0;
+      }
+
+      ul {
+        padding: 10px 0;
+
+        li {
+          padding: 10px 0;
+
+          a {
+            color: inherit;
+          }
+
+          h2 {
+            font-size: 1.2em;
+            line-height: 1;
+            margin: 0;
+          }
+
+          p {
+            line-height: 1;
+            margin: 0;
+          }
+        }
+      }
+
+      .pagination {
+        ul {
+          margin: 0 0 10px;
+          padding: 0;
+
+          li {
+            padding: 0 0 10px;
+          }
+        }
+      }
     }
   }
 }

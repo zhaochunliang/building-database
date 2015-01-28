@@ -49,6 +49,21 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /browse/all for GET
+  var getBrowseAll = function(req, res) {
+    Building.find({"location.coordinates": {$ne: [0,0]}}, function(err, buildings) {
+      if (err) {
+        res.send(err);
+      }
+      
+      res.render("browse_all", {
+        bodyId: "browse",
+        user: req.user,
+        buildings: buildings
+      });
+    });
+  };
+
   // Endpoint /building/:building_id for GET
   var getBuilding = function(req, res) {
     Building.findById(req.params.building_id, function(err, building) {
@@ -423,6 +438,7 @@ module.exports = function (passport) {
   return {
     getIndex: getIndex,
     getBrowse: getBrowse,
+    getBrowseAll: getBrowseAll,
     getBuilding: getBuilding,
     getBuildingReport: getBuildingReport,
     postBuildingReport: postBuildingReport,

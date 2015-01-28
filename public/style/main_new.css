@@ -1066,6 +1066,30 @@ header.navigation {
     margin: 0; }
   #browse #browse-map .leaflet-popup-close-button, #browse #browse-map .leaflet-popup-tip-container, #search #browse-map .leaflet-popup-close-button, #search #browse-map .leaflet-popup-tip-container {
     display: none; }
+  #browse #browse-map .leaflet-cluster-anim .leaflet-marker-icon, #browse #browse-map .leaflet-cluster-anim .leaflet-marker-shadow, #search #browse-map .leaflet-cluster-anim .leaflet-marker-icon, #search #browse-map .leaflet-cluster-anim .leaflet-marker-shadow {
+    -webkit-transition: -webkit-transform 0.3s ease-out, opacity 0.3s ease-in;
+    -moz-transition: -moz-transform 0.3s ease-out, opacity 0.3s ease-in;
+    -o-transition: -o-transform 0.3s ease-out, opacity 0.3s ease-in;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-in; }
+  #browse #browse-map .marker-cluster, #search #browse-map .marker-cluster {
+    background: #2D2D2D;
+    background-clip: padding-box;
+    border: 3px solid #fff;
+    border-radius: 20px;
+    color: #fff; }
+  #browse #browse-map .marker-cluster div, #search #browse-map .marker-cluster div {
+    width: 30px;
+    height: 30px;
+    margin-left: 2px;
+    margin-top: 2px;
+    text-align: center;
+    border-radius: 15px;
+    font-size: 13px;
+    font-weight: bold;
+    position: relative;
+    z-index: 0; }
+  #browse #browse-map .marker-cluster span, #search #browse-map .marker-cluster span {
+    line-height: 30px; }
 #browse #browse-map-overlay, #search #browse-map-overlay {
   background: #fff;
   border-bottom: 10px solid #2D2D2D;

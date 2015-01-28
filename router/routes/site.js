@@ -11,6 +11,9 @@ module.exports = function (passport) {
   router.route("/browse")
     .get(siteController.getBrowse);
 
+  router.route("/browse/all")
+    .get(siteController.getBrowseAll);
+
   router.route("/building/:building_id")
     .get(siteController.getBuilding);
 

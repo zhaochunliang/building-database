@@ -604,6 +604,38 @@ header.navigation {
         }
       }
 
+      p.sort {
+        background: #2d2d2d;
+        color: #fff;
+        font-size: smaller;
+        margin: 0;
+        padding: 5px 40px 15px;
+        text-transform: uppercase;
+
+        a {
+          color: inherit;
+          display: inline-block;
+
+          &.active {
+            font-weight: bold;
+          }
+
+          &.left {
+            width: 27%;
+          }
+
+          &.center {
+            text-align: center;
+            width: 27%;
+          }
+
+          &.right {
+            text-align: right;
+            width: 46%;
+          }
+        }
+      }
+
       .pagination {
         ul {
           margin: 0 10px 10px;
@@ -620,7 +652,7 @@ header.navigation {
   #browse-map {
     border-bottom: 10px solid #4a4a4a;
     height: 100%;
-    min-height: 950px;
+    min-height: 1000px;
     // Move up by sum of navigation and footer heights
     margin-top: -163px;
     position: absolute;
@@ -964,7 +996,7 @@ header.navigation {
 
     .details {
       background: #fff;
-      border-bottom: 5px solid #2D2D2D;
+      border-bottom: 10px solid #2D2D2D;
       border-top: 10px solid #2D2D2D;
       margin: 20px 0;
 

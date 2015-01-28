@@ -5,6 +5,11 @@ block content
 
   section.container
     div.col-4.details
+      p.sort
+        a.left(class=(sort == "date") ? "active" : "" href="?sort=date") By date
+        a.center(class=(sort == "name") ? "active" : "" href="?sort=name") By name
+        a.right(class=(sort == "downloads") ? "active" : "" href="?sort=downloads") By downloads
+
       if buildings.length > 0
         ul.building-list
           each building, key in buildings

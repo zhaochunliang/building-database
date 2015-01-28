@@ -1020,6 +1020,26 @@ header.navigation {
       #browse > section.content .details ul li p, #search > section.content .details ul li p {
         line-height: 1;
         margin: 0; }
+  #browse > section.content .details p.sort, #search > section.content .details p.sort {
+    background: #2d2d2d;
+    color: #fff;
+    font-size: smaller;
+    margin: 0;
+    padding: 5px 40px 15px;
+    text-transform: uppercase; }
+    #browse > section.content .details p.sort a, #search > section.content .details p.sort a {
+      color: inherit;
+      display: inline-block; }
+      #browse > section.content .details p.sort a.active, #search > section.content .details p.sort a.active {
+        font-weight: bold; }
+      #browse > section.content .details p.sort a.left, #search > section.content .details p.sort a.left {
+        width: 27%; }
+      #browse > section.content .details p.sort a.center, #search > section.content .details p.sort a.center {
+        text-align: center;
+        width: 27%; }
+      #browse > section.content .details p.sort a.right, #search > section.content .details p.sort a.right {
+        text-align: right;
+        width: 46%; }
   #browse > section.content .details .pagination ul, #search > section.content .details .pagination ul {
     margin: 0 10px 10px;
     padding: 0; }
@@ -1028,7 +1048,7 @@ header.navigation {
 #browse #browse-map, #search #browse-map {
   border-bottom: 10px solid #4a4a4a;
   height: 100%;
-  min-height: 950px;
+  min-height: 1000px;
   margin-top: -163px;
   position: absolute;
   width: 100%; }
@@ -1257,7 +1277,7 @@ header.navigation {
     margin: 20px 0 10px; }
   #user > section.content .details {
     background: #fff;
-    border-bottom: 5px solid #2D2D2D;
+    border-bottom: 10px solid #2D2D2D;
     border-top: 10px solid #2D2D2D;
     margin: 20px 0; }
     #user > section.content .details p {

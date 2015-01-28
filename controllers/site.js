@@ -21,6 +21,17 @@ module.exports = function (passport) {
 
   // Endpoint /browse for GET
   var getBrowse = function(req, res) {
+
+    var sortBy = {};
+
+    if (!req.query.sort || req.query.sort == "date") {
+      sortBy["date"] = -1
+    } else if (req.query.sort == "name") {
+      sortBy["name"] = 1
+    } else if (req.query.sort == "downloads") {
+      sortBy["stats.downloads"] = -1
+    }
+
     Building.paginate({"location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
@@ -29,10 +40,13 @@ module.exports = function (passport) {
       res.render("browse_new", {
         bodyId: "browse",
         user: req.user,
+        sort: (!req.query.sort) ? "date" : req.query.sort,
         pageCount: pageCount,
         buildings: buildings
       });
-    }, {sortBy: {createdAt: -1}});
+    }, {
+      sortBy: sortBy
+    });
   };
 
   // Endpoint /building/:building_id for GET
@@ -157,6 +171,16 @@ module.exports = function (passport) {
 
   // Endpoint /search/near/:lon/:lat for GET
   var getSearchNear = function(req, res) {
+    var sortBy = {};
+
+    if (!req.query.sort || req.query.sort == "date") {
+      sortBy["date"] = -1
+    } else if (req.query.sort == "name") {
+      sortBy["name"] = 1
+    } else if (req.query.sort == "downloads") {
+      sortBy["stats.downloads"] = -1
+    }
+
     Building.paginate({"location": {
       $nearSphere: {
         $geometry: {
@@ -175,6 +199,7 @@ module.exports = function (passport) {
         bodyId: "search",
         user: req.user,
         near: [req.params.lon, req.params.lat],
+        sort: (!req.query.sort) ? "date" : req.query.sort,
         pageCount: pageCount,
         buildings: buildings
       });
@@ -186,11 +211,23 @@ module.exports = function (passport) {
       //   pageCount: pageCount,
       //   buildings: buildings
       // });
+    }, {
+      sortBy: sortBy
     });
   };
 
   // Endpoint /search/user/:user_id for GET
   var getSearchUser = function(req, res) {
+    var sortBy = {};
+
+    if (!req.query.sort || req.query.sort == "date") {
+      sortBy["date"] = -1
+    } else if (req.query.sort == "name") {
+      sortBy["name"] = 1
+    } else if (req.query.sort == "downloads") {
+      sortBy["stats.downloads"] = -1
+    }
+
     Building.paginate({"userId": req.params.user_id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         console.log(err);
@@ -200,6 +237,7 @@ module.exports = function (passport) {
       res.render("browse_new", {
         bodyId: "search",
         user: req.user,
+        sort: (!req.query.sort) ? "date" : req.query.sort,
         pageCount: pageCount,
         buildings: buildings
       });
@@ -210,11 +248,23 @@ module.exports = function (passport) {
       //   pageCount: pageCount,
       //   buildings: buildings
       // });
-    }, {sortBy: {createdAt: -1}});
+    }, {
+      sortBy: sortBy
+    });
   };
 
   // Endpoint /search/osm/:osm_type/:osm_id for GET
   var getSearchOSM = function(req, res) {
+    var sortBy = {};
+
+    if (!req.query.sort || req.query.sort == "date") {
+      sortBy["date"] = -1
+    } else if (req.query.sort == "name") {
+      sortBy["name"] = 1
+    } else if (req.query.sort == "downloads") {
+      sortBy["stats.downloads"] = -1
+    }
+
     Building.paginate({"osm.type": req.params.osm_type, "osm.id": req.params.osm_id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
@@ -223,6 +273,7 @@ module.exports = function (passport) {
       res.render("browse_new", {
         bodyId: "search",
         user: req.user,
+        sort: (!req.query.sort) ? "date" : req.query.sort,
         pageCount: pageCount,
         buildings: buildings
       });
@@ -233,11 +284,23 @@ module.exports = function (passport) {
       //   pageCount: pageCount,
       //   buildings: buildings
       // });
-    }, {sortBy: {createdAt: -1}});
+    }, {
+      sortBy: sortBy
+    });
   };
 
   // Endpoint /search/:search_term for GET
   var getSearchTerm = function(req, res) {
+    var sortBy = {};
+
+    if (!req.query.sort || req.query.sort == "date") {
+      sortBy["date"] = -1
+    } else if (req.query.sort == "name") {
+      sortBy["name"] = 1
+    } else if (req.query.sort == "downloads") {
+      sortBy["stats.downloads"] = -1
+    }
+
     Building.paginate({"name": new RegExp(req.params.search_term, "i"), "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
@@ -246,6 +309,7 @@ module.exports = function (passport) {
       res.render("browse_new", {
         bodyId: "search",
         user: req.user,
+        sort: (!req.query.sort) ? "date" : req.query.sort,
         pageCount: pageCount,
         buildings: buildings
       });
@@ -256,7 +320,9 @@ module.exports = function (passport) {
       //   pageCount: pageCount,
       //   buildings: buildings
       // });
-    }, {sortBy: {createdAt: -1}});
+    }, {
+      sortBy: sortBy
+    });
   };
 
   // Endpoint /add for GET

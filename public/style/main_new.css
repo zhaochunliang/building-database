@@ -1033,7 +1033,7 @@ header.navigation {
     color: #fff;
     font-size: smaller;
     margin: 0;
-    padding: 5px 40px 15px;
+    padding: 5px 40px 13px;
     text-transform: uppercase; }
     #browse > section.content .details p.sort a, #search > section.content .details p.sort a {
       color: inherit;

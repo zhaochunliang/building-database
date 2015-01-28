@@ -600,6 +600,20 @@ header.navigation {
           p {
             line-height: 1;
             margin: 0;
+
+            &.stats {
+              margin: 5px 0 0;
+
+              img {
+                margin: 1px 3px 0 0;
+                width: 10px;
+                vertical-align: middle;
+              }
+
+              small {
+                margin-right: 10px;
+              }
+            }
           }
         }
       }

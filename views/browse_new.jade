@@ -18,6 +18,11 @@ block content
                 h2 #{building.name}
                 p
                   small #{building.locality.district}, #{building.locality.country}
+                p.stats
+                  img(src="/images/icon-download.png")
+                  small #{building.stats.downloads} downloads
+                  img(src="/images/icon-polygon.png")
+                  small #{building.structure.faces} polygons
         
         include _pagination
       else

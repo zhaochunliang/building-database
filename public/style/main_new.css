@@ -1020,6 +1020,14 @@ header.navigation {
       #browse > section.content .details ul li p, #search > section.content .details ul li p {
         line-height: 1;
         margin: 0; }
+        #browse > section.content .details ul li p.stats, #search > section.content .details ul li p.stats {
+          margin: 5px 0 0; }
+          #browse > section.content .details ul li p.stats img, #search > section.content .details ul li p.stats img {
+            margin: 1px 3px 0 0;
+            width: 10px;
+            vertical-align: middle; }
+          #browse > section.content .details ul li p.stats small, #search > section.content .details ul li p.stats small {
+            margin-right: 10px; }
   #browse > section.content .details p.sort, #search > section.content .details p.sort {
     background: #2d2d2d;
     color: #fff;

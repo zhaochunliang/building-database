@@ -113,6 +113,8 @@ module.exports = function(passport) {
     
     // Send 403 on AJAX
     if (req.xhr) {
+      // TODO: Should this be a 401?
+      // http://en.wikipedia.org/wiki/List_of_HTTP_status_codes#4xx_Client_Error
       res.sendStatus(403);
       return;
     // Else, redirect to login
@@ -131,8 +133,19 @@ module.exports = function(passport) {
     return bCrypt.hashSync(password, bCrypt.genSaltSync(10), null);
   };
 
+  var needsGroup = function(group) {
+    return function(req, res, next) {
+      if (req.user && req.user.group === group) {
+        next();
+      } else {
+        res.sendStatus(403);
+      }
+    };
+  };
+
   return {
     isAuthenticated: isAuthenticated,
+    needsGroup: needsGroup,
     createHash: createHash
   };
 };

@@ -5,6 +5,7 @@ var UserSchema = new Schema({
   id: String,
   username: String,
   password: String,
+  group: String,
   email: String,
   gravatar: String,
   website: String,

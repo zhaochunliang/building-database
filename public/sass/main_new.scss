@@ -1125,5 +1125,77 @@ header.navigation {
     .container {
       @include outer-container;
     }
-  } 
+  }
+}
+
+// ************************************************
+// Admin
+// ************************************************
+
+#admin {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  }
+}
+
+
+// ************************************************
+// Admin buildings
+// ************************************************
+
+#admin-buildings {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+    
+    .details {
+      background: #fff;
+      border-bottom: 10px solid #2D2D2D;
+      border-top: 10px solid #2D2D2D;
+      margin: 20px 0;
+
+      table {
+        margin: 0;
+
+        a {
+          color: inherit;
+        }
+
+        thead {
+          background: #2d2d2d;
+          color: #fff;
+
+          th {
+            padding: 5px 20px 13px;
+          }
+        }
+
+        tbody {
+          td {
+            padding: 15px 20px;
+          }
+        }
+      }
+
+      .pagination {
+        ul {
+          margin: 15px 20px;
+          padding: 0;
+
+          li {
+            padding: 0;
+          }
+        }
+      }
+    }
+  }
 }

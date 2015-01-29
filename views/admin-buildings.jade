@@ -1,0 +1,32 @@
+extends layout_new
+ 
+block content
+  section.container
+    h1 Buildings
+      
+    div.details.col-12
+      if buildings.length > 0
+        table.buildings
+          thead
+            tr
+              th
+                a(class=(sort == "name") ? "active" : "" href="?sort=name") Name
+              th
+                a(class=(sort == "location") ? "active" : "" href="?sort=location") Location
+              th
+                a(class=(sort == "downloads") ? "active" : "" href="?sort=downloads") Downloads
+              th
+                a(class=(sort == "polygons") ? "active" : "" href="?sort=polygons") Polygons
+
+          tbody
+          each building, key in buildings
+            tr
+              td
+                a(href="/admin/building/#{building._id}") #{building.name}
+              td #{building.locality.district}, #{building.locality.country}
+              td #{building.stats.downloads}
+              td #{building.structure.faces}
+        
+        include _pagination
+      else
+        p No buildings

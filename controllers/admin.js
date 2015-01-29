@@ -1,5 +1,6 @@
 var config = require("../config/config.js");
 
+var Building = require("../models/building");
 var User = require("../models/user");
 
 module.exports = function (passport) {
@@ -13,7 +14,37 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /admin/buildings for GET
+  var getBuildings = function(req, res) {
+    var sortBy = {};
+
+    if (!req.query.sort || req.query.sort == "date") {
+      sortBy["date"] = -1
+    } else if (req.query.sort == "name") {
+      sortBy["name"] = 1
+    } else if (req.query.sort == "downloads") {
+      sortBy["stats.downloads"] = -1
+    }
+
+    Building.paginate({"location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+      if (err) {
+        res.send(err);
+      }
+      
+      res.render("admin-buildings", {
+        bodyId: "admin-buildings",
+        user: req.user,
+        sort: (!req.query.sort) ? "date" : req.query.sort,
+        pageCount: pageCount,
+        buildings: buildings
+      });
+    }, {
+      sortBy: sortBy
+    });
+  };
+
   return {
-    getAdmin: getAdmin
+    getAdmin: getAdmin,
+    getBuildings: getBuildings
   };
 };

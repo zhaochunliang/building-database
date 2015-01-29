@@ -1400,3 +1400,48 @@ header.navigation {
       content: "";
       display: table;
       clear: both; }
+
+#admin > section.content {
+  border-bottom: 10px solid #4a4a4a;
+  padding: 40px 0; }
+  #admin > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #admin > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+
+#admin-buildings > section.content {
+  border-bottom: 10px solid #4a4a4a;
+  padding: 40px 0; }
+  #admin-buildings > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #admin-buildings > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+  #admin-buildings > section.content .details {
+    background: #fff;
+    border-bottom: 10px solid #2D2D2D;
+    border-top: 10px solid #2D2D2D;
+    margin: 20px 0; }
+    #admin-buildings > section.content .details table {
+      margin: 0; }
+      #admin-buildings > section.content .details table a {
+        color: inherit; }
+      #admin-buildings > section.content .details table thead {
+        background: #2d2d2d;
+        color: #fff; }
+        #admin-buildings > section.content .details table thead th {
+          padding: 5px 20px 13px; }
+      #admin-buildings > section.content .details table tbody td {
+        padding: 15px 20px; }
+    #admin-buildings > section.content .details .pagination ul {
+      margin: 15px 20px;
+      padding: 0; }
+      #admin-buildings > section.content .details .pagination ul li {
+        padding: 0; }

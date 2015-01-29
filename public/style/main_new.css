@@ -1039,6 +1039,7 @@ header.navigation {
       color: inherit;
       display: inline-block; }
       #browse > section.content .details p.sort a.active, #search > section.content .details p.sort a.active {
+        font-style: italic;
         font-weight: bold; }
       #browse > section.content .details p.sort a.left, #search > section.content .details p.sort a.left {
         width: 27%; }

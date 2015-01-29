@@ -631,6 +631,7 @@ header.navigation {
           display: inline-block;
 
           &.active {
+            font-style: italic;
             font-weight: bold;
           }
 

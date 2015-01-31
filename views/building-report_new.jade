@@ -18,7 +18,7 @@ block content
         textarea#details(name="details" placeholder="Please provide more details")
 
         label(for="email") Email:
-        input#email(type="email" name="email" placeholder="Enter your email so we can get in touch" required) 
+        input#email(type="email" name="email" placeholder="Enter your email so we can get in touch" required value=(user) ? user.email : "") 
 
         button#report-button(type="submit") Report building
 

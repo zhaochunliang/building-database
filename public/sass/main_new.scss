@@ -1145,10 +1145,10 @@ header.navigation {
 
 
 // ************************************************
-// Admin buildings
+// Admin buildings & users
 // ************************************************
 
-#admin-buildings {
+#admin-buildings, #admin-users {
   & > section.content {
     border-bottom: 10px solid #4a4a4a;
     padding: 40px 0;
@@ -1156,12 +1156,26 @@ header.navigation {
     .container {
       @include outer-container;
     }
+
+    h1 {
+      position: relative;
+
+      span {
+        bottom: 14px;
+        font-size: 0.6em;
+        position: absolute;
+        right: 0;
+
+        a {
+          color: inherit;
+        }
+      }
+    }
     
     .details {
       background: #fff;
       border-bottom: 10px solid #2D2D2D;
       border-top: 10px solid #2D2D2D;
-      margin: 20px 0;
 
       table {
         margin: 0;

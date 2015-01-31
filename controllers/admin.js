@@ -43,8 +43,39 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /admin/users for GET
+  var getUsers = function(req, res) {
+    var sortBy = {};
+
+    if (!req.query.sort || req.query.sort == "date") {
+      sortBy["date"] = -1
+    } else if (req.query.sort == "name") {
+      sortBy["name"] = 1
+    } else if (req.query.sort == "downloads") {
+      sortBy["stats.downloads"] = -1
+    }
+
+    User.paginate({}, req.query.page, req.query.limit, function(err, pageCount, siteUsers) {
+      if (err) {
+        res.send(err);
+      }
+      
+      res.render("admin-users", {
+        bodyId: "admin-users",
+        user: req.user,
+        sort: (!req.query.sort) ? "date" : req.query.sort,
+        pageCount: pageCount,
+        siteUsers: siteUsers
+      });
+    }, {
+      columns: {"username": 1, "email": 1},
+      sortBy: sortBy
+    });
+  };
+
   return {
     getAdmin: getAdmin,
-    getBuildings: getBuildings
+    getBuildings: getBuildings,
+    getUsers: getUsers
   };
 };

@@ -1,0 +1,29 @@
+extends layout_new
+ 
+block content
+  section.container
+    h1
+      | Users
+      span
+        a(href="/admin") Back to admin
+      
+    div.details.col-12
+      if siteUsers.length > 0
+        table.users
+          thead
+            tr
+              th
+                a(class=(sort == "username") ? "active" : "" href="?sort=username") Username
+              th
+                a(class=(sort == "email") ? "active" : "" href="?sort=email") Email
+
+          tbody
+          each siteUser, key in siteUsers
+            tr
+              td
+                a(href="/admin/user/#{siteUser._id}") #{siteUser.username}
+              td #{siteUser.email}
+        
+        include _pagination
+      else
+        p No users

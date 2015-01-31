@@ -1413,35 +1413,43 @@ header.navigation {
       display: table;
       clear: both; }
 
-#admin-buildings > section.content {
+#admin-buildings > section.content, #admin-users > section.content {
   border-bottom: 10px solid #4a4a4a;
   padding: 40px 0; }
-  #admin-buildings > section.content .container {
+  #admin-buildings > section.content .container, #admin-users > section.content .container {
     max-width: 68em;
     margin-left: auto;
     margin-right: auto; }
-    #admin-buildings > section.content .container:after {
+    #admin-buildings > section.content .container:after, #admin-users > section.content .container:after {
       content: "";
       display: table;
       clear: both; }
-  #admin-buildings > section.content .details {
+  #admin-buildings > section.content h1, #admin-users > section.content h1 {
+    position: relative; }
+    #admin-buildings > section.content h1 span, #admin-users > section.content h1 span {
+      bottom: 14px;
+      font-size: 0.6em;
+      position: absolute;
+      right: 0; }
+      #admin-buildings > section.content h1 span a, #admin-users > section.content h1 span a {
+        color: inherit; }
+  #admin-buildings > section.content .details, #admin-users > section.content .details {
     background: #fff;
     border-bottom: 10px solid #2D2D2D;
-    border-top: 10px solid #2D2D2D;
-    margin: 20px 0; }
-    #admin-buildings > section.content .details table {
+    border-top: 10px solid #2D2D2D; }
+    #admin-buildings > section.content .details table, #admin-users > section.content .details table {
       margin: 0; }
-      #admin-buildings > section.content .details table a {
+      #admin-buildings > section.content .details table a, #admin-users > section.content .details table a {
         color: inherit; }
-      #admin-buildings > section.content .details table thead {
+      #admin-buildings > section.content .details table thead, #admin-users > section.content .details table thead {
         background: #2d2d2d;
         color: #fff; }
-        #admin-buildings > section.content .details table thead th {
+        #admin-buildings > section.content .details table thead th, #admin-users > section.content .details table thead th {
           padding: 5px 20px 13px; }
-      #admin-buildings > section.content .details table tbody td {
+      #admin-buildings > section.content .details table tbody td, #admin-users > section.content .details table tbody td {
         padding: 15px 20px; }
-    #admin-buildings > section.content .details .pagination ul {
+    #admin-buildings > section.content .details .pagination ul, #admin-users > section.content .details .pagination ul {
       margin: 15px 20px;
       padding: 0; }
-      #admin-buildings > section.content .details .pagination ul li {
+      #admin-buildings > section.content .details .pagination ul li, #admin-users > section.content .details .pagination ul li {
         padding: 0; }

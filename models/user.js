@@ -25,4 +25,6 @@ UserSchema.pre("save", function(next) {
   next();
 });
 
+UserSchema.plugin(require("mongoose-paginate"));
+
 module.exports = mongoose.model("User", UserSchema);

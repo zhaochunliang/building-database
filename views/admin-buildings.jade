@@ -2,7 +2,10 @@ extends layout_new
  
 block content
   section.container
-    h1 Buildings
+    h1
+      | Buildings
+      span
+        a(href="/admin") Back to admin
       
     div.details.col-12
       if buildings.length > 0

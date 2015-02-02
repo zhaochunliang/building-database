@@ -439,7 +439,7 @@ module.exports = function (passport) {
   // Endpoint /user/edit/:user_id for GET
   var getUserEdit = function(req, res) {
     // Check user has access
-    User.findOne({_id: req.params.user_id, _id: req.user._id}, function(err, user) {
+    User.findOne({$and: [{_id: req.params.user_id}, {_id: req.user._id}]}, function(err, user) {
       if (err) {
         res.send(err);
         return;
@@ -468,11 +468,8 @@ module.exports = function (passport) {
 
   // Endpoint /user/edit/:user_id for POST
   var postUserEdit = function(req, res) {
-    console.log(req.session);
-    console.log(req.body);
-
     // Check user has access
-    User.findOne({_id: req.params.user_id, _id: req.user._id}, function(err, user) {
+    User.findOne({$and: [{_id: req.params.user_id}, {_id: req.user._id}]}, function(err, user) {
       if (err) {
         res.send(err);
         return;

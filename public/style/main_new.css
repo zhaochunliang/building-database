@@ -1461,3 +1461,24 @@ header.navigation {
       padding: 0; }
       #admin-buildings > section.content .details .pagination ul li, #admin-users > section.content .details .pagination ul li {
         padding: 0; }
+
+#admin-user > section.content {
+  border-bottom: 10px solid #4a4a4a;
+  padding: 40px 0; }
+  #admin-user > section.content .container {
+    max-width: 68em;
+    margin-left: auto;
+    margin-right: auto; }
+    #admin-user > section.content .container:after {
+      content: "";
+      display: table;
+      clear: both; }
+  #admin-user > section.content h1 {
+    position: relative; }
+    #admin-user > section.content h1 span {
+      bottom: 14px;
+      font-size: 0.6em;
+      position: absolute;
+      right: 0; }
+      #admin-user > section.content h1 span a {
+        color: inherit; }

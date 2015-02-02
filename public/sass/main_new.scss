@@ -1229,3 +1229,34 @@ header.navigation {
     }
   }
 }
+
+
+// ************************************************
+// Admin user
+// ************************************************
+
+#admin-user {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+
+    h1 {
+      position: relative;
+
+      span {
+        bottom: 14px;
+        font-size: 0.6em;
+        position: absolute;
+        right: 0;
+
+        a {
+          color: inherit;
+        }
+      }
+    }
+  }
+}

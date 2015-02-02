@@ -1,4 +1,5 @@
 var config = require("../config/config.js");
+var gravatar = require("gravatar");
 
 var Building = require("../models/building");
 var User = require("../models/user");
@@ -73,9 +74,95 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /admin/user/:user_id for GET
+  var getUser = function(req, res) {
+    User.findOne({_id: req.params.user_id}, function(err, user) {
+      if (err) {
+        res.send(err);
+        return;
+      }
+
+      if (!user) {
+        res.sendStatus(404);
+        return;
+      }
+
+      var profile = {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        twitter: user.twitter,
+        website: user.website
+      };
+
+      res.render("admin-user", {
+        bodyId: "admin-user",
+        user: req.user,
+        profile: profile
+      });
+    });
+  };
+
+  // Endpoint /admin/user/:user_id for POST
+  var postUser = function(req, res) {
+    User.findOne({_id: req.params.user_id}, function(err, user) {
+      if (err) {
+        res.send(err);
+        return;
+      }
+
+      if (!user) {
+        res.sendStatus(404);
+        return;
+      }
+
+      // Update Gravatar
+      var grav = gravatar.url(user.email);
+      user.gravatar = grav;
+
+      // Check for updated details
+      // TODO: Support updating of username and email
+      
+      if (req.body.website) {
+        user.website = req.body.website;
+      }
+
+      if (req.body.twitter) {
+        user.twitter = req.body.twitter;
+      }
+
+      // Save user
+      user.save(function(err, savedUser) {
+        if (err) {
+          res.send(err);
+          return;
+        }
+
+        var profile = {
+          id: savedUser._id,
+          username: savedUser.username,
+          email: savedUser.email,
+          twitter: savedUser.twitter,
+          website: savedUser.website
+        };
+
+        req.flash("message", "Profile updated");
+
+        res.render("admin-user", {
+          bodyId: "admin-user",
+          user: req.user,
+          profile: profile,
+          message: req.flash("message")
+        });
+      });
+    });
+  };
+
   return {
     getAdmin: getAdmin,
     getBuildings: getBuildings,
-    getUsers: getUsers
+    getUsers: getUsers,
+    getUser: getUser,
+    postUser: postUser
   };
 };

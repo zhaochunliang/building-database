@@ -1445,9 +1445,17 @@ header.navigation {
         background: #2d2d2d;
         color: #fff; }
         #admin-buildings > section.content .details table thead th, #admin-users > section.content .details table thead th {
+          border: none;
           padding: 5px 20px 13px; }
       #admin-buildings > section.content .details table tbody td, #admin-users > section.content .details table tbody td {
         padding: 15px 20px; }
+        #admin-buildings > section.content .details table tbody td .button, #admin-users > section.content .details table tbody td .button {
+          color: #fff;
+          margin-left: 5px; }
+          #admin-buildings > section.content .details table tbody td .button:first-child, #admin-users > section.content .details table tbody td .button:first-child {
+            margin-left: 0; }
+      #admin-buildings > section.content .details table tbody tr:last-child td, #admin-users > section.content .details table tbody tr:last-child td {
+        border-bottom: none; }
     #admin-buildings > section.content .details .pagination ul, #admin-users > section.content .details .pagination ul {
       margin: 15px 20px;
       padding: 0; }

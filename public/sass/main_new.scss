@@ -1189,6 +1189,7 @@ header.navigation {
           color: #fff;
 
           th {
+            border: none;
             padding: 5px 20px 13px;
           }
         }
@@ -1196,6 +1197,21 @@ header.navigation {
         tbody {
           td {
             padding: 15px 20px;
+
+            .button {
+              color: #fff;
+              margin-left: 5px;
+
+              &:first-child {
+                margin-left: 0;
+              }
+            }
+          }
+
+          tr:last-child {
+            td {
+              border-bottom: none;
+            }
           }
         }
       }

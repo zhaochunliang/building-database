@@ -16,13 +16,17 @@ block content
                 a(class=(sort == "username") ? "active" : "" href="?sort=username") Username
               th
                 a(class=(sort == "email") ? "active" : "" href="?sort=email") Email
+              th Actions
 
           tbody
           each siteUser, key in siteUsers
             tr
-              td
-                a(href="/admin/user/#{siteUser._id}") #{siteUser.username}
+              td #{siteUser.username}
               td #{siteUser.email}
+              td
+                small
+                  a.button(href="#") Ban
+                  a.button(href="/admin/user/#{siteUser._id}") Edit
         
         include _pagination
       else

@@ -5,7 +5,7 @@ block content
     div.col-7
       h1 Login 
 
-      if message
+      if message && message.length > 0
         div.flash-alert
           span #{message}
       

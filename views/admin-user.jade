@@ -8,7 +8,7 @@ block content
         span
           a(href="/admin/users") Back to users
         
-      if message
+      if message && message.length > 0
           div.flash-success
             span #{message}
 

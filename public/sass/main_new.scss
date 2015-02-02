@@ -4,6 +4,8 @@
 @import "base/base";
 @import "neat";
 
+@import "flashes";
+
 
 // ************************************************
 // Typography
@@ -111,6 +113,27 @@ a.button {
 
 .col-12 {
   @include span-columns(12);
+}
+
+
+// ************************************************
+// Flash messages
+// ************************************************
+
+.flash-alert {
+  @include flash($alert-color);
+}
+
+.flash-error {
+  @include flash($error-color);
+}
+
+.flash-notice {
+  @include flash($notice-color);
+}
+
+.flash-success {
+  @include flash($success-color);
 }
 
 

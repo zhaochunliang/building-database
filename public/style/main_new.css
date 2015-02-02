@@ -660,6 +660,58 @@ a.button {
   .col-12:last-child {
     margin-right: 0; }
 
+.flash-alert {
+  background-color: #FFF6BF;
+  color: #8c7800;
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.75em;
+  padding: 0.75em;
+  text-align: center; }
+  .flash-alert a {
+    color: #594c00; }
+    .flash-alert a:focus, .flash-alert a:hover {
+      color: black; }
+
+.flash-error {
+  background-color: #FBE3E4;
+  color: #96151b;
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.75em;
+  padding: 0.75em;
+  text-align: center; }
+  .flash-error a {
+    color: #6a0f13; }
+    .flash-error a:focus, .flash-error a:hover {
+      color: #110203; }
+
+.flash-notice {
+  background-color: #e5edf8;
+  color: #264d85;
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.75em;
+  padding: 0.75em;
+  text-align: center; }
+  .flash-notice a {
+    color: #1b365d; }
+    .flash-notice a:focus, .flash-notice a:hover {
+      color: #04080e; }
+
+.flash-success {
+  background-color: #E6EFC2;
+  color: #56651a;
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.75em;
+  padding: 0.75em;
+  text-align: center; }
+  .flash-success a {
+    color: #333c10; }
+    .flash-success a:focus, .flash-success a:hover {
+      color: black; }
+
 header.navigation {
   background-image: url("/images/polygon-bg.png");
   background-image: url("/images/polygon-bg.png");

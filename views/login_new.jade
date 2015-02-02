@@ -4,6 +4,10 @@ block content
   section.container
     div.col-7
       h1 Login 
+
+      if message
+        div.flash-alert
+          span #{message}
       
       form(action="/login", method="POST")
         input(type="text", name="username" placeholder="Username", required, autofocus)
@@ -12,6 +16,3 @@ block content
       a(href="/forgot") Forgot your login details?
       br
       a(href="/signup") Create an account
-      #message
-        if message
-          h2.text-center.error-message #{message}

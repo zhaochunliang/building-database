@@ -20,15 +20,19 @@ block content
                 a(class=(sort == "downloads") ? "active" : "" href="?sort=downloads") Downloads
               th
                 a(class=(sort == "polygons") ? "active" : "" href="?sort=polygons") Polygons
+              th Actions
 
           tbody
           each building, key in buildings
             tr
-              td
-                a(href="/admin/building/#{building._id}") #{building.name}
+              td #{building.name}
               td #{building.locality.district}, #{building.locality.country}
               td #{building.stats.downloads}
               td #{building.structure.faces}
+              td
+                small
+                  a.button(href="/admin/building/#{building._id}") Edit
+                  a.button(href="#") Hide
         
         include _pagination
       else

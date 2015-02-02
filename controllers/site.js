@@ -1,4 +1,5 @@
 var nodemailer = require("nodemailer");
+var gravatar = require("gravatar");
 
 module.exports = function (passport) {
   var Building = require("../models/building");
@@ -435,6 +436,95 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /user/edit/:user_id for GET
+  var getUserEdit = function(req, res) {
+    // Check user has access
+    User.findOne({_id: req.params.user_id, _id: req.user._id}, function(err, user) {
+      if (err) {
+        res.send(err);
+        return;
+      }
+
+      if (!user) {
+        res.sendStatus(403);
+        return;
+      }
+
+      var profile = {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        twitter: user.twitter,
+        website: user.website
+      };
+
+      res.render("user-edit", {
+        bodyId: "user-edit",
+        user: req.user,
+        profile: profile
+      });
+    });
+  };
+
+  // Endpoint /user/edit/:user_id for POST
+  var postUserEdit = function(req, res) {
+    console.log(req.session);
+    console.log(req.body);
+
+    // Check user has access
+    User.findOne({_id: req.params.user_id, _id: req.user._id}, function(err, user) {
+      if (err) {
+        res.send(err);
+        return;
+      }
+
+      if (!user) {
+        res.sendStatus(403);
+        return;
+      }
+
+      // Update Gravatar
+      var grav = gravatar.url(user.email);
+      user.gravatar = grav;
+
+      // Check for updated details
+      // TODO: Support updating of username and email
+      
+      if (req.body.website) {
+        user.website = req.body.website;
+      }
+
+      if (req.body.twitter) {
+        user.twitter = req.body.twitter;
+      }
+
+      // Save user
+      user.save(function(err, savedUser) {
+        if (err) {
+          res.send(err);
+          return;
+        }
+
+        var profile = {
+          id: savedUser._id,
+          username: savedUser.username,
+          email: savedUser.email,
+          twitter: savedUser.twitter,
+          website: savedUser.website
+        };
+
+        req.flash("message", "Profile updated");
+
+        res.render("user-edit", {
+          bodyId: "user-edit",
+          user: req.user,
+          profile: profile,
+          message: req.flash("message")
+        });
+      });
+    });
+  };
+
   return {
     getIndex: getIndex,
     getBrowse: getBrowse,
@@ -451,6 +541,8 @@ module.exports = function (passport) {
     getAdd: getAdd,
     getAddLocation: getAddLocation,
     getAddOSM: getAddOSM,
-    getUser: getUser
+    getUser: getUser,
+    getUserEdit: getUserEdit,
+    postUserEdit: postUserEdit
   };
 };

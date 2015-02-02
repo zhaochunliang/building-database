@@ -273,7 +273,7 @@ header.navigation {
     }
   }
 
-  .signup, .login, .logout {
+  .signup, .login, .logout, .profile {
     @extend button;
     margin-left: 0;
     margin-top: 1.1em;
@@ -284,7 +284,7 @@ header.navigation {
     padding: .75em 1em;
   }
 
-  .login {
+  .login, .logout {
     margin-left: 0.75em;
   }
 
@@ -1034,6 +1034,13 @@ header.navigation {
       img {
         margin-right: 10px;
       }
+
+      a.right {
+        color: inherit;
+        float: right;
+        font-size: 0.6em;
+        margin-top: 14px;
+      }
     }
 
     h2 {
@@ -1085,4 +1092,15 @@ header.navigation {
       }
     }
   }
+}
+
+#user-edit {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+  } 
 }

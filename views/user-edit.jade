@@ -1,0 +1,17 @@
+extends layout_new
+ 
+block content
+  section.container
+    div.col-7
+      h1 Edit profile
+
+      form(action="/user/edit/#{profile.id}", method="POST")
+        label(for="website") Website:
+        input(type="text", name="website", placeholder="Website" value=(profile.website) ? profile.website : "")
+
+        label(for="twitter") Twitter:
+        input(type="text", name="twitter", placeholder="Twitter handle" value=(profile.twitter) ? profile.twitter : "")
+        button(type="submit") Update profile
+      #message
+        if message
+          h2 #{message}

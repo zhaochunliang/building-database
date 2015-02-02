@@ -7,6 +7,8 @@ block content
         if (profile.gravatar)
           img(src="#{profile.gravatar}?s=25") 
         | #{profile.username}
+        if (user && user._id.toString() === profile.id.toString())
+          a.right(href="/user/edit/#{profile.id}") Edit
 
       if (profile.twitter)
         a.button(href="http://twitter.com/#{profile.twitter}") Twitter

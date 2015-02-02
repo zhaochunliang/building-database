@@ -49,5 +49,9 @@ module.exports = function (passport) {
   router.route("/user/:user_id")
     .get(siteController.getUser);
 
+  router.route("/user/edit/:user_id")
+    .get(authController.isAuthenticated, siteController.getUserEdit)
+    .post(authController.isAuthenticated, siteController.postUserEdit);
+
   return router;
 };

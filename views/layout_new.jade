@@ -31,6 +31,7 @@ html
                   img(src="/images/search-icon.png", alt="Search icon")
           if (user)
             a.logout(href="/logout") Logout
+            a.profile(href="/user/#{user._id}") Profile
           else
             a.login(href="/login") Login
             a.signup(href="/signup") Sign up

@@ -24,7 +24,7 @@ module.exports = function (passport) {
   router.route("/search/near/:lon/:lat/:distance")
     .get(siteController.getSearchNear);
 
-  router.route("/search/user/:user_id")
+  router.route("/search/user/:username")
     .get(siteController.getSearchUser);
 
   router.route("/search/osm/:osm_type/:osm_id")
@@ -46,10 +46,10 @@ module.exports = function (passport) {
   router.route("/add/osm/:building_id")
     .get(authController.isAuthenticated, siteController.getAddOSM);
 
-  router.route("/user/:user_id")
+  router.route("/user/:username")
     .get(siteController.getUser);
 
-  router.route("/user/edit/:user_id")
+  router.route("/user/edit/:username")
     .get(authController.isAuthenticated, siteController.getUserEdit)
     .post(authController.isAuthenticated, siteController.postUserEdit);
 

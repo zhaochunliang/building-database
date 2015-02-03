@@ -232,7 +232,7 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /search/user/:user_id for GET
+  // Endpoint /search/user/:username for GET
   var getSearchUser = function(req, res) {
     var sortBy = {};
 
@@ -244,28 +244,33 @@ module.exports = function (passport) {
       sortBy["stats.downloads"] = -1
     }
 
-    Building.paginate({"userId": req.params.user_id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+    User.findOne({username: req.params.username}, function(err, user) {
       if (err) {
         console.log(err);
         res.send(err);
       }
 
-      res.render("browse_new", {
-        bodyId: "search",
-        user: req.user,
-        sort: (!req.query.sort) ? "date" : req.query.sort,
-        pageCount: pageCount,
-        buildings: buildings
+      if (!user) {
+        res.sendStatus(404);
+        return;
+      }
+
+      Building.paginate({"userId": user._id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+        if (err) {
+          console.log(err);
+          res.send(err);
+        }
+
+        res.render("browse_new", {
+          bodyId: "search",
+          user: req.user,
+          sort: (!req.query.sort) ? "date" : req.query.sort,
+          pageCount: pageCount,
+          buildings: buildings
+        });
+      }, {
+        sortBy: sortBy
       });
-      
-      // res.render("search", {
-      //   bodyId: "search",
-      //   user: req.user,
-      //   pageCount: pageCount,
-      //   buildings: buildings
-      // });
-    }, {
-      sortBy: sortBy
     });
   };
 
@@ -397,10 +402,10 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /user/:user_id for GET
+  // Endpoint /user/:username for GET
   var getUser = function(req, res) {
     // Find uploading user
-    User.findById(req.params.user_id, function(err, user) {
+    User.findOne({username: req.params.username}, function(err, user) {
       if (err) {
         res.send(err);
         return;
@@ -419,7 +424,7 @@ module.exports = function (passport) {
         website: user.website
       };
 
-      Building.paginate({"userId": req.params.user_id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+      Building.paginate({"userId": user._id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
         if (err) {
           console.log(err);
           res.send(err);
@@ -436,10 +441,10 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /user/edit/:user_id for GET
+  // Endpoint /user/edit/:username for GET
   var getUserEdit = function(req, res) {
     // Check user has access
-    User.findOne({$and: [{_id: req.params.user_id}, {_id: req.user._id}]}, function(err, user) {
+    User.findOne({$and: [{username: req.params.username}, {_id: req.user._id}]}, function(err, user) {
       if (err) {
         res.send(err);
         return;
@@ -466,10 +471,10 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /user/edit/:user_id for POST
+  // Endpoint /user/edit/:username for POST
   var postUserEdit = function(req, res) {
     // Check user has access
-    User.findOne({$and: [{_id: req.params.user_id}, {_id: req.user._id}]}, function(err, user) {
+    User.findOne({$and: [{username: req.params.username}, {_id: req.user._id}]}, function(err, user) {
       if (err) {
         res.send(err);
         return;

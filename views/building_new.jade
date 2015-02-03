@@ -32,7 +32,7 @@ block content
           li
             a(href="http://www.openstreetmap.org/#{building.osm.type}/#{building.osm.id}") View on OpenStreetMap
         li Added by 
-          a(href="/user/#{buildingUser.id}") #{buildingUser.username}
+          a(href="/user/#{buildingUser.username}") #{buildingUser.username}
         li 
           a(href="/search/near/#{building.location.coordinates[0]}/#{building.location.coordinates[1]}/1000") See nearby buildings
       hr

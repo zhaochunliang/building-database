@@ -74,9 +74,9 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /admin/user/:user_id for GET
+  // Endpoint /admin/user/:username for GET
   var getUser = function(req, res) {
-    User.findOne({_id: req.params.user_id}, function(err, user) {
+    User.findOne({username: req.params.username}, function(err, user) {
       if (err) {
         res.send(err);
         return;
@@ -103,9 +103,9 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /admin/user/:user_id for POST
+  // Endpoint /admin/user/:username for POST
   var postUser = function(req, res) {
-    User.findOne({_id: req.params.user_id}, function(err, user) {
+    User.findOne({username: req.params.username}, function(err, user) {
       if (err) {
         res.send(err);
         return;

@@ -9,7 +9,7 @@ block content
         div.flash-success
           span #{message}
 
-      form(action="/user/edit/#{profile.id}", method="POST")
+      form(action="/user/edit/#{profile.username}", method="POST")
         label(for="website") Website:
         input(type="text", name="website", placeholder="Website" value=(profile.website) ? profile.website : "")
 

@@ -2,9 +2,9 @@
 
 * [Install MongoDB](http://docs.mongodb.org/manual/installation/)
 * [Start a MongoDB instance](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/#run-mongodb)
-* Create a user:
-  * `db.createUser( { user: "user", pwd: "password", roles: [ "readWrite", "dbAdmin" ] } )`
-* [Create a 2D-sphere index](http://docs.mongodb.org/manual/tutorial/build-a-2dsphere-index/) (for geo search)
+* Create Mongo indexes
+  * `db.users.ensureIndex( { email: 1 }, { unique: true } )`
+  * `db.users.ensureIndex( { username: 1 }, { unique: true } )`
   * `db.buildings.ensureIndex( { location: "2dsphere" } )`
 * Rename `/config/config.sample.js` to `/config/config.js` and update with your MongoDB settings
 * Add a phrase to session: secret in config.js

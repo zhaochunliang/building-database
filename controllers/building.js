@@ -13,6 +13,7 @@ var archiver = require("archiver");
 var async = require("async");
 var path = require("path");
 var request = require("request");
+var shortId = require("shortid");
 
 var Building = require("../models/building");
 
@@ -132,6 +133,7 @@ module.exports = function (passport) {
       building = new Building();
 
       building.name = req.body.name;
+      building.slug = shortId.generate();
 
       var movePromises = [];
       var moveFiles = [];

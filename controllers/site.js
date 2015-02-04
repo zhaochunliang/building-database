@@ -26,7 +26,7 @@ module.exports = function (passport) {
     var sortBy = {};
 
     if (!req.query.sort || req.query.sort == "date") {
-      sortBy["date"] = -1
+      sortBy["createdAt"] = -1
     } else if (req.query.sort == "name") {
       sortBy["name"] = 1
     } else if (req.query.sort == "downloads") {
@@ -65,9 +65,9 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /building/:building_id for GET
+  // Endpoint /building/:building_slug for GET
   var getBuilding = function(req, res) {
-    Building.findById(req.params.building_id, function(err, building) {
+    Building.findOne({slug: req.params.building_slug}, function(err, building) {
       if (err) {
         res.send(err);
         return;
@@ -190,7 +190,7 @@ module.exports = function (passport) {
     var sortBy = {};
 
     if (!req.query.sort || req.query.sort == "date") {
-      sortBy["date"] = -1
+      sortBy["createdAt"] = -1
     } else if (req.query.sort == "name") {
       sortBy["name"] = 1
     } else if (req.query.sort == "downloads") {
@@ -237,7 +237,7 @@ module.exports = function (passport) {
     var sortBy = {};
 
     if (!req.query.sort || req.query.sort == "date") {
-      sortBy["date"] = -1
+      sortBy["createdAt"] = -1
     } else if (req.query.sort == "name") {
       sortBy["name"] = 1
     } else if (req.query.sort == "downloads") {
@@ -279,7 +279,7 @@ module.exports = function (passport) {
     var sortBy = {};
 
     if (!req.query.sort || req.query.sort == "date") {
-      sortBy["date"] = -1
+      sortBy["createdAt"] = -1
     } else if (req.query.sort == "name") {
       sortBy["name"] = 1
     } else if (req.query.sort == "downloads") {
@@ -315,7 +315,7 @@ module.exports = function (passport) {
     var sortBy = {};
 
     if (!req.query.sort || req.query.sort == "date") {
-      sortBy["date"] = -1
+      sortBy["createdAt"] = -1
     } else if (req.query.sort == "name") {
       sortBy["name"] = 1
     } else if (req.query.sort == "downloads") {

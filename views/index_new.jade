@@ -44,9 +44,9 @@ block content
     var changeBuilding = function() {
       var building = buildings[buildingIndex];
 
-      buildingTitle.innerHTML = "<a href='/building/" + building._id + "''>" + building.name + "</a>";
+      buildingTitle.innerHTML = "<a href='/building/" + building.slug + "''>" + building.name + "</a>";
       buildingLocation.innerHTML = building.locality.district + ", " + building.locality.country + ((building.locality.countryCode) ? " <flag-icon key='" + building.locality.countryCode + "' img>" : "");
-      buildingButtons.innerHTML = "<a class='button' href='/building/" + building._id + "'>View building</a>";
+      buildingButtons.innerHTML = "<a class='button' href='/building/" + building.slug + "'>View building</a>";
 
       if (!buildingOverlay.style.display || buildingOverlay.style.display === "none") {
         buildingOverlay.style.display = "block";

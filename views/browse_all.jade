@@ -62,7 +62,7 @@ block content
             maxWidth: 450,
             closeButton: false
           }).setLatLng(circle.getLatLng())
-          .setContent("<div id='browse-map-overlay'><h2><a href='/building/" + building._id + "'>" + building.name + "</a></h2><p>" + building.locality.district + ", " + building.locality.country + ((building.locality.countryCode) ? " <flag-icon key='" + building.locality.countryCode + "' img>" : "") + "</p><p class='buttons'><a class='button' href='/building/" + building._id + "'>View building</a></p><span class='stalk'></span>");
+          .setContent("<div id='browse-map-overlay'><h2><a href='/building/" + building.slug + "'>" + building.name + "</a></h2><p>" + building.locality.district + ", " + building.locality.country + ((building.locality.countryCode) ? " <flag-icon key='" + building.locality.countryCode + "' img>" : "") + "</p><p class='buttons'><a class='button' href='/building/" + building.slug + "'>View building</a></p><span class='stalk'></span>");
         
         building.popup = popup;
 
@@ -75,19 +75,3 @@ block content
     }
 
     map.addLayer(markers);
-
-    // Set up building list handlers
-    var buildingList = $("ul.building-list");
-    var buildingListItems = $("ul.building-list li a");
-    
-    buildingListItems.on("click", function(event) {
-      var id = this.dataset.id;
-      var building = buildingsById[id];
-
-      map.setView([building.location.coordinates[1], building.location.coordinates[0]], zoom);
-
-      // Offset map
-      map.panBy(L.point(-200, 50), {animate: true});
-
-      building.popup.openOn(map);
-    });

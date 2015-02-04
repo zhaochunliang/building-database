@@ -14,7 +14,7 @@ block content
         ul.building-list
           each building, key in buildings
             li
-              a(href="##{building._id}" data-id="#{building._id}")
+              a(href="##{building.slug}" data-id="#{building._id}")
                 h2 #{building.name}
                 p
                   small #{building.locality.district}, #{building.locality.country}
@@ -78,7 +78,7 @@ block content
             maxWidth: 450,
             closeButton: false
           }).setLatLng(circle.getLatLng())
-          .setContent("<div id='browse-map-overlay'><h2><a href='/building/" + building._id + "'>" + building.name + "</a></h2><p>" + building.locality.district + ", " + building.locality.country + ((building.locality.countryCode) ? " <flag-icon key='" + building.locality.countryCode + "' img>" : "") + "</p><p class='buttons'><a class='button' href='/building/" + building._id + "'>View building</a></p><span class='stalk'></span>");
+          .setContent("<div id='browse-map-overlay'><h2><a href='/building/" + building.slug + "'>" + building.name + "</a></h2><p>" + building.locality.district + ", " + building.locality.country + ((building.locality.countryCode) ? " <flag-icon key='" + building.locality.countryCode + "' img>" : "") + "</p><p class='buttons'><a class='button' href='/building/" + building.slug + "'>View building</a></p><span class='stalk'></span>");
         
         building.popup = popup;
 

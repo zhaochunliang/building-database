@@ -39,11 +39,12 @@ block content
       queryTokenizer: Bloodhound.tokenizers.whitespace,
       remote: {
         // TODO: Work out how to perform a non-local search with Pelias
-        url: "http://pelias.mapzen.com/suggest?input=%QUERY&lat=51&lon=0",
+        url: "https://pelias.mapzen.com/search/coarse?input=%QUERY&size=10",
         filter: function(response) {
           return $.map(response.features, function(feature) {
+            var properties = feature.properties;
             return {
-              name: feature.properties.name,
+              name: properties.name + ", " + properties.admin2 + ", " + properties.admin0,
               geometry: feature.geometry
             };
           });

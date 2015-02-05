@@ -10,7 +10,10 @@ var ModelSchema = new Schema({
 var BuildingSchema = new Schema({
   id: String,
   name: String,
-  slug: String,
+  slug: {
+    id: String,
+    name: String
+  },
   location: {
     type: { type: String },
     coordinates: [{ type: Number }, { type: Number }]

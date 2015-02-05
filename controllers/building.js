@@ -133,7 +133,10 @@ module.exports = function (passport) {
       building = new Building();
 
       building.name = req.body.name;
-      building.slug = shortId.generate();
+      building.slug = {
+        id: shortId.generate(),
+        name: building.name.replace(/([^a-z0-9]+)/gi, "-").substring(0, 100)
+      };
 
       var movePromises = [];
       var moveFiles = [];
@@ -294,31 +297,22 @@ module.exports = function (passport) {
         return;
       }
 
-      if (!req.body.latitude && !req.body.longitude) {
-        if (req.body.scale) {
-          building.scale = req.body.scale;
+      if (req.body.scale) {
+        building.scale = req.body.scale;
+      }
+
+      if (req.body.angle) {
+        building.angle = req.body.angle;
+      }
+
+      if (req.body.osmType && req.body.osmID) {
+        building.osm = {
+          type: req.body.osmType,
+          id: req.body.osmID
         }
+      }
 
-        if (req.body.angle) {
-          building.angle = req.body.angle;
-        }
-
-        if (req.body.osmType && req.body.osmID) {
-          building.osm = {
-            type: req.body.osmType,
-            id: req.body.osmID
-          }
-        }
-
-        building.save(function(err, savedBuilding) {
-          if (err) {
-            res.send(err);
-            return;
-          }
-
-          res.json({message: "Building updated", building: savedBuilding});
-        });
-      } else if (req.body.latitude && req.body.longitude) {
+      if (req.body.latitude && req.body.longitude) {
         var url = "http://pelias.mapzen.com/reverse?lat=" + req.body.latitude + "&lon=" + req.body.longitude
         
         // Find location country and admin
@@ -351,6 +345,15 @@ module.exports = function (passport) {
               res.json({message: "Building updated", building: savedBuilding});
             });
           }
+        });
+      } else {
+        building.save(function(err, savedBuilding) {
+          if (err) {
+            res.send(err);
+            return;
+          }
+
+          res.json({message: "Building updated", building: savedBuilding});
         });
       }
     });

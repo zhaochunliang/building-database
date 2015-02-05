@@ -65,9 +65,9 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /building/:building_slug for GET
+  // Endpoint /building/:building_slugId/:building_name for GET
   var getBuilding = function(req, res) {
-    Building.findOne({slug: req.params.building_slug}, function(err, building) {
+    Building.findOne({"slug.id": req.params.building_slugId}, function(err, building) {
       if (err) {
         res.send(err);
         return;
@@ -115,7 +115,7 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /building/:building_id/report for GET
+  // Endpoint /report/:building_id for GET
   var getBuildingReport = function(req, res) {
     res.render("building-report_new", {
       bodyId: "building-report",
@@ -124,7 +124,7 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /building/:building_id/report for POST
+  // Endpoint /report/:building_id for POST
   var postBuildingReport = function(req, res) {
     // Skip if email hasn't been set up
     if (!config.email.report.fromAddress || !config.email.report.toAddress) {

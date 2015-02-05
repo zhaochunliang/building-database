@@ -29,7 +29,7 @@ block content
         
         a#back-button.button(href="/add/location/#{building._id}") Back
         button#add-osm-button(type="submit") Link with OpenStreetMap
-        a#skip-button.button(href="/building/#{building.slug}") Skip
+        a#skip-button.button(href="/building/#{building.slug.id}/#{building.slug.name}") Skip
     
     div.col-7
       div#add-osm-map
@@ -67,7 +67,7 @@ block content
         contentType: false,
         type: "PUT",
         success: function(data, status, xhr) {
-          window.location.href = "/building/" + data.building.slug;
+          window.location.href = "/building/" + data.building.slug.id + "/" + data.building.slug.name;
         },
         error: function(xhr, errorType, error) {
           // TODO: Display error and course of action

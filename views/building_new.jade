@@ -37,7 +37,7 @@ block content
           a(href="/search/near/#{building.location.coordinates[0]}/#{building.location.coordinates[1]}/1000") See nearby buildings
       hr
       p
-        a(href="/building/#{building._id}/report") Report building
+        a(href="/report/#{building._id}") Report building
         if (user && user._id.toString() === buildingUser.id.toString())
           a.right(href="/add/location/#{building._id}") Edit location
 

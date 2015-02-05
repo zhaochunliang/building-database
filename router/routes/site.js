@@ -14,10 +14,10 @@ module.exports = function (passport) {
   router.route("/browse/all")
     .get(siteController.getBrowseAll);
 
-  router.route("/building/:building_slug")
+  router.route("/building/:building_slugId/:building_name?")
     .get(siteController.getBuilding);
 
-  router.route("/building/:building_id/report")
+  router.route("/report/:building_id")
     .get(siteController.getBuildingReport)
     .post(siteController.postBuildingReport);
 

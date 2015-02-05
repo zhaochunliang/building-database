@@ -10,16 +10,16 @@ block content
         input#pelias(type="text" placeholder="Enter name of place to move to")
 
         label(for="scale") Scale:
-        input#scale(type="text", name="scale")
+        input#scale(type="text", name="scale" value=(building.scale) ? building.scale : "")
 
         label(for="angle") Angle:
-        input#angle(type="text", name="angle")
+        input#angle(type="text", name="angle" value=(building.angle) ? building.angle : "")
 
         label(for="scale") Latitude:
-        input#latitude(type="number", name="latitude" min=-90 max=90 step=0.000001 value=51.50358)
+        input#latitude(type="number", name="latitude" min=-90 max=90 step=0.000001 value=(building.location && building.location.coordinates[1]) ? building.location.coordinates[1] : "51.50358")
 
         label(for="scale") Longitude:
-        input#longitude(type="number", name="longitude" min=-180 max=180 step=0.000001 value=-0.01924)
+        input#longitude(type="number", name="longitude" min=-180 max=180 step=0.000001 value=(building.location && building.location.coordinates[0]) ? building.location.coordinates[0] : "-0.01924")
         
         button#add-location-button(type="submit") Set location
     div.col-7

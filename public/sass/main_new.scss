@@ -60,6 +60,7 @@ a.button {
   @extend button;
 
   color: #fff;
+  text-align: center;
 }
 
 
@@ -981,7 +982,7 @@ header.navigation {
         li {}
       }
 
-      button {
+      .button {
         margin: 5px 0;
         width: 100%;
       }

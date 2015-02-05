@@ -14,11 +14,11 @@ block content
 
       each model, key in building.models.raw
         - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
-        button(href="/api/building/#{building._id}/download/raw/#{model.type}") Download .#{model.type} (#{size} KB)
+        a.button(href="/api/building/#{building._id}/download/raw/#{model.type}") Download .#{model.type} (#{size} KB)
       each model, key in building.models.zip
         - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
-        button(href="/api/building/#{building._id}/download/zip/#{model.type}") Download #{model.type} zip (#{size} KB)
-      button(href="/api/building/#{building._id}.kml") Download .kml
+        a.button(href="/api/building/#{building._id}/download/zip/#{model.type}") Download #{model.type} zip (#{size} KB)
+      a.button(href="/api/building/#{building._id}.kml") Download .kml
 
       a.license(rel="license", href="http://creativecommons.org/licenses/by-sa/4.0/")
         img(alt="Creative Commons License", style="border-width:0", src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png")

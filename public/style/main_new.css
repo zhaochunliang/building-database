@@ -562,7 +562,8 @@ body > section.content {
   background: #fff; }
 
 a.button {
-  color: #fff; }
+  color: #fff;
+  text-align: center; }
 
 .col-1 {
   float: left;
@@ -1308,7 +1309,7 @@ header.navigation {
   padding: 20px;
   pointer-events: auto;
   margin: 80px 0 0; }
-  #building > section.content .details button, #building > section.content .details a.button, #building > section.content .details header.navigation .signup, header.navigation #building > section.content .details .signup, #building > section.content .details header.navigation .login, header.navigation #building > section.content .details .login, #building > section.content .details header.navigation .logout, header.navigation #building > section.content .details .logout, #building > section.content .details header.navigation .profile, header.navigation #building > section.content .details .profile, #building > section.content .details header.navigation .banner-wrapper .banner .navigation-wrapper p.cta a, header.navigation .banner-wrapper .banner .navigation-wrapper p.cta #building > section.content .details a {
+  #building > section.content .details .button {
     margin: 5px 0;
     width: 100%; }
   #building > section.content .details .license {

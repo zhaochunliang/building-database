@@ -9,13 +9,13 @@ module.exports = function(passport) {
   // Serialize and deserialize users
   // Required for persistent login sessions
   passport.serializeUser(function(user, done) {
-    debug("Serializing user: ", user);
+    // debug("Serializing user: ", user);
     done(null, user._id);
   });
 
   passport.deserializeUser(function(id, done) {
     User.findById(id, function(err, user) {
-      debug("Deserializing user: ", user);
+      // debug("Deserializing user: ", user);
       done(err, user);
     });
   });
@@ -32,13 +32,13 @@ module.exports = function(passport) {
             return done(err);
           // Username does not exist, log the error and redirect back
           if (!user){
-            debug("User Not Found with username "+username);
+            debug("User not found with username "+username);
             return done(null, false, req.flash("message", "User not found"));                 
           }
           // User exists but wrong password, log the error 
           if (!isValidPassword(user, password)){
             debug("Invalid Password");
-              return done(null, false, req.flash("message", "Invalid password"));
+              return done(null, false, req.flash("message", "Incorrect password"));
               // redirect back to login page
             }
           // User and password both match, return user from done method
@@ -64,7 +64,7 @@ module.exports = function(passport) {
           // Already exists
           if (user) {
             debug("User already exists: "+username);
-            return done(null, false, req.flash("message","User already exists"));
+            return done(null, false, req.flash("message","A user with that email already exists"));
           } else {
             // If there is no user with that email
             // create the user

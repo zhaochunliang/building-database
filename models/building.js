@@ -42,6 +42,7 @@ var BuildingSchema = new Schema({
     downloads: {type: Number, default: 0},
     views: {type: Number, default: 0}
   },
+  hidden: {type: Boolean, default: false},
   createdAt: Date,
   updatedAt: Date
 });

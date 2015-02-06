@@ -63,6 +63,10 @@ a.button {
   text-align: center;
 }
 
+a.button, button {
+  outline: none;
+}
+
 
 // ************************************************
 // Grid
@@ -1199,7 +1203,7 @@ header.navigation {
           td {
             padding: 15px 20px;
 
-            .button {
+            .button, button {
               color: #fff;
               margin-left: 5px;
 

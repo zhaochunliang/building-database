@@ -32,8 +32,68 @@ block content
               td
                 small
                   a.button(href="/admin/building/#{building._id}") Edit
-                  a.button(href="#") Hide
+                  if building.hidden === false
+                    button.buildingVisibility(data-action="hide" data-id="#{building._id}") Hide
+                  else
+                    button.buildingVisibility(data-action="show" data-id="#{building._id}") Show
         
         include _pagination
       else
         p No buildings
+
+  script.
+    var buildingVisibilityButton = document.querySelector(".buildingVisibility");
+
+    buildingVisibilityButton.addEventListener("click", function(event) {
+      event.preventDefault();
+      
+      var button = event.target;
+      var dataset = button.dataset;
+      var action = dataset.action;
+      var buildingId = dataset.id;
+      var hidden;
+      
+      if (action === "hide") {
+        dataset.action = "show";
+        button.innerHTML = "Show";
+        hidden = true;
+      } else if (action === "show") {
+        dataset.action = "hide";
+        button.innerHTML = "Hide";
+        hidden = false;
+      }
+
+      if (hidden === true || hidden === false) {
+        // This requires IE 10+
+        // What are the ramifications of this?
+        // What alternatives exist for async file upload?
+        var formData = new FormData();
+        
+        formData.append("hidden", hidden);
+
+        $.ajax({
+          url: "/api/building/" + buildingId,
+          data: formData,
+          processData: false,
+          contentType: false,
+          type: "PUT",
+          success: function(data, status, xhr) {
+            //- window.location.href = "/add/osm/" + data.building._id;
+            console.log(data, status);
+          },
+          error: function(xhr, errorType, error) {
+            // TODO: Display error and course of action
+
+            // Unauthenticated
+            if (xhr.status === 403) {
+              // Redirect to login page
+              window.location.href = "/login";
+            }
+
+            console.log(xhr.status);
+            console.log(errorType);
+            console.log(error);
+          }
+        });
+      }
+    })

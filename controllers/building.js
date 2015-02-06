@@ -297,6 +297,10 @@ module.exports = function (passport) {
         return;
       }
 
+      if (req.user.group === "admin" && req.body.hidden) {
+        building.hidden = req.body.hidden;
+      }
+
       if (req.body.scale) {
         building.scale = req.body.scale;
       }

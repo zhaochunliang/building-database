@@ -44,10 +44,29 @@ module.exports = function (passport) {
   // Endpoint /signup for POST
   var postSignup = function(req, res, next) {
     passport.authenticate("signup", {
-      successRedirect: "/",
+      successRedirect: "/signup",
       failureRedirect: "/signup",
       failureFlash: true  
     })(req, res, next);
+  };
+
+  // Endpoint /verify for GET
+  var getVerify = function(req, res) {
+    User.findOne({verifiedToken: req.params.token}, function(err, user) {
+      if (!user) {
+        req.flash("message", "Verification token not valid.");
+        return res.redirect("/signup");
+      }
+
+      user.verifiedToken = undefined;
+      user.verified = true;
+
+      user.save(function(err) {
+        req.login(user, function(err) {
+          return res.redirect("/");
+        });
+      });
+    });
   };
 
   // Endpoint /forgot for GET
@@ -69,7 +88,7 @@ module.exports = function (passport) {
         });
       },
       function(token, done) {
-        User.findOne({ email: req.body.email }, function(err, user) {
+        User.findOne({$and: [{ email: req.body.email }, {"verified": true}]}, function(err, user) {
           if (!user) {
             // TODO: Should probably change this as to not reveal users with an account in the system
             req.flash("message", "No account with that email address exists.");
@@ -119,7 +138,7 @@ module.exports = function (passport) {
 
   // Endpoint /reset/:token for GET
   var getReset = function(req, res) {
-    User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+    User.findOne({ $and: [{resetPasswordToken: req.params.token}, {resetPasswordExpires: { $gt: Date.now() } }]}, function(err, user) {
       if (!user) {
         req.flash("message", "Password reset token is invalid or has expired.");
         return res.redirect("/forgot");
@@ -137,7 +156,7 @@ module.exports = function (passport) {
   var postReset = function(req, res) {
     async.waterfall([
       function(done) {
-        User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function(err, user) {
+        User.findOne({ $and: [{resetPasswordToken: req.params.token}, {resetPasswordExpires: { $gt: Date.now() } }]}, function(err, user) {
           if (!user) {
             req.flash("message", "Password reset token is invalid or has expired.");
             return res.redirect("/reset/" + req.params.token);
@@ -195,6 +214,7 @@ module.exports = function (passport) {
     getLogout: getLogout,
     getSignup: getSignup,
     postSignup: postSignup,
+    getVerify: getVerify,
     getForgot: getForgot,
     postForgot: postForgot,
     getReset: getReset,

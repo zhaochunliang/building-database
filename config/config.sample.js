@@ -10,6 +10,10 @@ module.exports = {
     "reset": {
       "fromAddress": "noreply@example.com",
       "subject": "Password reset"
+    },
+    "verify": {
+      "fromAddress": "noreply@example.com",
+      "subject": "Please verify your account"
     }
   },
   "session": {

@@ -15,6 +15,9 @@ module.exports = function (passport) {
     .get(accountController.getSignup)
     .post(accountController.postSignup);
 
+  router.route("/verify/:token")
+    .get(accountController.getVerify);
+
   router.route("/forgot")
     .get(accountController.getForgot)
     .post(accountController.postForgot);

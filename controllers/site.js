@@ -244,7 +244,7 @@ module.exports = function (passport) {
       sortBy["stats.downloads"] = -1
     }
 
-    User.findOne({username: req.params.username}, function(err, user) {
+    User.findOne({$and: [{username: req.params.username}, {"verified": true}]}, function(err, user) {
       if (err) {
         console.log(err);
         res.send(err);
@@ -405,7 +405,7 @@ module.exports = function (passport) {
   // Endpoint /user/:username for GET
   var getUser = function(req, res) {
     // Find uploading user
-    User.findOne({username: req.params.username}, function(err, user) {
+    User.findOne({$and: [{username: req.params.username}, {"verified": true}]}, function(err, user) {
       if (err) {
         res.send(err);
         return;
@@ -444,7 +444,7 @@ module.exports = function (passport) {
   // Endpoint /user/edit/:username for GET
   var getUserEdit = function(req, res) {
     // Check user has access
-    User.findOne({$and: [{username: req.params.username}, {_id: req.user._id}]}, function(err, user) {
+    User.findOne({$and: [{username: req.params.username}, {_id: req.user._id}, {"verified": true}]}, function(err, user) {
       if (err) {
         res.send(err);
         return;
@@ -474,7 +474,7 @@ module.exports = function (passport) {
   // Endpoint /user/edit/:username for POST
   var postUserEdit = function(req, res) {
     // Check user has access
-    User.findOne({$and: [{username: req.params.username}, {_id: req.user._id}]}, function(err, user) {
+    User.findOne({$and: [{username: req.params.username}, {_id: req.user._id}, {"verified": true}]}, function(err, user) {
       if (err) {
         res.send(err);
         return;

@@ -12,6 +12,8 @@ var UserSchema = new Schema({
   twitter: String,
   resetPasswordToken: String,
   resetPasswordExpires: Date,
+  verified: {type: Boolean, default: false},
+  verifiedToken: String,
   createdAt: Date,
   updatedAt: Date
 });

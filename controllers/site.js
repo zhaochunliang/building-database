@@ -7,7 +7,7 @@ module.exports = function (passport) {
 
   // Endpoint / for GET
   var getIndex = function(req, res) {
-    Building.find({"location.coordinates": {$ne: [0,0]}}).limit(6).sort({createdAt: -1}).exec(function(err, buildings) {
+    Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}).limit(6).sort({createdAt: -1}).exec(function(err, buildings) {
       if (err) {
         res.send(err);
       }
@@ -33,7 +33,7 @@ module.exports = function (passport) {
       sortBy["stats.downloads"] = -1
     }
 
-    Building.paginate({"location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+    Building.paginate({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
       }
@@ -52,7 +52,7 @@ module.exports = function (passport) {
 
   // Endpoint /browse/all for GET
   var getBrowseAll = function(req, res) {
-    Building.find({"location.coordinates": {$ne: [0,0]}}, function(err, buildings) {
+    Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, function(err, buildings) {
       if (err) {
         res.send(err);
       }
@@ -67,7 +67,7 @@ module.exports = function (passport) {
 
   // Endpoint /building/:building_slugId/:building_name for GET
   var getBuilding = function(req, res) {
-    Building.findOne({"slug.id": req.params.building_slugId}, function(err, building) {
+    Building.findOne({$and: [{"slug.id": req.params.building_slugId}, {hidden: false}]}, function(err, building) {
       if (err) {
         res.send(err);
         return;
@@ -197,7 +197,7 @@ module.exports = function (passport) {
       sortBy["stats.downloads"] = -1
     }
 
-    Building.paginate({"location": {
+    Building.paginate({$and: [{"location": {
       $nearSphere: {
         $geometry: {
           type: "Point",
@@ -205,7 +205,7 @@ module.exports = function (passport) {
         },
         $maxDistance: req.params.distance | 1000
       }
-    }}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+    }}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         console.log(err);
         res.send(err);
@@ -255,7 +255,7 @@ module.exports = function (passport) {
         return;
       }
 
-      Building.paginate({"userId": user._id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+      Building.paginate({$and: [{"userId": user._id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
         if (err) {
           console.log(err);
           res.send(err);
@@ -286,7 +286,7 @@ module.exports = function (passport) {
       sortBy["stats.downloads"] = -1
     }
 
-    Building.paginate({"osm.type": req.params.osm_type, "osm.id": req.params.osm_id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+    Building.paginate({$and: [{"osm.type": req.params.osm_type}, {"osm.id": req.params.osm_id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
       }
@@ -322,7 +322,7 @@ module.exports = function (passport) {
       sortBy["stats.downloads"] = -1
     }
 
-    Building.paginate({"name": new RegExp(req.params.search_term, "i"), "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+    Building.paginate({$and: [{"name": new RegExp(req.params.search_term, "i")}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
       }
@@ -359,7 +359,7 @@ module.exports = function (passport) {
     // Check that user owns this building
     // Check that location hasn't already been added
     // Building.findOne({_id: req.params.building_id, userId: req.user._id, "location.coordinates": [0,0]}, function(err, building) {
-    Building.findOne({_id: req.params.building_id, userId: req.user._id}, function(err, building) {
+    Building.findOne({$and: [{_id: req.params.building_id}, {userId: req.user._id}]}, function(err, building) {
       if (err) {
         res.send(err);
         return;
@@ -383,7 +383,7 @@ module.exports = function (passport) {
     // Check that user owns this building
     // Check that OSM hasn't already been linked
     // Building.findOne({_id: req.params.building_id, userId: req.user._id, osm: {$exists: false}}, function(err, building) {
-    Building.findOne({_id: req.params.building_id, userId: req.user._id}, function(err, building) {
+    Building.findOne({$and: [{_id: req.params.building_id}, {userId: req.user._id}]}, function(err, building) {
       if (err) {
         res.send(err);
         return;
@@ -424,7 +424,7 @@ module.exports = function (passport) {
         website: user.website
       };
 
-      Building.paginate({"userId": user._id, "location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+      Building.paginate({$and: [{"userId": user._id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
         if (err) {
           console.log(err);
           res.send(err);

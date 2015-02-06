@@ -286,7 +286,7 @@ module.exports = function (passport) {
   // Endpoint /api/buildings for PUT
   var putBuildings = function(req, res, next) {
     // Check that user has access to this building
-    Building.findOne({_id: req.params.building_id, userId: req.user._id}, function(err, building) {
+    Building.findOne({$and: [{_id: req.params.building_id}, {userId: req.user._id}]}, function(err, building) {
       if (err) {
         res.send(err);
         return;
@@ -365,7 +365,7 @@ module.exports = function (passport) {
 
   // Endpoint /api/building/ for GET
   var getBuilding = function(req, res) {
-    Building.findById(req.params.building_id, function(err, building) {
+    Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
       if (err) {
         res.send(err);
         return;
@@ -377,7 +377,7 @@ module.exports = function (passport) {
 
   // Endpoint /api/building/:building_id/download/:file_type/:model_type for GET
   var getBuildingDownload = function(req, res) {
-    Building.findById(req.params.building_id, function(err, building) {
+    Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
       if (err) {
         res.send(err);
         return;
@@ -422,7 +422,7 @@ module.exports = function (passport) {
 
   // Endpoint /api/building/:building_id.kml for GET
   var getBuildingKML = function(req, res) {
-    Building.findById(req.params.building_id, function(err, building) {
+    Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
       if (err) {
         res.send(err);
         return;

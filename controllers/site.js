@@ -326,7 +326,7 @@ module.exports = function (passport) {
       sortBy["stats.downloads"] = -1
     }
 
-    Building.paginate({$and: [{"name": new RegExp(req.params.search_term, "i")}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
+    Building.paginate({$and: [{$or: [{"name": new RegExp(req.params.search_term, "i")}, {"description": new RegExp(req.params.search_term, "i")}]}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
       }

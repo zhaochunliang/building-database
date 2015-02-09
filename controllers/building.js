@@ -139,7 +139,7 @@ module.exports = function (passport) {
       };
 
       if (req.body.description) {
-        building.description = req.body.description;
+        building.description = req.body.description.substr(0, 1000);
       }
 
       var movePromises = [];

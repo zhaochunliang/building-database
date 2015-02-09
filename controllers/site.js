@@ -512,6 +512,21 @@ module.exports = function (passport) {
           if (req.body.email && req.body.email !== user.email) {
             async.waterfall([
               function(verifyDone) {
+                User.findOne({email: req.body.email}, function(err, user) {
+                  if (err) {
+                    asyncDone(err);
+                    return;
+                  }
+
+                  if (user) {
+                    msg = "A user already exists with that email";
+                    asyncDone(null, null);
+                    return;
+                  }
+
+                  verifyDone();
+                });
+              }, function(verifyDone) {
                 // Generate verify token
                 crypto.randomBytes(20, function(err, buf) {
                   var token = buf.toString("hex");
@@ -581,7 +596,7 @@ module.exports = function (passport) {
           
           smtpTransport.sendMail(mailOptions, function(err) {
             // Add message to flash
-            msg += ", verification email sent.";
+            msg = "Profile updated, verification email sent.";
 
             asyncDone(err, token, savedUser);
           });
@@ -596,7 +611,7 @@ module.exports = function (passport) {
             website: savedUser.website
           };
 
-          req.flash("message", "Profile updated" + msg);
+          req.flash("message", msg);
 
           res.render("user-edit", {
             bodyId: "user-edit",

@@ -138,6 +138,10 @@ module.exports = function (passport) {
         name: building.name.replace(/([^a-z0-9]+)/gi, "-").substring(0, 100)
       };
 
+      if (req.body.description) {
+        building.description = req.body.description;
+      }
+
       var movePromises = [];
       var moveFiles = [];
       var moveAssetFiles = [];

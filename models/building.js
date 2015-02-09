@@ -14,6 +14,7 @@ var BuildingSchema = new Schema({
     id: String,
     name: String
   },
+  description: String,
   location: {
     type: { type: String },
     coordinates: [{ type: Number }, { type: Number }]

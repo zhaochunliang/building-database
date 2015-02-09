@@ -558,15 +558,22 @@ module.exports = function (passport) {
             return;
           }
 
+          // Check that user.changeEmail exists
+          if (!user.changeEmail) {
+            debug("Email user.changeEmail wasn't set");
+            asyncDone("Email user.changeEmail wasn't set");
+            return;
+          }
+
           // TODO: Move to an external service for email
           // - https://github.com/andris9/Nodemailer
           var smtpTransport = nodemailer.createTransport();
 
           var mailOptions = {
-            to: savedUser.email,
+            to: user.changeEmail,
             from: config.email.verify.fromAddress,
             subject: (config.email.verify.subject) ? config.email.verify.subject : "Please verify your change in email",
-            text: "You are receiving this because a request has been received to change the email on your account and it requires verification.\n\n" +
+            text: "You are receiving this because a request has been received to change the email on your account to this one.\n\n" +
               "Please click on the following link, or paste this into your browser to complete the verification process:\n\n" +
               "http://" + req.headers.host + "/verify/" + token + "\n\n" +
               "If you did not request this, please ignore this email.\n"

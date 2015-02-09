@@ -1,6 +1,7 @@
 var async = require("async");
 var crypto = require("crypto");
 var nodemailer = require("nodemailer");
+var gravatar = require("gravatar");
 
 var config = require("../config/config.js");
 
@@ -58,8 +59,24 @@ module.exports = function (passport) {
         return res.redirect("/signup");
       }
 
+      // User wants to change their email
+      if (user.changeEmail) {
+        user.email = user.changeEmail;
+        user.changeEmail = undefined;
+
+        // Update Gravatar
+        var grav = gravatar.url(user.email);
+        user.gravatar = grav;
+      }
+
+      // Clear the token now it has been used
       user.verifiedToken = undefined;
-      user.verified = true;
+
+      // Verified will be false if the user has just signed up
+      // Verified will be true is the user is changing their email
+      if (!user.verified) {
+        user.verified = true;
+      }
 
       user.save(function(err) {
         req.login(user, function(err) {

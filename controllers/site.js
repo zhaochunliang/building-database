@@ -1,5 +1,9 @@
+var async = require("async");
+var crypto = require("crypto");
 var nodemailer = require("nodemailer");
 var gravatar = require("gravatar");
+
+var config = require("../config/config.js");
 
 module.exports = function (passport) {
   var Building = require("../models/building");
@@ -485,44 +489,120 @@ module.exports = function (passport) {
         return;
       }
 
-      // Update Gravatar
-      var grav = gravatar.url(user.email);
-      user.gravatar = grav;
+      var msg = "";
 
-      // Check for updated details
-      // TODO: Support updating of username and email
-      
-      if (req.body.website) {
-        user.website = req.body.website;
-      }
+      async.waterfall([
+        function(asyncDone) {
+          // Update Gravatar
+          var grav = gravatar.url(user.email);
+          user.gravatar = grav;
 
-      if (req.body.twitter) {
-        user.twitter = req.body.twitter;
-      }
+          // Check for updated details      
+          if (req.body.website) {
+            user.website = req.body.website;
+          }
 
-      // Save user
-      user.save(function(err, savedUser) {
-        if (err) {
-          res.send(err);
+          if (req.body.twitter) {
+            user.twitter = req.body.twitter;
+          }
+
+          asyncDone();
+        }, function(asyncDone) {
+          // User has updated their email
+          if (req.body.email && req.body.email !== user.email) {
+            async.waterfall([
+              function(verifyDone) {
+                // Generate verify token
+                crypto.randomBytes(20, function(err, buf) {
+                  var token = buf.toString("hex");
+                  verifyDone(err, token);
+                });
+              }, function(token, verifyDone) {
+                // Store verify token
+                user.verifiedToken = token;
+                verifyDone(null, token);
+              }, function(token, verifyDone) {
+                // Store change email for after verification
+                user.changeEmail = req.body.email;
+
+                verifyDone(null, token);
+              }
+            ], function(err, token) {
+              if (!err) {
+                asyncDone(null, token);
+                return;
+              }
+
+              debug("Error in creating verification details: " + err);
+              throw err;
+            });
+          } else {
+            asyncDone(null, null);
+          }
+        }, function(token, asyncDone) {
+          // Save the user
+          user.save(function(err, savedUser) {
+            asyncDone(err, token, savedUser);
+          });
+        }, function(token, savedUser, asyncDone) {
+          // Skip if no token
+          if (!token) {
+            asyncDone(null, null, savedUser);
+            return;
+          }
+
+          // Skip if email hasn't been set up
+          if (!config.email.verify.fromAddress) {
+            debug("Email verify.fromAddress not found in configuration");
+            asyncDone("Email verify.fromAddress not found in configuration");
+            return;
+          }
+
+          // TODO: Move to an external service for email
+          // - https://github.com/andris9/Nodemailer
+          var smtpTransport = nodemailer.createTransport();
+
+          var mailOptions = {
+            to: savedUser.email,
+            from: config.email.verify.fromAddress,
+            subject: (config.email.verify.subject) ? config.email.verify.subject : "Please verify your change in email",
+            text: "You are receiving this because a request has been received to change the email on your account and it requires verification.\n\n" +
+              "Please click on the following link, or paste this into your browser to complete the verification process:\n\n" +
+              "http://" + req.headers.host + "/verify/" + token + "\n\n" +
+              "If you did not request this, please ignore this email.\n"
+          };
+          
+          smtpTransport.sendMail(mailOptions, function(err) {
+            // Add message to flash
+            msg += ", verification email sent.";
+
+            asyncDone(err, token, savedUser);
+          });
+        }
+      ], function(err, token, savedUser) {
+        if (!err) {
+          var profile = {
+            id: savedUser._id,
+            username: savedUser.username,
+            email: savedUser.email,
+            twitter: savedUser.twitter,
+            website: savedUser.website
+          };
+
+          req.flash("message", "Profile updated" + msg);
+
+          res.render("user-edit", {
+            bodyId: "user-edit",
+            user: req.user,
+            profile: profile,
+            message: req.flash("message")
+          });
+
           return;
         }
 
-        var profile = {
-          id: savedUser._id,
-          username: savedUser.username,
-          email: savedUser.email,
-          twitter: savedUser.twitter,
-          website: savedUser.website
-        };
-
-        req.flash("message", "Profile updated");
-
-        res.render("user-edit", {
-          bodyId: "user-edit",
-          user: req.user,
-          profile: profile,
-          message: req.flash("message")
-        });
+        debug("Error in saving user: " + err);
+        throw err;
       });
     });
   };

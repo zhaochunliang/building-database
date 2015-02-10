@@ -25,9 +25,71 @@ block content
               td #{siteUser.email}
               td
                 small
-                  a.button(href="#") Ban
+                  if siteUser.banned === false
+                    button.userBan(data-action="ban" data-username="#{siteUser.username}") Ban
+                  else
+                    button.userBan(data-action="unban" data-username="#{siteUser.username}") Un-ban
                   a.button(href="/admin/user/#{siteUser.username}") Edit
         
         include _pagination
       else
         p No users
+
+  script.
+    var userBanButtons = document.getElementsByClassName("userBan");
+
+    for (var i = 0; i < userBanButtons.length; i++) {
+      var userBanButton = userBanButtons[i];
+      userBanButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        
+        var button = event.target;
+        var dataset = button.dataset;
+        var action = dataset.action;
+        var username = dataset.username;
+        var ban;
+        
+        if (action === "ban") {
+          dataset.action = "unban";
+          button.innerHTML = "Un-ban";
+          ban = true;
+        } else if (action === "unban") {
+          dataset.action = "ban";
+          button.innerHTML = "Ban";
+          ban = false;
+        }
+
+        if (ban === true || ban === false) {
+          // This requires IE 10+
+          // What are the ramifications of this?
+          // What alternatives exist for async file upload?
+          var formData = new FormData();
+          
+          formData.append("ban", ban);
+
+          $.ajax({
+            url: "/admin/user/" + username,
+            data: formData,
+            processData: false,
+            contentType: false,
+            type: "POST",
+            success: function(data, status, xhr) {
+              // User updated successfully
+            },
+            error: function(xhr, errorType, error) {
+              // TODO: Display error and course of action
+
+              // Unauthenticated
+              if (xhr.status === 403) {
+                // Redirect to login page
+                window.location.href = "/login";
+              }
+
+              console.log(xhr.status);
+              console.log(errorType);
+              console.log(error);
+            }
+          });
+        }
+      });
+    };

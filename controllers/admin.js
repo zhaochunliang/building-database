@@ -69,7 +69,7 @@ module.exports = function (passport) {
         siteUsers: siteUsers
       });
     }, {
-      columns: {"username": 1, "email": 1},
+      columns: {"username": 1, "email": 1, "banned": 1},
       sortBy: sortBy
     });
   };
@@ -129,6 +129,10 @@ module.exports = function (passport) {
 
       if (req.body.twitter) {
         user.twitter = req.body.twitter;
+      }
+
+      if (req.body.ban) {
+        user.banned = req.body.ban;
       }
 
       // Save user

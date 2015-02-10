@@ -6,6 +6,7 @@ var UserSchema = new Schema({
   username: String,
   password: String,
   group: String,
+  banned: {type: Boolean, default: false},
   email: String,
   gravatar: String,
   website: String,

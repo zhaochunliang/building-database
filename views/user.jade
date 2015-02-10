@@ -3,30 +3,34 @@ extends layout_new
 block content
   section.container
     div.col-7
-      h1
-        if (profile.gravatar)
-          img(src="#{profile.gravatar}?s=25") 
-        | #{profile.username}
-        if (user && user._id.toString() === profile.id.toString())
-          a.right(href="/user/edit/#{profile.username}") Edit
+      if banned === true
+        h1 User banned
+        p This account has been blocked from using the website.
+      else
+        h1
+          if (profile.gravatar)
+            img(src="#{profile.gravatar}?s=25") 
+          | #{profile.username}
+          if (user && user._id.toString() === profile.id.toString())
+            a.right(href="/user/edit/#{profile.username}") Edit
 
-      if (profile.twitter)
-        a.button(href="http://twitter.com/#{profile.twitter}") Twitter
+        if (profile.twitter)
+          a.button(href="http://twitter.com/#{profile.twitter}") Twitter
 
-      if (profile.website)
-        a.button(href="#{profile.website}") Website
-      
-      h2 Buildings
-      div.details
-        if buildings.length > 0
-          ul.building-list
-            each building, key in buildings
-              li
-                a(href="##{building._id}" data-id="#{building._id}")
-                  h3 #{building.name}
-                  p
-                    small #{building.locality.district}, #{building.locality.country}
-          
-          include _pagination
-        else
-          p No buildings
+        if (profile.website)
+          a.button(href="#{profile.website}") Website
+        
+        h2 Buildings
+        div.details
+          if buildings.length > 0
+            ul.building-list
+              each building, key in buildings
+                li
+                  a(href="##{building._id}" data-id="#{building._id}")
+                    h3 #{building.name}
+                    p
+                      small #{building.locality.district}, #{building.locality.country}
+            
+            include _pagination
+          else
+            p No buildings

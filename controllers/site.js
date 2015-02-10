@@ -420,6 +420,14 @@ module.exports = function (passport) {
         return;
       }
 
+      if (user.banned === true) {
+        res.render("user", {
+          bodyId: "user",
+          user: req.user,
+          banned: true
+        });
+      }
+
       profile = {
         id: user._id,
         username: user.username,

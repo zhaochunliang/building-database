@@ -105,7 +105,7 @@ module.exports = function (passport) {
         });
       },
       function(token, done) {
-        User.findOne({$and: [{ email: req.body.email }, {"verified": true}]}, function(err, user) {
+        User.findOne({$and: [{ email: req.body.email }, {"verified": true}, {"banned": false}]}, function(err, user) {
           if (!user) {
             // TODO: Should probably change this as to not reveal users with an account in the system
             req.flash("message", "No account with that email address exists.");

@@ -30,7 +30,7 @@ module.exports = function(passport) {
     },
     function(req, username, password, done) { 
       // check in mongo if a user with username exists or not
-      User.findOne({ $and: [{"username": username}, {"verified": true}]}, 
+      User.findOne({ $and: [{"username": username}, {"verified": true}, {"banned": false}]}, 
         function(err, user) {
           // In case of any error, return using the done method
           if (err)

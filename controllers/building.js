@@ -290,7 +290,14 @@ module.exports = function (passport) {
   // Endpoint /api/buildings for PUT
   var putBuildings = function(req, res, next) {
     // Check that user has access to this building
-    Building.findOne({$and: [{_id: req.params.building_id}, {userId: req.user._id}]}, function(err, building) {
+
+    var query = {$and: [{_id: req.params.building_id}, {userId: req.user._id}]};
+
+    if (req.user.group && req.user.group === "admin") {
+      query = {_id: req.params.building_id};
+    }
+
+    Building.findOne(query, function(err, building) {
       if (err) {
         res.send(err);
         return;
@@ -303,6 +310,14 @@ module.exports = function (passport) {
 
       if (req.user.group === "admin" && req.body.hidden) {
         building.hidden = req.body.hidden;
+      }
+
+      if (req.user.group === "admin" && req.body.name) {
+        building.name = req.body.name;
+      }
+
+      if (req.user.group === "admin" && req.body.description) {
+        building.description = req.body.description;
       }
 
       if (req.body.scale) {

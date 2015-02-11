@@ -44,6 +44,27 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /admin/building/:building_id for GET
+  var getBuilding = function(req, res) {
+    Building.findOne({_id: req.params.building_id}, function(err, building) {
+      if (err) {
+        res.send(err);
+        return;
+      }
+
+      if (!building) {
+        res.sendStatus(404);
+        return;
+      }
+
+      res.render("admin-building", {
+        bodyId: "admin-building",
+        user: req.user,
+        building: building
+      });
+    });
+  };
+
   // Endpoint /admin/users for GET
   var getUsers = function(req, res) {
     var sortBy = {};
@@ -165,6 +186,7 @@ module.exports = function (passport) {
   return {
     getAdmin: getAdmin,
     getBuildings: getBuildings,
+    getBuilding: getBuilding,
     getUsers: getUsers,
     getUser: getUser,
     postUser: postUser

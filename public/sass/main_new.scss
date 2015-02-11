@@ -1273,6 +1273,46 @@ header.navigation {
 
 
 // ************************************************
+// Admin building
+// ************************************************
+
+#admin-building {
+  & > section.content {
+    border-bottom: 10px solid #4a4a4a;
+    padding: 40px 0;
+
+    .container {
+      @include outer-container;
+    }
+
+    h1 {
+      position: relative;
+
+      span {
+        bottom: 14px;
+        font-size: 0.6em;
+        position: absolute;
+        right: 0;
+
+        a {
+          color: inherit;
+        }
+      }
+    }
+
+    textarea {
+      height: 200px;
+    }
+
+    a.button {
+      float: right;
+      margin-left: 4px;
+    }
+  }
+}
+
+
+// ************************************************
 // Admin user
 // ************************************************
 

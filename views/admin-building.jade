@@ -1,0 +1,75 @@
+extends layout_new
+ 
+block content
+  section.container
+    div.col-7
+      h1
+        | #{building.name}
+        span
+          a(href="/admin/buildings") Back to buildings
+        
+      if message && message.length > 0
+          div.flash-success
+            span #{message}
+
+        form#building-form
+          label(for="name") Name:
+          input#name(type="text", name="name", placeholder="Building name" value=(building.name) ? building.name : "")
+
+          label(for="description") Description:
+          textarea#description(name="description", placeholder="Building description")
+           | #{(building.description) ? building.description : ""}
+
+          button#update-button(type="submit") Update building
+
+          a.button(href="/add/osm/#{building._id}") Update OSM linkage
+          a.button(href="/add/location/#{building._id}") Change location
+
+  script.
+    var buildingForm = document.getElementById("building-form");
+    var nameInput = document.getElementById("name");
+    var descInput = document.getElementById("description");
+    var updateButton = document.getElementById("update-button");
+
+    // TODO: Catch errors and notify user
+    buildingForm.addEventListener("submit", function(event) {
+      event.target.checkValidity();
+      event.preventDefault();
+
+      updateButton.innerHTML = "Updating&hellip;";
+
+      // This requires IE 10+
+      // What are the ramifications of this?
+      // What alternatives exist for async file upload?
+      var formData = new FormData();
+
+      // Add the name to the request
+      formData.append("name", nameInput.value);
+
+      // Add the description to the request
+      formData.append("description", descInput.value);
+
+      $.ajax({
+        url: "/api/building/#{building._id}",
+        data: formData,
+        processData: false,
+        contentType: false,
+        type: "PUT",
+        success: function(data, status, xhr) {
+          window.location.href = "/admin/buildings";
+        },
+        error: function(xhr, errorType, error) {
+          // TODO: Display error and course of action
+
+          // Unauthenticated
+          if (xhr.status === 403) {
+            // Redirect to login page
+            window.location.href = "/login";
+          }
+
+          console.log(xhr.status);
+          console.log(errorType);
+          console.log(error);
+        }
+      });
+    });

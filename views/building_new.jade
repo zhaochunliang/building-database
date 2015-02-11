@@ -12,22 +12,42 @@ block content
         if building.locality.countryCode
           flag-icon(key="#{building.locality.countryCode}" img)
 
-      each model, key in building.models.raw
-        - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
-        a.button(href="/api/building/#{building._id}/download/raw/#{model.type}") Download .#{model.type} (#{size} KB)
-      each model, key in building.models.zip
-        - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
-        a.button(href="/api/building/#{building._id}/download/zip/#{model.type}") Download #{model.type} zip (#{size} KB)
-      a.button(href="/api/building/#{building._id}.kml") Download .kml
-
-      a.license(rel="license", href="http://creativecommons.org/licenses/by-sa/4.0/")
-        img(alt="Creative Commons License", style="border-width:0", src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png")
+      if building.description
+        hr
+        p.description!= building.description.substr(0, 500).replace(/\n/g, "<br>") + ((building.description.length > 500) ? "&hellip;" : "")
 
       hr
 
+      .dropdown
+        .dropdown-container
+            p.dropdown-description Downloads     
+            p.dropdown-button Select a format    
+            ul.dropdown-menu.dropdown-select
+              each model, key in building.models.raw
+                - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
+                li
+                  a(href="/api/building/#{building._id}/download/raw/#{model.type}") Download .#{model.type} (#{size} KB)
+              each model, key in building.models.zip
+                - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
+                li
+                  a(href="/api/building/#{building._id}/download/zip/#{model.type}") Download #{model.type} zip (#{size} KB)
+              li
+                a(href="/api/building/#{building._id}.kml") Download .kml
+      
+      p.license Licensed as  
+        a(rel="license", href="http://creativecommons.org/licenses/by-sa/4.0/") Creative Commons Attribution-ShareAlike 4.0
+
+      hr
+
+      p.stats
+        img(src="/images/icon-download.png")
+        | #{building.stats.downloads} downloads
+        img(src="/images/icon-polygon.png")
+        | #{building.structure.faces} polygons
+
+      hr
+        
       ul
-        li #{building.stats.downloads} downloads
-        li #{building.structure.faces} faces
         if building.osm.id
           li
             a(href="http://www.openstreetmap.org/#{building.osm.type}/#{building.osm.id}") View on OpenStreetMap
@@ -50,6 +70,17 @@ block content
   link(rel="stylesheet", href="/lib/vizicities/vizi.css")
   script(src="/lib/vizicities/vizi.min.js")
   script.
+    // Dropdowns
+    $(".dropdown-button").click(function() {
+      $(".dropdown-menu").toggleClass("show-menu");
+      $(".dropdown-menu > li").click(function(){
+        $(".dropdown-menu").removeClass("show-menu");
+      });
+      $(".dropdown-menu.dropdown-select > li").click(function() {
+        $(".dropdown-button").html($(this).html());
+      });
+    });
+
     var map = L.map("building-map", {zoomControl:false}).setView([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}], 16);
 
     // Offset map

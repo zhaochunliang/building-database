@@ -5,6 +5,7 @@
 @import "neat";
 
 @import "flashes";
+@import "dropdowns";
 
 
 // ************************************************
@@ -982,18 +983,39 @@ header.navigation {
       pointer-events: auto;
       margin: 80px 0 0;
 
-      ul {
-        li {}
+      .description {
+        font-style: italic;
       }
 
-      .button {
-        margin: 5px 0;
-        width: 100%;
+      .dropdown {
+        @include dropdown();
+        @include clearfix();
+
+        .dropdown-container {
+          display: block;
+        }
+
+        .dropdown-description {
+          width: 35%;
+        }
+
+        .dropdown-button {
+          width: 65%;
+        }
+
+        .dropdown-menu {
+          top: 60px;
+          width: 300px;
+
+          &:before {
+            top: -23px;
+          }
+        }
       }
 
       .license {
-        display: inline-block;
-        margin: 5px 0;
+        font-size: small;
+        margin: 10px 0 0;
       }
 
       hr {
@@ -1003,12 +1025,26 @@ header.navigation {
       a.right {
         float: right;
       }
+
+      p.stats {
+        text-align: center;
+
+        img {
+          margin: -4px 3px 0 20px;
+          width: 16px;
+          vertical-align: middle;
+
+          &:first-child {
+            margin-left: 0;
+          }
+        }
+      }
     }
   }
 
   #building-map {
     height: 100%;
-    min-height: 1000px;
+    min-height: 1150px;
     // Move up by sum of navigation and footer heights
     margin-top: -163px;
     position: absolute;
@@ -1026,7 +1062,7 @@ header.navigation {
   #vizicities-viewport {
     border-bottom: 10px solid #4a4a4a;
     height: 100%;
-    min-height: 1000px;
+    min-height: 1150px;
     margin-top: -163px;
     overflow: hidden;
     position: absolute;

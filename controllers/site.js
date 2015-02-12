@@ -16,7 +16,7 @@ module.exports = function (passport) {
         res.send(err);
       }
       
-      res.render("index_new", {
+      res.render("index", {
         bodyId: "home",
         user: req.user,
         buildings: buildings,
@@ -42,7 +42,7 @@ module.exports = function (passport) {
         res.send(err);
       }
       
-      res.render("browse_new", {
+      res.render("browse", {
         bodyId: "browse",
         user: req.user,
         sort: (!req.query.sort) ? "date" : req.query.sort,
@@ -108,7 +108,7 @@ module.exports = function (passport) {
             return;
           }
           
-          res.render("building_new", {
+          res.render("building", {
             bodyId: "building",
             user: req.user,
             building: building,
@@ -121,7 +121,7 @@ module.exports = function (passport) {
 
   // Endpoint /report/:building_id for GET
   var getBuildingReport = function(req, res) {
-    res.render("building-report_new", {
+    res.render("building-report", {
       bodyId: "building-report",
       message: req.flash("message"),
       user: req.user
@@ -161,7 +161,7 @@ module.exports = function (passport) {
 
   // Endpoint /search for GET
   var getSearch = function(req, res) {
-    res.render("search-form_new", {
+    res.render("search-form", {
       bodyId: "search-form",
       user: req.user
     });
@@ -215,7 +215,7 @@ module.exports = function (passport) {
         res.send(err);
       }
 
-      res.render("browse_new", {
+      res.render("browse", {
         bodyId: "search",
         user: req.user,
         near: [req.params.lon, req.params.lat],
@@ -257,7 +257,7 @@ module.exports = function (passport) {
           res.send(err);
         }
 
-        res.render("browse_new", {
+        res.render("browse", {
           bodyId: "search",
           user: req.user,
           sort: (!req.query.sort) ? "date" : req.query.sort,
@@ -287,7 +287,7 @@ module.exports = function (passport) {
         res.send(err);
       }
 
-      res.render("browse_new", {
+      res.render("browse", {
         bodyId: "search",
         user: req.user,
         sort: (!req.query.sort) ? "date" : req.query.sort,
@@ -316,7 +316,7 @@ module.exports = function (passport) {
         res.send(err);
       }
 
-      res.render("browse_new", {
+      res.render("browse", {
         bodyId: "search",
         user: req.user,
         sort: (!req.query.sort) ? "date" : req.query.sort,
@@ -330,7 +330,7 @@ module.exports = function (passport) {
 
   // Endpoint /add for GET
   var getAdd = function(req, res) {
-    res.render("add_new", {
+    res.render("add", {
       bodyId: "building-add",
       user: req.user
     });
@@ -359,7 +359,7 @@ module.exports = function (passport) {
         return;
       }
 
-      res.render("add-location_new", {
+      res.render("add-location", {
         bodyId: "building-add-location",
         user: req.user,
         building: building
@@ -390,7 +390,7 @@ module.exports = function (passport) {
         return;
       }
 
-      res.render("add-osm_new", {
+      res.render("add-osm", {
         bodyId: "building-add-osm",
         user: req.user,
         building: building

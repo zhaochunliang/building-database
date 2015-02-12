@@ -223,14 +223,6 @@ module.exports = function (passport) {
         pageCount: pageCount,
         buildings: buildings
       });
-      
-      // res.render("search", {
-      //   bodyId: "search",
-      //   user: req.user,
-      //   near: [req.params.lon, req.params.lat],
-      //   pageCount: pageCount,
-      //   buildings: buildings
-      // });
     }, {
       sortBy: sortBy
     });
@@ -302,13 +294,6 @@ module.exports = function (passport) {
         pageCount: pageCount,
         buildings: buildings
       });
-      
-      // res.render("search", {
-      //   bodyId: "search",
-      //   user: req.user,
-      //   pageCount: pageCount,
-      //   buildings: buildings
-      // });
     }, {
       sortBy: sortBy
     });
@@ -338,13 +323,6 @@ module.exports = function (passport) {
         pageCount: pageCount,
         buildings: buildings
       });
-      
-      // res.render("search", {
-      //   bodyId: "search",
-      //   user: req.user,
-      //   pageCount: pageCount,
-      //   buildings: buildings
-      // });
     }, {
       sortBy: sortBy
     });

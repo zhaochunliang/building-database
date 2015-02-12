@@ -120,11 +120,27 @@ block content
     };
 
     var world = new VIZI.World({
-      viewport: document.querySelector("#vizicities-viewport")
+      viewport: document.querySelector("#vizicities-viewport"),
+      center: new VIZI.LatLon(
+        #{(building.location && building.location.coordinates[1]) ? building.location.coordinates[1] : "51.50358"},
+        #{(building.location && building.location.coordinates[0]) ? building.location.coordinates[0] : "-0.01924"}
+      )
     });
 
     var controls = new VIZI.ControlsMap(world.camera, {
       viewport: world.options.viewport
+    });
+
+    VIZI.Messenger.on("controls:move", function(point) {  
+      // Move building
+      world.layers[1].object.children[0].position.x = point.x;
+      world.layers[1].object.children[0].position.z = point.y;
+      world.layers[1].object.children[0].updateMatrix();
+
+      // Update location
+      var unproject = world.unproject(point);
+      latitudeInput.value = Number(unproject.lat.toFixed(6));
+      longitudeInput.value = Number(unproject.lon.toFixed(6));
     });
 
     var mapConfig = {
@@ -284,6 +300,12 @@ block content
     
     // TODO: Work out a way to do this without a timeout
     setTimeout(function() {
+      // Update scale
+      updateScale(#{building.scale});
+
+      // Update angle
+      updateAngle(#{building.angle});
+
       // Check for unloaded materials and replace with default colour
       checkColladaMaterials(world.layers[1].object.children[0], 0xffffff);
     }, 1000);
@@ -312,14 +334,6 @@ block content
     // Implement custom stepper logic for scale input
     scaleInput.addEventListener("mousewheel", onScaleChange);
     scaleInput.addEventListener("DOMMouseScroll", onScaleChange);
-  
-    // TODO: Work out a way to intelligently run this once the collada model has finished loading
-    setTimeout(function() {
-      // Set initial scale value
-      // TODO: Use database scale if it exists (would need to remove default)
-      // TODO: Find a more respectable way of accessing the collada object
-      scaleInput.value = (world.layers[1].object.children[0].scale.x) ? world.layers[1].object.children[0].scale.x : 1;
-    }, 750);
 
     angleInput.addEventListener("input", function(event) {
       var angle = event.target.value;
@@ -362,6 +376,15 @@ block content
 
       var projected = world.project(new VIZI.LatLon(latitude, longitudeInput.value));
 
+      // Move camera
+      var scale = controls.getZoom();
+
+      controls.controls.target.x = projected.x;
+      controls.controls.target.z = projected.y;
+
+      controls.controls.update();
+      controls.zoomTo(scale);
+
       // TODO: Find a more respectable way of accessing the collada object
       world.layers[1].object.children[0].position.z = projected.y;
       world.layers[1].object.children[0].updateMatrix();
@@ -371,6 +394,15 @@ block content
       var longitude = event.target.value;
 
       var projected = world.project(new VIZI.LatLon(latitudeInput.value, longitude));
+
+      // Move camera
+      var scale = controls.getZoom();
+
+      controls.controls.target.x = projected.x;
+      controls.controls.target.z = projected.y;
+
+      controls.controls.update();
+      controls.zoomTo(scale);
 
       // TODO: Find a more respectable way of accessing the collada object
       world.layers[1].object.children[0].position.x = projected.x;

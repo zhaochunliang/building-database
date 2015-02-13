@@ -10,16 +10,16 @@ block content
         input#pelias(type="text" placeholder="Enter name of place to move to")
 
         label(for="scale") Scale:
-        input#scale(type="text", name="scale" value=(building.scale) ? building.scale : "")
+        input#scale(type="text", name="scale" value=(building.scale !== undefined) ? building.scale : "" required)
 
         label(for="angle") Angle:
-        input#angle(type="text", name="angle" value=(building.angle) ? building.angle : "")
+        input#angle(type="text", name="angle" value=(building.angle !== undefined) ? building.angle : "" required)
 
         label(for="scale") Latitude:
-        input#latitude(type="number", name="latitude" min=-90 max=90 step=0.000001 value=(building.location && building.location.coordinates[1]) ? building.location.coordinates[1] : "51.50358")
+        input#latitude(type="number", name="latitude" min=-90 max=90 step=0.000001 value=(building.location && building.location.coordinates[1]) ? building.location.coordinates[1] : "51.50358" required)
 
         label(for="scale") Longitude:
-        input#longitude(type="number", name="longitude" min=-180 max=180 step=0.000001 value=(building.location && building.location.coordinates[0]) ? building.location.coordinates[0] : "-0.01924")
+        input#longitude(type="number", name="longitude" min=-180 max=180 step=0.000001 value=(building.location && building.location.coordinates[0]) ? building.location.coordinates[0] : "-0.01924" required)
         
         button#add-location-button(type="submit") Set location
     div.col-7
@@ -301,7 +301,11 @@ block content
     // TODO: Work out a way to do this without a timeout
     setTimeout(function() {
       // Update scale
-      updateScale(#{building.scale});
+      if (#{(building.scale) ? true : false} === true) {
+        updateScale(#{building.scale});
+      } else {
+        scaleInput.value = world.layers[1].object.children[0].scale.x;
+      }
 
       // Update angle
       updateAngle(#{building.angle});

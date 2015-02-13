@@ -138,8 +138,18 @@ module.exports = function (passport) {
         name: building.name.replace(/([^a-z0-9]+)/gi, "-").substring(0, 100)
       };
 
+      building.method = req.body.method;
+
+      if (req.body.creator) {
+        building.creator.name = req.body.creator;
+      }
+
+      if (req.body.creatorURL) {
+        building.creator.url = req.body.creatorURL;
+      }
+
       if (req.body.description) {
-        building.description = req.body.description.substr(0, 1000);
+        building.description = req.body.description.substr(0, 500);
       }
 
       var movePromises = [];

@@ -12,8 +12,21 @@ block content
         label(for="model") Model:
         input#model(type="file" name="model" accept=".zip,.obj,.dae,.ply,.dxf", required)
 
+        label(for="creator") Creator (if not created by you):
+        input#creator(type="text" name="creator" placeholder="Original creator of the model")
+
+        label(for="creator-url") Creator URL (if not created by you):
+        input#creator-url(type="url" name="creator-url" placeholder="Link to the original creator")
+
+        label(for="method") How was the model created?
+        select#method(name="method" required)
+          option(value="") Select a method
+          option(value="handmade") Handmade
+          option(value="automated") Automated
+          option(value="unknown") Unknown
+
         label(for="description") Description:
-        textarea#description(name="description" placeholder="Building description" maxlength="1000")
+        textarea#description(name="description" placeholder="More detail on the building and your model" maxlength="500")
 
         button#add-button(type="submit") Add building
 
@@ -21,6 +34,9 @@ block content
     var addForm = document.getElementById("add-form");
     var nameInput = document.getElementById("name");
     var fileInput = document.getElementById("model");
+    var creatorInput = document.getElementById("creator");
+    var creatorURLInput = document.getElementById("creator-url");
+    var methodInput = document.getElementById("method");
     var descInput = document.getElementById("description");
     var addButton = document.getElementById("add-button");
 
@@ -45,13 +61,19 @@ block content
         return;
       }
 
-      // Add the name to the request
       formData.append("name", nameInput.value);
-
-      // Add the file to the request.
       formData.append("model", file, file.name);
 
-      // Add the description to the request
+      if (creatorInput.value) {
+        formData.append("creator", creatorInput.value);
+      }
+
+      if (creatorURLInput.value) {
+        formData.append("creatorURL", creatorURLInput.value);
+      }
+
+      formData.append("method", methodInput.value);
+      
       formData.append("description", descInput.value);
 
       $.ajax({

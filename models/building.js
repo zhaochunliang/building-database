@@ -14,6 +14,11 @@ var BuildingSchema = new Schema({
     id: String,
     name: String
   },
+  creator: {
+    name: String,
+    url: String
+  },
+  method: String,
   description: String,
   location: {
     type: { type: String },
@@ -24,7 +29,7 @@ var BuildingSchema = new Schema({
     country: String,
     district: String
   },
-  scale: { type: Number, default: 1 },
+  scale: Number,
   angle: { type: Number, default: 0 },
   structure: {
     vertices: { type: Number, default: 0 },

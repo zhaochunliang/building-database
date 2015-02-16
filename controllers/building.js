@@ -322,6 +322,10 @@ module.exports = function (passport) {
         building.hidden = req.body.hidden;
       }
 
+      if (req.user.group === "admin" && req.body.highlight) {
+        building.highlight = req.body.highlight;
+      }
+
       if (req.user.group === "admin" && req.body.name) {
         building.name = req.body.name;
       }

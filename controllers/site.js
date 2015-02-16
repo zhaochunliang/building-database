@@ -29,7 +29,9 @@ module.exports = function (passport) {
   // Endpoint /browse for GET
   var getBrowse = function(req, res) {
 
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -198,7 +200,9 @@ module.exports = function (passport) {
 
   // Endpoint /search/near/:lon/:lat for GET
   var getSearchNear = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -237,7 +241,9 @@ module.exports = function (passport) {
 
   // Endpoint /search/user/:username for GET
   var getSearchUser = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -279,7 +285,9 @@ module.exports = function (passport) {
 
   // Endpoint /search/osm/:osm_type/:osm_id for GET
   var getSearchOSM = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -308,7 +316,9 @@ module.exports = function (passport) {
 
   // Endpoint /search/:search_term for GET
   var getSearchTerm = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -448,7 +458,10 @@ module.exports = function (passport) {
           buildings: buildings,
           pageCount: pageCount
         });
-      }, {sortBy: {createdAt: -1}});
+      }, {sortBy: {
+        highlight: -1,
+        createdAt: -1
+      }});
     });
   };
 

@@ -171,7 +171,7 @@ module.exports = function (passport) {
   // Endpoint /search for POST
   var postSearch = function(req, res) {
     // Search submitted from homepage
-    if (req.body.search !== undefined) {
+    if (req.body.search) {
       var search = req.body.search.toLowerCase();
       res.redirect("/search/" + search);
     // Search submitted from /search form

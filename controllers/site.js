@@ -163,14 +163,15 @@ module.exports = function (passport) {
   var getSearch = function(req, res) {
     res.render("search-form", {
       bodyId: "search-form",
-      user: req.user
+      user: req.user,
+      message: req.flash("message")
     });
   };
 
   // Endpoint /search for POST
   var postSearch = function(req, res) {
     // Search submitted from homepage
-    if (req.body.search) {
+    if (req.body.search !== undefined) {
       var search = req.body.search.toLowerCase();
       res.redirect("/search/" + search);
     // Search submitted from /search form
@@ -185,6 +186,9 @@ module.exports = function (passport) {
         var distance = req.body.distance | 1000;
 
         res.redirect("/search/near/" + longitude + "/" + latitude + "/" + distance);
+      } else {
+        req.flash("message", "Please enter a search term");
+        res.redirect("/search");
       }
     }
   };

@@ -4,6 +4,7 @@ var bCrypt = require("bcrypt-nodejs");
 var async = require("async");
 var crypto = require("crypto");
 var nodemailer = require("nodemailer");
+var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
 
 var config = require("../config/config.js");
@@ -121,9 +122,7 @@ module.exports = function(passport) {
                   return;
                 }
 
-                // TODO: Move to an external service for email
-                // - https://github.com/andris9/Nodemailer
-                var smtpTransport = nodemailer.createTransport();
+                var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
 
                 var mailOptions = {
                   to: newUser.email,
@@ -135,9 +134,11 @@ module.exports = function(passport) {
                     "If you did not request this, please ignore this email.\n"
                 };
                 
-                smtpTransport.sendMail(mailOptions, function(err) {
-                  // var err = null; // Fake err
-                  req.flash("message", "A verification link has been sent by e-mail to " + newUser.email + ".");
+                transport.sendMail(mailOptions, function(err) {
+                  if (!err) {
+                    req.flash("message", "A verification link has been sent by e-mail to " + newUser.email + ".");
+                  }
+                  
                   asyncDone(err, newUser);
                 });
               }

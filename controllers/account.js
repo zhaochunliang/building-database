@@ -1,6 +1,8 @@
+var debug = require("debug")("polygoncity");
 var async = require("async");
 var crypto = require("crypto");
 var nodemailer = require("nodemailer");
+var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
 
 var config = require("../config/config.js");
@@ -130,7 +132,13 @@ module.exports = function (passport) {
 
         // TODO: Move to an external service for email
         // - https://github.com/andris9/Nodemailer
-        var smtpTransport = nodemailer.createTransport();
+        if (!config.email.smtp) {
+          debug("SMTP options not found in configuration");
+          done();
+          return;
+        }
+
+        var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
 
         var mailOptions = {
           to: user.email,
@@ -141,9 +149,11 @@ module.exports = function (passport) {
             "http://" + req.headers.host + "/reset/" + token + "\n\n" +
             "If you did not request this, please ignore this email and your password will remain unchanged.\n"
         };
-        smtpTransport.sendMail(mailOptions, function(err) {
-          // var err = null; // Fake err
-          req.flash("message", "An e-mail has been sent to " + user.email + " with further instructions.");
+        transport.sendMail(mailOptions, function(err) {
+          if (!err) {
+            req.flash("message", "An e-mail has been sent to " + user.email + " with further instructions.");
+          }
+
           done(err, "done");
         });
       }
@@ -204,9 +214,7 @@ module.exports = function (passport) {
           return;
         }
 
-        // TODO: Move to an external service for email
-        // - https://github.com/andris9/Nodemailer
-        var smtpTransport = nodemailer.createTransport();
+        var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
 
         var mailOptions = {
           to: user.email,
@@ -215,8 +223,11 @@ module.exports = function (passport) {
           text: "Hello,\n\n" +
             "This is a confirmation that the password for your account " + user.email + " has been changed.\n"
         };
-        smtpTransport.sendMail(mailOptions, function(err) {
-          req.flash("message", "Success! Your password has been changed.");
+        transport.sendMail(mailOptions, function(err) {
+          if (!err) {
+            req.flash("message", "Success! Your password has been changed.");
+          }
+          
           done(err);
         });
       }

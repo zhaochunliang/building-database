@@ -1,3 +1,4 @@
+var debug = require("debug")("polygoncity");
 var config = require("../config/config.js");
 var gravatar = require("gravatar");
 

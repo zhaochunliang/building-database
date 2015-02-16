@@ -1,6 +1,8 @@
+var debug = require("debug")("polygoncity");
 var async = require("async");
 var crypto = require("crypto");
 var nodemailer = require("nodemailer");
+var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
 
 var config = require("../config/config.js");
@@ -137,9 +139,7 @@ module.exports = function (passport) {
       return;
     }
 
-    // TODO: Move to an external service for email
-    // - https://github.com/andris9/Nodemailer
-    var smtpTransport = nodemailer.createTransport();
+    var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
 
     // TODO: Pull to email from server-side config file
     var mailOptions = {
@@ -153,8 +153,11 @@ module.exports = function (passport) {
         "From: " + req.body.email
     };
 
-    smtpTransport.sendMail(mailOptions, function(err) {
-      req.flash("message", "Report received, thank you.");
+    transport.sendMail(mailOptions, function(err) {
+      if (!err) {
+        req.flash("message", "Report received, thank you.");
+      }
+
       res.redirect("/building/" + req.params.building_id + "/report");
     });
   };
@@ -584,9 +587,7 @@ module.exports = function (passport) {
             return;
           }
 
-          // TODO: Move to an external service for email
-          // - https://github.com/andris9/Nodemailer
-          var smtpTransport = nodemailer.createTransport();
+          var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
 
           var mailOptions = {
             to: user.changeEmail,
@@ -598,9 +599,10 @@ module.exports = function (passport) {
               "If you did not request this, please ignore this email.\n"
           };
           
-          smtpTransport.sendMail(mailOptions, function(err) {
-            // Add message to flash
-            msg = "Profile updated, verification email sent.";
+          transport.sendMail(mailOptions, function(err) {
+            if (!err) {
+              msg = "Profile updated, verification email sent.";
+            }
 
             asyncDone(err, token, savedUser);
           });

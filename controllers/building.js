@@ -14,6 +14,7 @@ var async = require("async");
 var path = require("path");
 var request = require("request");
 var shortId = require("shortid");
+var sphericalmercator = new(require("sphericalmercator"));
 
 var Building = require("../models/building");
 
@@ -435,6 +436,38 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /api/buildings/tile/:x,:y,:z for GET
+  var getBuildingsTile = function(req, res) {
+    var x = req.params.x;
+    var y = req.params.y;
+    var z = req.params.z;
+
+    var bbox = sphericalmercator.bbox(x, y, z);
+
+    var w = bbox[0];
+    var s = bbox[1];
+    var e = bbox[2];
+    var n = bbox[3]; 
+
+    Building.find({$and: [{
+      "location": {
+        $geoIntersects: {
+          $geometry: {
+            type: "Polygon",
+            coordinates: [[[w, s],[w, n],[e, n],[e, s],[w, s]]]
+          }
+        }
+      } }, {
+        hidden: false
+      }] }, function(err, buildings) {
+      if (err) {
+        res.send(err);
+      }
+
+      res.json(buildings);
+    });
+  };
+
   // Endpoint /api/buildings/near/:lon,:lat,:distance for GET
   var getBuildingsNear = function(req, res) {
     var lon = req.params.lon;
@@ -624,6 +657,7 @@ module.exports = function (passport) {
     putBuildings: putBuildings,
     getBuildingsBbox: getBuildingsBbox,
     getBuildingsNear: getBuildingsNear,
+    getBuildingsTile: getBuildingsTile,
     getBuilding: getBuilding,
     getBuildingDownload: getBuildingDownload,
     getBuildingKML: getBuildingKML

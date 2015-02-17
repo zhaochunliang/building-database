@@ -15,6 +15,9 @@ module.exports = function (passport) {
   router.route("/buildings/near/:lon,:lat,:distance")
     .get(buildingController.getBuildingsNear);
 
+  router.route("/buildings/tile/:x,:y,:z")
+    .get(buildingController.getBuildingsTile);
+
   router.route("/building/:building_id/download/:file_type/:model_type")
     .get(buildingController.getBuildingDownload);
 

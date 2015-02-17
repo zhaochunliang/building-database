@@ -549,6 +549,11 @@ module.exports = function (passport) {
         return;
       }
 
+      if (!building) {
+        res.sendStatus(404);
+        return;
+      }
+
       var daeModel = _.find(building.models.raw, function(model) {
         return (model.type === "dae");
       });

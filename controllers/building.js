@@ -20,7 +20,7 @@ var Building = require("../models/building");
 module.exports = function (passport) {
   // Endpoint /api/buildings for GET
   var getBuildings = function(req, res) {
-    Building.find(function(err, buildings) {
+    Building.find({hidden: false}, function(err, buildings) {
       if (err) {
         res.send(err);
       }
@@ -408,6 +408,33 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /api/buildings/bbox/:west,:south,:east,:north for GET
+  // TODO: Limit bounding box size, or cap results
+  var getBuildingsBbox = function(req, res) {
+    var w = req.params.west;
+    var s = req.params.south;
+    var e = req.params.east;
+    var n = req.params.north;
+
+    Building.find({$and: [{
+      "location": {
+        $geoIntersects: {
+          $geometry: {
+            type: "Polygon",
+            coordinates: [[[w, s],[w, n],[e, n],[e, s],[w, s]]]
+          }
+        }
+      } }, {
+        hidden: false
+      }] }, function(err, buildings) {
+      if (err) {
+        res.send(err);
+      }
+
+      res.json(buildings);
+    });
+  };
+
   // Endpoint /api/building/:building_id/download/:file_type/:model_type for GET
   var getBuildingDownload = function(req, res) {
     Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
@@ -567,6 +594,7 @@ module.exports = function (passport) {
     getBuildings: getBuildings,
     postBuildings: postBuildings,
     putBuildings: putBuildings,
+    getBuildingsBbox: getBuildingsBbox,
     getBuilding: getBuilding,
     getBuildingDownload: getBuildingDownload,
     getBuildingKML: getBuildingKML

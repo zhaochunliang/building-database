@@ -63,7 +63,7 @@ block content
       displayKey: "name",
       source: pelias.ttAdapter()
     }).on("typeahead:selected", function(event, suggestion, actionName) {
-      window.location.href = "/search/near/" + suggestion.geometry.coordinates[0] + "/" + suggestion.geometry.coordinates[1] + "/1000";
+      window.location.href = "/search/near/" + suggestion.geometry.coordinates[0] + "," + suggestion.geometry.coordinates[1] + ",1000";
     });
 
     findNearMeButton.addEventListener("click", function(e) {
@@ -78,7 +78,7 @@ block content
     });
 
     var onGeoSuccess = function(location) {
-      window.location.href = "/search/near/" + location.coords.longitude + "/" + location.coords.latitude + "/1000";
+      window.location.href = "/search/near/" + location.coords.longitude + "," + location.coords.latitude + ",1000";
     };
 
     var onGeoError = function(error) {

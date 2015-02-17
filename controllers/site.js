@@ -190,7 +190,7 @@ module.exports = function (passport) {
         var latitude = req.body.latitude;
         var distance = req.body.distance | 1000;
 
-        res.redirect("/search/near/" + longitude + "/" + latitude + "/" + distance);
+        res.redirect("/search/near/" + longitude + "," + latitude + "," + distance);
       } else {
         req.flash("message", "Please enter a search term");
         res.redirect("/search");
@@ -198,7 +198,7 @@ module.exports = function (passport) {
     }
   };
 
-  // Endpoint /search/near/:lon/:lat for GET
+  // Endpoint /search/near/:lon,:lat,:distance for GET
   var getSearchNear = function(req, res) {
     var sortBy = {
       highlight: -1
@@ -218,7 +218,7 @@ module.exports = function (passport) {
           type: "Point",
           coordinates: [req.params.lon, req.params.lat]
         },
-        $maxDistance: req.params.distance | 1000
+        $maxDistance: Number(req.params.distance) | 1000
       }
     }}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {

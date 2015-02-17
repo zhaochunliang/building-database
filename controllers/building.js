@@ -435,6 +435,34 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /api/buildings/near/:lon,:lat,:distance for GET
+  var getBuildingsNear = function(req, res) {
+    var lon = req.params.lon;
+    var lat = req.params.lat;
+    var distance = Number(req.params.distance);
+
+    Building.find({$and: [{
+      "location": {
+        $nearSphere: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lon, lat]
+          },
+          $maxDistance: distance || 1000
+        }
+      } }, {
+        hidden: false
+      }] }, function(err, buildings) {
+      if (err) {
+        debug(err);
+        res.send(err);
+        return;
+      }
+
+      res.json(buildings);
+    });
+  };
+
   // Endpoint /api/building/:building_id/download/:file_type/:model_type for GET
   var getBuildingDownload = function(req, res) {
     Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
@@ -595,6 +623,7 @@ module.exports = function (passport) {
     postBuildings: postBuildings,
     putBuildings: putBuildings,
     getBuildingsBbox: getBuildingsBbox,
+    getBuildingsNear: getBuildingsNear,
     getBuilding: getBuilding,
     getBuildingDownload: getBuildingDownload,
     getBuildingKML: getBuildingKML

@@ -21,7 +21,7 @@ module.exports = function (passport) {
     .get(siteController.getBuildingReport)
     .post(siteController.postBuildingReport);
 
-  router.route("/search/near/:lon/:lat/:distance")
+  router.route("/search/near/:lon,:lat,:distance")
     .get(siteController.getSearchNear);
 
   router.route("/search/user/:username")

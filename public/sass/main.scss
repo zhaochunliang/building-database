@@ -618,7 +618,12 @@ header.navigation {
 
           &.highlight {
             background: #ffffe5;
-            border: 1px solid #e6c497;
+            border: solid #e6c497;
+            border-width: 0 1px 1px 1px;
+
+            &:first-child {
+              border-width: 1px;
+            }
           }
 
           a {

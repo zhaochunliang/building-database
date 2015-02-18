@@ -9,6 +9,7 @@ var config = require("../config/config.js");
 
 module.exports = function (passport) {
   var Building = require("../models/building");
+  var BuildingReport = require("../models/building-report");
   var User = require("../models/user");
 
   // Endpoint / for GET
@@ -134,34 +135,53 @@ module.exports = function (passport) {
 
   // Endpoint /report/:building_id for POST
   var postBuildingReport = function(req, res) {
-    // Skip if email hasn't been set up
-    if (!config.email.report.fromAddress || !config.email.report.toAddress) {
-      debug("Email report from or to address not found in configuration");
-      res.sendStatus(500);
-      return;
-    }
+    var report = new BuildingReport();
 
-    var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
+    report.building = req.params.building_id;
+    report.reason = req.body.reason;
+    report.details = req.body.details;
+    report.email = req.body.email;
 
-    // TODO: Pull to email from server-side config file
-    var mailOptions = {
-      to: config.email.report.toAddress,
-      from: config.email.report.fromAddress,
-      subject: (config.email.report.subject) ? config.email.report.subject : "Building report",
-      text: "The following building has been reported.\n\n" +
-        "Building: " + req.params.building_id + "\n" +
-        "Reason: " + req.body.reason + "\n" +
-        "Details: " + req.body.details + "\n" +
-        "From: " + req.body.email
-    };
-
-    transport.sendMail(mailOptions, function(err) {
-      if (!err) {
-        req.flash("message", "Report received, thank you.");
+    report.save(function(err) {
+      if (err) {
+        res.send(err);
+        return;
       }
-
-      res.redirect("/building/" + req.params.building_id + "/report");
+      
+      req.flash("message", "Report sent, we'll be in touch if needed.");
+      res.redirect("/report/" + req.params.building_id);
     });
+
+    // Report emails disabled now they're added to the database
+
+    // // Skip if email hasn't been set up
+    // if (!config.email.report.fromAddress || !config.email.report.toAddress) {
+    //   debug("Email report from or to address not found in configuration");
+    //   res.sendStatus(500);
+    //   return;
+    // }
+
+    // var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
+
+    // // TODO: Pull to email from server-side config file
+    // var mailOptions = {
+    //   to: config.email.report.toAddress,
+    //   from: config.email.report.fromAddress,
+    //   subject: (config.email.report.subject) ? config.email.report.subject : "Building report",
+    //   text: "The following building has been reported.\n\n" +
+    //     "Building: " + req.params.building_id + "\n" +
+    //     "Reason: " + req.body.reason + "\n" +
+    //     "Details: " + req.body.details + "\n" +
+    //     "From: " + req.body.email
+    // };
+
+    // transport.sendMail(mailOptions, function(err) {
+    //   if (!err) {
+    //     req.flash("message", "Report received, thank you.");
+    //   }
+
+    //   res.redirect("/report/" + req.params.building_id);
+    // });
   };
 
   // Endpoint /search for GET

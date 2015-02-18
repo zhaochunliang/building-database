@@ -648,6 +648,22 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /terms for GET
+  var getTerms = function(req, res) {
+    res.render("terms", {
+      bodyId: "static-content",
+      user: req.user
+    });
+  };
+
+  // Endpoint /contributing for GET
+  var getContributing = function(req, res) {
+    res.render("contributing", {
+      bodyId: "static-content",
+      user: req.user
+    });
+  };
+
   return {
     getIndex: getIndex,
     getBrowse: getBrowse,
@@ -666,6 +682,8 @@ module.exports = function (passport) {
     getAddOSM: getAddOSM,
     getUser: getUser,
     getUserEdit: getUserEdit,
-    postUserEdit: postUserEdit
+    postUserEdit: postUserEdit,
+    getTerms: getTerms,
+    getContributing: getContributing
   };
 };

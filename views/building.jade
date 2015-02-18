@@ -84,7 +84,7 @@ block content
     var map = L.map("building-map", {zoomControl:false}).setView([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}], 16);
 
     // Offset map
-    map.panBy(L.point(-330, 50), {animate: false});
+    map.panBy(L.point(-330, 200), {animate: false});
 
     // Disable drag and zoom handlers.
     map.dragging.disable();

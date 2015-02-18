@@ -377,7 +377,7 @@ header.navigation {
   }
 
   .banner-wrapper {
-    height: 450px;
+    height: 600px;
     position: relative;
 
     .banner {
@@ -385,7 +385,7 @@ header.navigation {
 
       .navigation-wrapper {
         position: absolute;
-        top: 25%;
+        top: 15%;
         width: 100%;
 
         h1 {
@@ -409,8 +409,38 @@ header.navigation {
           text-transform: uppercase;
         }
 
+        section.columns {
+          @include outer-container;
+
+          margin: 50px 0 75px;
+
+          div {
+            p {
+              color: transparentize(white, 0.3);
+              font-size: 1.2em;
+              font-weight: 200;
+              margin: 0;
+              padding: 0 30px;
+
+              a {
+                border-bottom: 2px solid transparentize(white, 0.7);
+                color: inherit;
+
+                &:hover {
+                  color: #fff;
+                }
+              }
+            }
+
+            &.middle {
+              border: solid transparentize(white, 0.3);
+              border-width: 0 1px;
+            }
+          }
+        }
+
         p.cta {
-          margin: 50px 0 0;
+          // margin: 50px 0 0;
           text-align: center;
 
           a {
@@ -1007,7 +1037,7 @@ body > footer {
   & > section.content {
     height: 100%;
     min-height: 1150px;
-    
+
     .container {
       @include outer-container;
       

@@ -15,8 +15,15 @@ var path = require("path");
 var request = require("request");
 var shortId = require("shortid");
 var sphericalmercator = new(require("sphericalmercator"));
+var AWS = require("aws-sdk");
 
 var Building = require("../models/building");
+
+var config = require("../config/config.js");
+
+
+AWS.config.update({accessKeyId: config.s3.accessId, secretAccessKey: config.s3.accessKey});
+AWS.config.update({region: "eu-west-1"});
 
 module.exports = function (passport) {
   // Endpoint /api/buildings for GET
@@ -161,24 +168,34 @@ module.exports = function (passport) {
       // TODO: Move files created by conversion, like .mtl
       _.each(tmpModelFiles, function(file, index) {
         var splitPath = file.split(tmpName + "/");
-        var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
-        var ext = permPath.split(".").pop();
+        //var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
+        var s3PathKey = "model-files/" + pathID + "/raw/" + splitPath[1];
+        var ext = s3PathKey.split(".").pop();
+        var stats = fs.statSync(file);
 
-        moveFiles.push([permPath, ext]);
-        movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
+        moveFiles.push([s3PathKey, ext, stats, file]);
+        //movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
+        movePromises.push([uploadFileS3, [file, s3PathKey]]);
       });
 
       // Move asset files to permanent path
       _.each(tmpAssetFiles, function(file, index) {
         var splitPath = file.split(tmpName + "/");
-        var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
-        var ext = permPath.split(".").pop();
+        // var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
+        var s3PathKey = "model-files/" + pathID + "/raw/" + splitPath[1];
+        var ext = s3PathKey.split(".").pop();
+        var stats = fs.statSync(file);
 
-        moveAssetFiles.push([permPath, ext]);
-        movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
+        moveAssetFiles.push([s3PathKey, ext, stats, file]);
+        //movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
+        movePromises.push([uploadFileS3, [file, s3PathKey]]);
       });
       
-      Q.all(movePromises).done(function() {
+      Q.all(movePromises.map(function(promiseFunc) {
+        return promiseFunc[0].apply(this, promiseFunc[1]).then(function(data) {
+          debug("File uploaded to S3", data);
+        });
+      })).done(function() {
         debug("Moved files");
         done(null, moveFiles, moveAssetFiles);
       }, function(err) {
@@ -194,37 +211,52 @@ module.exports = function (passport) {
       _.each(moveFiles, function(file, index) {
         var type = file[1];
         var path = file[0];
+        var stats = file[2];
+        var tmpPath = file[3];
 
         debug(file);
 
         // Get file size
-        var stats = fs.statSync(path);
         var fileSize = (stats.size) ? stats.size : 0;
 
         if (type === "obj") {
-          structurePath = path;
+          structurePath = tmpPath;
         }
 
         building.models.raw.push({
           type: type,
-          path: "/" + path,
+          path: "https://polygoncity-test.s3-eu-west-1.amazonaws.com/" + path,
           fileSize: fileSize
         });
 
         // Generate a zip archive for model
-        var outputPath = "./model-files/" + pathID + "/" + pathID + "_" + type + ".zip";
+        // var outputPath = "./model-files/" + pathID + "/" + pathID + "_" + type + ".zip";
+        var outputPath = tmpName + "/" + pathID + "_" + type + ".zip";
 
-        archiveQueue.push([createArchive, [outputPath, type, path, moveAssetFiles, pathID]]);
+        archiveQueue.push([createArchive, [outputPath, type, tmpPath, moveAssetFiles, pathID]]);
       });
 
       Q.all(archiveQueue.map(function(promiseFunc) {
         return promiseFunc[0].apply(this, promiseFunc[1]).then(function(output) {
-          // Store reference to model archive
-          building.models.zip.push({
-            type: output.type,
-            path: "/" + output.path,
-            fileSize: output.size
+          var deferred = Q.defer();
+
+          // Upload archive to S3
+          uploadFileS3(output.path, "model-files/" + pathID + "/zip/" + output.path.split("/")[2]).done(function(data) {
+            debug("File uploaded to S3", data);
+
+            // Store reference to model archive
+            building.models.zip.push({
+              type: output.type,
+              path: data["Location"],
+              fileSize: output.size
+            });
+
+            deferred.resolve();
+          }, function(err) {
+            deferred.reject(err);
           });
+
+          return deferred.promise;
         });
       })).done(function() {
         // All archives have been created
@@ -612,7 +644,8 @@ module.exports = function (passport) {
 
     output.on("close", function() {
       deferred.resolve({
-        path: outputPath.split("./")[1],
+        // path: outputPath.split("./")[1],
+        path: outputPath,
         size: archive.pointer(),
         type: type
       });
@@ -628,7 +661,7 @@ module.exports = function (passport) {
     archive.append(fs.createReadStream("./" + path), { name: pathID + "/" + path.split("model-files/" + pathID + "/raw")[1] });
 
     _.each(moveAssetFiles, function(assetFile) {
-      var assetPath = assetFile[0];
+      var assetPath = assetFile[3];
 
       // TODO: Tidy up paths
       archive.append(fs.createReadStream("./" + assetPath), { name: pathID + "/" + assetPath.split("model-files/" + pathID + "/raw")[1] });
@@ -651,9 +684,64 @@ module.exports = function (passport) {
         }
       });
       
-      // Do not delete root directory
-      // fs.rmdirSync(path);
+      // Delete root directory
+      fs.rmdirSync(path);
     }
+  };
+
+  var uploadFileS3 = function(path, s3PathKey) {
+    var deferred = Q.defer();
+
+    var fileStream = fs.createReadStream(path);
+    
+    fileStream.on("error", function(err) {
+      deferred.reject(err);
+    });
+
+    fileStream.on("open", function() {
+      var s3 = new AWS.S3();
+      
+      s3.upload({
+        Bucket: "polygoncity-test",
+        Key: s3PathKey,
+        ACL: "public-read",
+        Body: fileStream
+      }).on("httpUploadProgress", function(evt) {
+        // console.log(evt);
+      }).send(function(err, data) {
+        if (err) {
+          deferred.reject(err);
+          return;
+        }
+
+        deferred.resolve(data);
+      });
+
+    });
+
+    // var upload = s3client.uploadFile({
+    //   s3Params: {
+    //     Bucket: "polygoncity-test",
+    //     Key: s3PathKey
+    //   },
+    //   localFile: path
+    // });
+
+    // upload.on("error", function(err) {
+    //   console.log(err);
+    //   deferred.reject(err);
+    // });
+
+    // upload.on("end", function(data) {
+    //   console.log("Done uploading. File available at " + s3.getPublicUrl("polygoncity-test", ps3PathKey));
+    //   deferred.resolve(data);
+    // });
+
+    // upload.on("progress", function() {
+    //   console.log(upload.progressAmount, upload.progressTotal);
+    // });
+
+    return deferred.promise;
   };
 
   return {

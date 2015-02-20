@@ -9,8 +9,8 @@
     user: "user",
     pwd: "password",
     roles: [ "readWrite", "dbAdmin" ]
-  }`
-);
+  }
+);`
 * Create Mongo indexes
   * `db.users.ensureIndex( { email: 1 }, { unique: true } );`
   * `db.users.ensureIndex( { username: 1 }, { unique: true } );`

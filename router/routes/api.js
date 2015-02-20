@@ -9,6 +9,15 @@ module.exports = function (passport) {
     .get(buildingController.getBuildings)
     .post(authController.isAuthenticated, buildingController.postBuildings)
 
+  router.route("/buildings/bbox/:west,:south,:east,:north")
+    .get(buildingController.getBuildingsBbox);
+
+  router.route("/buildings/near/:lon,:lat,:distance")
+    .get(buildingController.getBuildingsNear);
+
+  router.route("/buildings/tile/:x,:y,:z")
+    .get(buildingController.getBuildingsTile);
+
   router.route("/building/:building_id/download/:file_type/:model_type")
     .get(buildingController.getBuildingDownload);
 

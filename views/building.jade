@@ -54,7 +54,7 @@ block content
         li Added by 
           a(href="/user/#{buildingUser.username}") #{buildingUser.username}
         li 
-          a(href="/search/near/#{building.location.coordinates[0]}/#{building.location.coordinates[1]}/1000") See nearby buildings
+          a(href="/search/near/#{building.location.coordinates[0]},#{building.location.coordinates[1]},1000") See nearby buildings
       hr
       p
         a(href="/report/#{building._id}") Report building
@@ -84,7 +84,7 @@ block content
     var map = L.map("building-map", {zoomControl:false}).setView([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}], 16);
 
     // Offset map
-    map.panBy(L.point(-330, 50), {animate: false});
+    map.panBy(L.point(-330, 200), {animate: false});
 
     // Disable drag and zoom handlers.
     map.dragging.disable();
@@ -246,9 +246,20 @@ block content
         }
       }
     }
+
+    var updateScale = function(scale) {
+      // TODO: Find a more respectable way of accessing the collada object
+      world.layers[1].object.children[0].scale.set(scale, scale, scale);
+      world.layers[1].object.children[0].updateMatrix();
+    }
     
     // TODO: Work out a way to do this without a timeout
     setTimeout(function() {
+      // Check scale
+      if (#{(building.scale) ? true : false} === true) {
+        updateScale(#{building.scale});
+      }
+
       // Check for unloaded materials and replace with default colour
       checkColladaMaterials(world.layers[1].object.children[0], 0xffffff);
     }, 1000);

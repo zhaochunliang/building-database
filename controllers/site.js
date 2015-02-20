@@ -1,12 +1,15 @@
+var debug = require("debug")("polygoncity");
 var async = require("async");
 var crypto = require("crypto");
 var nodemailer = require("nodemailer");
+var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
 
 var config = require("../config/config.js");
 
 module.exports = function (passport) {
   var Building = require("../models/building");
+  var BuildingReport = require("../models/building-report");
   var User = require("../models/user");
 
   // Endpoint / for GET
@@ -27,7 +30,9 @@ module.exports = function (passport) {
   // Endpoint /browse for GET
   var getBrowse = function(req, res) {
 
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -130,32 +135,49 @@ module.exports = function (passport) {
 
   // Endpoint /report/:building_id for POST
   var postBuildingReport = function(req, res) {
-    // Skip if email hasn't been set up
-    if (!config.email.report.fromAddress || !config.email.report.toAddress) {
-      debug("Email report from or to address not found in configuration");
-      res.sendStatus(500);
-      return;
-    }
+    var report = new BuildingReport();
 
-    // TODO: Move to an external service for email
-    // - https://github.com/andris9/Nodemailer
-    var smtpTransport = nodemailer.createTransport();
+    report.building = req.params.building_id;
+    report.reason = req.body.reason;
+    report.details = req.body.details;
+    report.email = req.body.email;
 
-    // TODO: Pull to email from server-side config file
-    var mailOptions = {
-      to: config.email.report.toAddress,
-      from: config.email.report.fromAddress,
-      subject: (config.email.report.subject) ? config.email.report.subject : "Building report",
-      text: "The following building has been reported.\n\n" +
-        "Building: " + req.params.building_id + "\n" +
-        "Reason: " + req.body.reason + "\n" +
-        "Details: " + req.body.details + "\n" +
-        "From: " + req.body.email
-    };
+    report.save(function(err) {
+      if (err) {
+        res.send(err);
+        return;
+      }
+      
+      // Skip if email hasn't been set up
+      if (!config.email.report.fromAddress || !config.email.report.toAddress) {
+        debug("Email report from or to address not found in configuration");
+        res.sendStatus(500);
+        return;
+      }
 
-    smtpTransport.sendMail(mailOptions, function(err) {
-      req.flash("message", "Report received, thank you.");
-      res.redirect("/building/" + req.params.building_id + "/report");
+      var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
+
+      // TODO: Pull to email from server-side config file
+      var mailOptions = {
+        to: config.email.report.toAddress,
+        from: config.email.report.fromAddress,
+        subject: (config.email.report.subject) ? config.email.report.subject : "Building report",
+        text: "The following building has been reported.\n\n" +
+          "Building: " + req.params.building_id + "\n" +
+          "Reason: " + req.body.reason + "\n" +
+          "Details: " + req.body.details + "\n" +
+          "From: " + req.body.email
+      };
+
+      transport.sendMail(mailOptions, function(err) {
+        if (err) {
+          res.send(err);
+          return;
+        }
+
+        req.flash("message", "Report received, thank you.");
+        res.redirect("/report/" + req.params.building_id);
+      });
     });
   };
 
@@ -163,7 +185,8 @@ module.exports = function (passport) {
   var getSearch = function(req, res) {
     res.render("search-form", {
       bodyId: "search-form",
-      user: req.user
+      user: req.user,
+      message: req.flash("message")
     });
   };
 
@@ -184,14 +207,19 @@ module.exports = function (passport) {
         var latitude = req.body.latitude;
         var distance = req.body.distance | 1000;
 
-        res.redirect("/search/near/" + longitude + "/" + latitude + "/" + distance);
+        res.redirect("/search/near/" + longitude + "," + latitude + "," + distance);
+      } else {
+        req.flash("message", "Please enter a search term");
+        res.redirect("/search");
       }
     }
   };
 
-  // Endpoint /search/near/:lon/:lat for GET
+  // Endpoint /search/near/:lon,:lat,:distance for GET
   var getSearchNear = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -207,7 +235,7 @@ module.exports = function (passport) {
           type: "Point",
           coordinates: [req.params.lon, req.params.lat]
         },
-        $maxDistance: req.params.distance | 1000
+        $maxDistance: Number(req.params.distance) | 1000
       }
     }}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
@@ -230,7 +258,9 @@ module.exports = function (passport) {
 
   // Endpoint /search/user/:username for GET
   var getSearchUser = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -272,7 +302,9 @@ module.exports = function (passport) {
 
   // Endpoint /search/osm/:osm_type/:osm_id for GET
   var getSearchOSM = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -301,7 +333,9 @@ module.exports = function (passport) {
 
   // Endpoint /search/:search_term for GET
   var getSearchTerm = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -441,7 +475,10 @@ module.exports = function (passport) {
           buildings: buildings,
           pageCount: pageCount
         });
-      }, {sortBy: {createdAt: -1}});
+      }, {sortBy: {
+        highlight: -1,
+        createdAt: -1
+      }});
     });
   };
 
@@ -580,9 +617,7 @@ module.exports = function (passport) {
             return;
           }
 
-          // TODO: Move to an external service for email
-          // - https://github.com/andris9/Nodemailer
-          var smtpTransport = nodemailer.createTransport();
+          var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
 
           var mailOptions = {
             to: user.changeEmail,
@@ -594,9 +629,10 @@ module.exports = function (passport) {
               "If you did not request this, please ignore this email.\n"
           };
           
-          smtpTransport.sendMail(mailOptions, function(err) {
-            // Add message to flash
-            msg = "Profile updated, verification email sent.";
+          transport.sendMail(mailOptions, function(err) {
+            if (!err) {
+              msg = "Profile updated, verification email sent.";
+            }
 
             asyncDone(err, token, savedUser);
           });
@@ -629,6 +665,22 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /terms for GET
+  var getTerms = function(req, res) {
+    res.render("terms", {
+      bodyId: "static-content",
+      user: req.user
+    });
+  };
+
+  // Endpoint /contributing for GET
+  var getContributing = function(req, res) {
+    res.render("contributing", {
+      bodyId: "static-content",
+      user: req.user
+    });
+  };
+
   return {
     getIndex: getIndex,
     getBrowse: getBrowse,
@@ -647,6 +699,8 @@ module.exports = function (passport) {
     getAddOSM: getAddOSM,
     getUser: getUser,
     getUserEdit: getUserEdit,
-    postUserEdit: postUserEdit
+    postUserEdit: postUserEdit,
+    getTerms: getTerms,
+    getContributing: getContributing
   };
 };

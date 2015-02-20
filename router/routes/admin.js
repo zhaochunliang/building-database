@@ -14,6 +14,9 @@ module.exports = function (passport) {
   router.route("/admin/building/:building_id")
     .get(authController.isAuthenticated, authController.needsGroup("admin"), adminController.getBuilding);
 
+  router.route("/admin/building-reports")
+    .get(authController.isAuthenticated, authController.needsGroup("admin"), adminController.getBuildingReports);
+
   router.route("/admin/users")
     .get(authController.isAuthenticated, authController.needsGroup("admin"), adminController.getUsers);
 

@@ -1,7 +1,10 @@
+var debug = require("debug")("polygoncity");
+var _ = require("underscore");
 var config = require("../config/config.js");
 var gravatar = require("gravatar");
 
 var Building = require("../models/building");
+var BuildingReport = require("../models/building-report");
 var User = require("../models/user");
 
 module.exports = function (passport) {
@@ -20,11 +23,11 @@ module.exports = function (passport) {
     var sortBy = {};
 
     if (!req.query.sort || req.query.sort == "date") {
-      sortBy["date"] = -1
+      sortBy["createdAt"] = -1;
     } else if (req.query.sort == "name") {
-      sortBy["name"] = 1
+      sortBy["name"] = 1;
     } else if (req.query.sort == "downloads") {
-      sortBy["stats.downloads"] = -1
+      sortBy["stats.downloads"] = -1;
     }
 
     Building.paginate({"location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
@@ -65,12 +68,44 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /admin/building-reports for GET
+  var getBuildingReports = function(req, res) {
+    var sortBy = {};
+
+    if (!req.query.sort || req.query.sort == "date") {
+      sortBy["createdAt"] = -1;
+    }  else if (req.query.sort == "building") {
+      sortBy["building.name"] = 1;
+    } else if (req.query.sort == "email") {
+      sortBy["email"] = 1;
+    } else if (req.query.sort == "reason") {
+      sortBy["reason"] = 1;
+    }
+
+    BuildingReport.paginate({}, req.query.page, req.query.limit, function(err, pageCount, reports) {
+      if (err) {
+        res.send(err);
+      }
+
+      res.render("admin-building-reports", {
+        bodyId: "admin-building-reports",
+        user: req.user,
+        sort: (!req.query.sort) ? "date" : req.query.sort,
+        pageCount: pageCount,
+        reports: reports
+      });
+    }, {
+      populate: "building",
+      sortBy: sortBy
+    });
+  };
+
   // Endpoint /admin/users for GET
   var getUsers = function(req, res) {
     var sortBy = {};
 
     if (!req.query.sort || req.query.sort == "date") {
-      sortBy["date"] = -1
+      sortBy["createdAt"] = -1
     } else if (req.query.sort == "name") {
       sortBy["name"] = 1
     } else if (req.query.sort == "downloads") {
@@ -187,6 +222,7 @@ module.exports = function (passport) {
     getAdmin: getAdmin,
     getBuildings: getBuildings,
     getBuilding: getBuilding,
+    getBuildingReports: getBuildingReports,
     getUsers: getUsers,
     getUser: getUser,
     postUser: postUser

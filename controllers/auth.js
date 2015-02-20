@@ -137,6 +137,8 @@ module.exports = function(passport) {
                 transport.sendMail(mailOptions, function(err) {
                   if (!err) {
                     req.flash("message", "A verification link has been sent by e-mail to " + newUser.email + ".");
+                  } else {
+                    debug("Unable to send email via SMTP server. Is it running?");
                   }
                   
                   asyncDone(err, newUser);

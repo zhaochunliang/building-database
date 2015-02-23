@@ -357,6 +357,8 @@ block content
       // Check scale
       if (#{(building.scale) ? true : false} === true) {
         updateScale(#{building.scale});
+      } else {
+        scaleInput.value = world.layers[1].object.children[0].scale.x;
       }
 
       // Check angle

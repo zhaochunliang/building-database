@@ -702,7 +702,7 @@ module.exports = function (passport) {
       var s3 = new AWS.S3();
       
       s3.upload({
-        Bucket: "polygoncity-test",
+        Bucket: config.s3.bucket,
         Key: s3PathKey,
         ACL: "public-read",
         Body: fileStream
@@ -718,28 +718,6 @@ module.exports = function (passport) {
       });
 
     });
-
-    // var upload = s3client.uploadFile({
-    //   s3Params: {
-    //     Bucket: "polygoncity-test",
-    //     Key: s3PathKey
-    //   },
-    //   localFile: path
-    // });
-
-    // upload.on("error", function(err) {
-    //   console.log(err);
-    //   deferred.reject(err);
-    // });
-
-    // upload.on("end", function(data) {
-    //   console.log("Done uploading. File available at " + s3.getPublicUrl("polygoncity-test", ps3PathKey));
-    //   deferred.resolve(data);
-    // });
-
-    // upload.on("progress", function() {
-    //   console.log(upload.progressAmount, upload.progressTotal);
-    // });
 
     return deferred.promise;
   };

@@ -131,6 +131,8 @@ block content
       viewport: world.options.viewport
     });
 
+    controls.controls.noKeys = true;
+
     VIZI.Messenger.on("controls:move", function(point) {  
       // Move building
       world.layers[1].object.children[0].position.x = point.x;

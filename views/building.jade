@@ -258,9 +258,13 @@ block content
       world.layers[1].object.children[0].rotation.y = -(angle * Math.PI / 180);
       world.layers[1].object.children[0].updateMatrix();
     }
-    
-    // TODO: Work out a way to do this without a timeout
-    setTimeout(function() {
+
+    var checkForModel = function() {
+      if (!world.layers[1].object.children[0]) {
+        setTimeout(checkForModel, 250);
+        return;
+      }
+
       // Check scale
       if (#{(building.scale) ? true : false} === true) {
         updateScale(#{building.scale});
@@ -272,5 +276,8 @@ block content
       }
 
       // Check for unloaded materials and replace with default colour
+      // TODO: Find a better way to do this as currently it replaces all materials
       checkColladaMaterials(world.layers[1].object.children[0], 0xffffff);
-    }, 1000);
+    };
+    
+    checkForModel();

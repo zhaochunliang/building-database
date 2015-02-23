@@ -11,9 +11,13 @@ block content
 
         label(for="scale") Scale:
         input#scale(type="text", name="scale" value=(building.scale !== undefined) ? building.scale : "" required)
+        button.less(data-action="scale") -
+        button.more(data-action="scale") +
 
         label(for="angle") Angle:
         input#angle(type="text", name="angle" value=(building.angle !== undefined) ? building.angle : "" required)
+        button.less(data-action="angle") -
+        button.more(data-action="angle") +
 
         label(for="scale") Latitude:
         input#latitude(type="number", name="latitude" min=-90 max=90 step=0.000001 value=(building.location && building.location.coordinates[1]) ? building.location.coordinates[1] : "51.50358" required)
@@ -36,6 +40,50 @@ block content
     var latitudeInput = document.getElementById("latitude");
     var longitudeInput = document.getElementById("longitude");
     var addLocationButton = document.getElementById("add-location-button");
+
+    // Scale and angle buttons
+    var moreButtons = document.getElementsByClassName("more");
+    var lessButtons = document.getElementsByClassName("less");
+
+    for (var i = 0; i < moreButtons.length; i++) {
+      var moreButton = moreButtons[i];
+    
+      moreButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        
+        var button = event.target;
+        var dataset = button.dataset;
+        var action = dataset.action;
+
+        if (action === "scale") {
+          scaleInput.value *= 1.05;
+          updateScale(scaleInput.value);
+        } else if (action === "angle") {
+          angleInput.value = (!angleInput.value || angleInput.value === 0) ? 0.25 : Number(angleInput.value) + 0.25;
+          updateAngle(angleInput.value);
+        }
+      });
+    }
+
+    for (var i = 0; i < lessButtons.length; i++) {
+      var lessButton = lessButtons[i];
+    
+      lessButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        
+        var button = event.target;
+        var dataset = button.dataset;
+        var action = dataset.action;
+
+        if (action === "scale") {
+          scaleInput.value *= 0.95;
+          updateScale(scaleInput.value);
+        } else if (action === "angle") {
+          angleInput.value = (!angleInput.value || angleInput.value === 0) ? -0.25 : Number(angleInput.value) - 0.25;
+          updateAngle(angleInput.value);
+        }
+      });
+    }
 
     var pelias = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"),

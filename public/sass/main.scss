@@ -986,6 +986,19 @@ body > footer {
       #vizicities-viewport {
         height: 400px;
       }
+
+      input#angle, input#scale {
+        display: inline-block;
+        width: 70%;
+      }
+
+      button.more, button.less {
+        box-sizing: border-box;
+        font-size: 1em;
+        line-height: 21px;
+        margin-bottom: 5px;
+        padding: 0.5em 1em;
+      }
     }
   }
 }

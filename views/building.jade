@@ -252,12 +252,23 @@ block content
       world.layers[1].object.children[0].scale.set(scale, scale, scale);
       world.layers[1].object.children[0].updateMatrix();
     }
+
+    var updateAngle = function(angle) {
+      // TODO: Find a more respectable way of accessing the collada object
+      world.layers[1].object.children[0].rotation.y = -(angle * Math.PI / 180);
+      world.layers[1].object.children[0].updateMatrix();
+    }
     
     // TODO: Work out a way to do this without a timeout
     setTimeout(function() {
       // Check scale
       if (#{(building.scale) ? true : false} === true) {
         updateScale(#{building.scale});
+      }
+
+      // Check angle
+      if (#{(building.angle) ? true : false} === true) {
+        updateAngle(#{building.angle});
       }
 
       // Check for unloaded materials and replace with default colour

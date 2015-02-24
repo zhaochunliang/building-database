@@ -449,6 +449,10 @@ module.exports = function (passport) {
     var e = req.params.east;
     var n = req.params.north;
 
+    var sortBy = {
+      highlight: -1
+    };
+
     Building.find({$and: [{
       "location": {
         $geoIntersects: {
@@ -459,7 +463,8 @@ module.exports = function (passport) {
         }
       } }, {
         hidden: false
-      }] }, function(err, buildings) {
+      }]
+    }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
         res.send(err);
       }
@@ -481,6 +486,10 @@ module.exports = function (passport) {
     var e = bbox[2];
     var n = bbox[3]; 
 
+    var sortBy = {
+      highlight: -1
+    };
+
     Building.find({$and: [{
       "location": {
         $geoIntersects: {
@@ -491,7 +500,8 @@ module.exports = function (passport) {
         }
       } }, {
         hidden: false
-      }] }, function(err, buildings) {
+      }]
+    }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
         res.send(err);
       }
@@ -506,6 +516,10 @@ module.exports = function (passport) {
     var lat = req.params.lat;
     var distance = Number(req.params.distance);
 
+    var sortBy = {
+      highlight: -1
+    };
+
     Building.find({$and: [{
       "location": {
         $nearSphere: {
@@ -517,7 +531,8 @@ module.exports = function (passport) {
         }
       } }, {
         hidden: false
-      }] }, function(err, buildings) {
+      }]
+    }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
         debug(err);
         res.send(err);

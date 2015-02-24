@@ -67,41 +67,59 @@ module.exports = function (passport) {
       if (uploadExt === "zip") {
         tmpName = uploadPath.split("." + uploadExt)[0];
 
-        // Create temporary directory
-        mkdirp.sync(tmpName);
+        async.waterfall([function(zipDone) {
+          // Create temporary directory
+          mkdirp(tmpName, function(err) {
+            zipDone(null);
+          });
+        }, function(zipDone) {
+          // TODO: Replace with archiver seeing as this doesn't work
+          // for creating archives
+          var zip = new AdmZip(uploadPath);
+          var zipEntries = zip.getEntries();
 
-        // TODO: Replace with archiver seeing as this doesn't work
-        // for creating archives
-        var zip = new AdmZip(uploadPath);
-        var zipEntries = zip.getEntries();
+          _.each(zipEntries, function(entry) {
+            var entryExt = entry.name.split(".").pop();
 
-        _.each(zipEntries, function(entry) {
-          var entryExt = entry.name.split(".").pop();
+            // Validate each file to ensure only accepted files are added
+            // Accept: model files (dae, obj, etc), images (jpg, png, etc)
+            if (entryExt.match("obj|dae|ply|dxf")) {
+              // Store reference to the model file
+              tmpModelFiles.push(tmpName + "/" + entry.entryName);
+            } else if (entryExt.match("jpg|png")) {
+              // Store reference to the assets (textures, etc)
+              tmpAssetFiles.push(tmpName + "/" + entry.entryName);
+            } else {
+              debug("Zip entry file type not valid:", entryExt);
+              return;
+            }
 
-          // Validate each file to ensure only accepted files are added
-          // Accept: model files (dae, obj, etc), images (jpg, png, etc)
-          if (entryExt.match("obj|dae|ply|dxf")) {
-            // Store reference to the model file
-            tmpModelFiles.push(tmpName + "/" + entry.entryName);
-          } else if (entryExt.match("jpg|png")) {
-            // Store reference to the assets (textures, etc)
-            tmpAssetFiles.push(tmpName + "/" + entry.entryName);
-          } else {
-            debug("Zip entry file type not valid:", entryExt);
-            return;
-          }
+            // Unzip file to temporary directory (keeping archive directories)
+            zip.extractEntryTo(entry.entryName, tmpName, true, true);
+          });
 
-          // Unzip file to temporary directory (keeping archive directories)
-          zip.extractEntryTo(entry.entryName, tmpName, true, true);
+          // Delete zip file
+          fs.unlink(uploadPath, function(err) {
+            if (err) {
+              zipDone(err);
+              return;
+            }
+
+            zipDone(null);
+          });
+        }], function (err, result) {
+          // Result of last callback
+          if (err) debug(err);
+
+          done(null);
         });
-
-        // Delete zip file
-        fs.unlinkSync(uploadPath);
       } else {
         tmpName = "tmp";
         tmpModelFiles.push(uploadPath);
+        done(null);
       }
-
+    }, function(done) {
+      // TODO: Find a better way to quit out of the waterfall
       if (tmpModelFiles.length < 1) {
         debug("No model files to process");
         return;
@@ -160,37 +178,58 @@ module.exports = function (passport) {
         building.description = req.body.description.substr(0, 500);
       }
 
+      done(null);
+    }, function(done) {
       var movePromises = [];
       var moveFiles = [];
       var moveAssetFiles = [];
 
-      // Move model files to permanent path
-      // TODO: Move files created by conversion, like .mtl
-      _.each(tmpModelFiles, function(file, index) {
+      var uploadPromises = [];
+
+      var uploadFile = function(file, index, moveFilesRef) {
+        var deferred = Q.defer();
+
         var splitPath = file.split(tmpName + "/");
         //var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
         var s3PathKey = "model-files/" + pathID + "/raw/" + splitPath[1];
         var ext = s3PathKey.split(".").pop();
-        var stats = fs.statSync(file);
+        var stats = fs.stat(file, function(err, stats) {
+          if (err) {
+            deferred.reject(err);
+            return;
+          }
 
-        moveFiles.push([s3PathKey, ext, stats, file]);
-        //movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
-        movePromises.push([uploadFileS3, [file, s3PathKey]]);
+          moveFilesRef.push([s3PathKey, ext, stats, file]);
+          //movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
+          movePromises.push([uploadFileS3, [file, s3PathKey]]);
+
+          deferred.resolve();
+        });
+
+        return deferred.promise;
+      };
+
+      // Move model files to permanent path
+      // TODO: Move files created by conversion, like .mtl
+      _.each(tmpModelFiles, function(file, index) {
+        // Add to promise
+        uploadPromises.push([uploadFile, [file, index, moveFiles]]);
       });
 
       // Move asset files to permanent path
       _.each(tmpAssetFiles, function(file, index) {
-        var splitPath = file.split(tmpName + "/");
-        // var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
-        var s3PathKey = "model-files/" + pathID + "/raw/" + splitPath[1];
-        var ext = s3PathKey.split(".").pop();
-        var stats = fs.statSync(file);
-
-        moveAssetFiles.push([s3PathKey, ext, stats, file]);
-        //movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
-        movePromises.push([uploadFileS3, [file, s3PathKey]]);
+        // Add to promise
+        uploadPromises.push([uploadFile, [file, index, moveAssetFiles]]);
       });
-      
+
+      Q.all(uploadPromises.map(function(promiseFunc) {
+        return promiseFunc[0].apply(this, promiseFunc[1]).done();
+      })).done(function() {
+        done(null, movePromises, moveFiles, moveAssetFiles);
+      }, function(err) {
+        done(err);
+      });
+    }, function(movePromises, moveFiles, moveAssetFiles, done) {
       Q.all(movePromises.map(function(promiseFunc) {
         return promiseFunc[0].apply(this, promiseFunc[1]).then(function(data) {
           debug("File uploaded to S3", data);

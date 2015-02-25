@@ -430,17 +430,25 @@ module.exports = function (passport) {
       }
 
       if (req.body.latitude && req.body.longitude) {
-        var url = "http://pelias.mapzen.com/reverse?lat=" + req.body.latitude + "&lon=" + req.body.longitude
+        // var url = "http://pelias.mapzen.com/reverse?lat=" + req.body.latitude + "&lon=" + req.body.longitude
+        var url = "http://open.mapquestapi.com/nominatim/v1/reverse.php?format=json&lat=" + req.body.latitude + "&lon=" + req.body.longitude;
         
         // Find location country and admin
         request(url, function (error, response, body) {
           if (!error && response.statusCode == 200) {
-            var pelias = JSON.parse(body);
-            var featureProperties = pelias.features[0].properties;
+            var locationResult = JSON.parse(body);
+            
+            // var featureProperties = locationResult.features[0].properties;
 
-            var countryCode = featureProperties.alpha3;
-            var country = featureProperties.admin0;
-            var district = featureProperties.admin1;
+            // var countryCode = featureProperties.alpha3;
+            // var country = featureProperties.admin0;
+            // var district = featureProperties.admin1;
+
+            var featureProperties = locationResult.address;
+
+            var countryCode = featureProperties.country_code;
+            var country = featureProperties.country;
+            var district = featureProperties.state_district;
 
             building.locality = {
               countryCode: countryCode,

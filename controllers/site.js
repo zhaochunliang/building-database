@@ -17,6 +17,7 @@ module.exports = function (passport) {
     Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}).limit(6).sort({createdAt: -1}).exec(function(err, buildings) {
       if (err) {
         res.send(err);
+        return;
       }
       
       res.render("index", {
@@ -45,6 +46,7 @@ module.exports = function (passport) {
     Building.paginate({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
+        return;
       }
       
       res.render("browse", {
@@ -150,8 +152,8 @@ module.exports = function (passport) {
       
       // Skip if email hasn't been set up
       if (!config.email.report.fromAddress || !config.email.report.toAddress) {
-        debug("Email report from or to address not found in configuration");
-        res.sendStatus(500);
+        throw new Error("Email report from or to address not found in configuration");
+        // res.sendStatus(500);
         return;
       }
 
@@ -171,7 +173,7 @@ module.exports = function (passport) {
 
       transport.sendMail(mailOptions, function(err) {
         if (err) {
-          res.send(err);
+          throw err;
           return;
         }
 
@@ -239,8 +241,8 @@ module.exports = function (passport) {
       }
     }}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
-        console.log(err);
         res.send(err);
+        return;
       }
 
       res.render("browse", {
@@ -272,8 +274,8 @@ module.exports = function (passport) {
 
     User.findOne({$and: [{username: req.params.username}, {"verified": true}]}, function(err, user) {
       if (err) {
-        console.log(err);
         res.send(err);
+        return;
       }
 
       if (!user) {
@@ -283,8 +285,8 @@ module.exports = function (passport) {
 
       Building.paginate({$and: [{"userId": user._id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
         if (err) {
-          console.log(err);
           res.send(err);
+          return;
         }
 
         res.render("browse", {
@@ -317,6 +319,7 @@ module.exports = function (passport) {
     Building.paginate({$and: [{"osm.type": req.params.osm_type}, {"osm.id": req.params.osm_id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
+        return;
       }
 
       res.render("browse", {
@@ -348,6 +351,7 @@ module.exports = function (passport) {
     Building.paginate({$and: [{$or: [{"name": new RegExp(req.params.search_term, "i")}, {"description": new RegExp(req.params.search_term, "i")}]}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
         res.send(err);
+        return;
       }
 
       res.render("browse", {
@@ -464,8 +468,8 @@ module.exports = function (passport) {
 
       Building.paginate({$and: [{"userId": user._id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
         if (err) {
-          console.log(err);
           res.send(err);
+          return;
         }
 
         res.render("user", {
@@ -566,8 +570,13 @@ module.exports = function (passport) {
               }, function(verifyDone) {
                 // Generate verify token
                 crypto.randomBytes(20, function(err, buf) {
+                  if (err) {
+                    verifyDone(err);
+                    return;
+                  }
+
                   var token = buf.toString("hex");
-                  verifyDone(err, token);
+                  verifyDone(null, token);
                 });
               }, function(token, verifyDone) {
                 // Store verify token
@@ -580,13 +589,13 @@ module.exports = function (passport) {
                 verifyDone(null, token);
               }
             ], function(err, token) {
-              if (!err) {
-                asyncDone(null, token);
+              if (err) {
+                debug("Error in creating verification details");
+                asyncDone(err);
                 return;
               }
 
-              debug("Error in creating verification details: " + err);
-              throw err;
+              asyncDone(null, token);
             });
           } else {
             asyncDone(null, null);
@@ -594,7 +603,12 @@ module.exports = function (passport) {
         }, function(token, asyncDone) {
           // Save the user
           user.save(function(err, savedUser) {
-            asyncDone(err, token, savedUser);
+            if (err) {
+              asyncDone(err);
+              return;
+            }
+
+            asyncDone(null, token, savedUser);
           });
         }, function(token, savedUser, asyncDone) {
           // Skip if no token
@@ -605,15 +619,13 @@ module.exports = function (passport) {
 
           // Skip if email hasn't been set up
           if (!config.email.verify.fromAddress) {
-            debug("Email verify.fromAddress not found in configuration");
-            asyncDone("Email verify.fromAddress not found in configuration");
+            asyncDone(new Error("Email verify.fromAddress not found in configuration"));
             return;
           }
 
           // Check that user.changeEmail exists
           if (!user.changeEmail) {
-            debug("Email user.changeEmail wasn't set");
-            asyncDone("Email user.changeEmail wasn't set");
+            asyncDone(new Error("Email user.changeEmail wasn't set"));
             return;
           }
 
@@ -630,37 +642,40 @@ module.exports = function (passport) {
           };
           
           transport.sendMail(mailOptions, function(err) {
-            if (!err) {
-              msg = "Profile updated, verification email sent.";
+            if (err) {
+              asyncDone(err);
+              return;              
             }
 
-            asyncDone(err, token, savedUser);
+            msg = "Profile updated, verification email sent.";
+
+            asyncDone(null, token, savedUser);
           });
         }
       ], function(err, token, savedUser) {
-        if (!err) {
-          var profile = {
-            id: savedUser._id,
-            username: savedUser.username,
-            email: savedUser.email,
-            twitter: savedUser.twitter,
-            website: savedUser.website
-          };
-
-          req.flash("message", msg);
-
-          res.render("user-edit", {
-            bodyId: "user-edit",
-            user: req.user,
-            profile: profile,
-            message: req.flash("message")
-          });
-
-          return;
+        if (err) {
+          debug("Error in saving user");
+          throw err;
         }
 
-        debug("Error in saving user: " + err);
-        throw err;
+        var profile = {
+          id: savedUser._id,
+          username: savedUser.username,
+          email: savedUser.email,
+          twitter: savedUser.twitter,
+          website: savedUser.website
+        };
+
+        req.flash("message", msg);
+
+        res.render("user-edit", {
+          bodyId: "user-edit",
+          user: req.user,
+          profile: profile,
+          message: req.flash("message")
+        });
+
+        return;
       });
     });
   };

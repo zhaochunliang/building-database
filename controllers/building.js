@@ -16,6 +16,7 @@ var request = require("request");
 var shortId = require("shortid");
 var sphericalmercator = new(require("sphericalmercator"));
 var AWS = require("aws-sdk");
+var rimraf = require("rimraf");
 
 var Building = require("../models/building");
 
@@ -239,9 +240,11 @@ module.exports = function (passport) {
         done(null, moveFiles, moveAssetFiles);
       }, function(err) {
         // Delete temporary directories
-        deleteFolderRecursive(tmpName);
-
-        done(err);
+        deleteFolderRecursive(tmpName).done(function() {
+          done(err);
+        }, function(deleteErr) {
+          done(deleteErr);
+        });
       });  
     }, function(moveFiles, moveAssetFiles, done) {
       var archiveQueue = [];
@@ -302,9 +305,11 @@ module.exports = function (passport) {
         done(null, structurePath);
       }, function(err) {
         // Delete temporary directories
-        deleteFolderRecursive(tmpName);
-
-        done(err);
+        deleteFolderRecursive(tmpName).done(function() {
+          done(err);
+        }, function(deleteErr) {
+          done(deleteErr);
+        });
       });
     }, function(structurePath, done) {
       // Attach user to building entry
@@ -356,11 +361,14 @@ module.exports = function (passport) {
             }
 
             res.json({message: "Building added", building: savedBuilding});
-            done(null);
+            
+            // Delete temporary directories
+            deleteFolderRecursive(tmpName).done(function() {
+              done(null);
+            }, function(deleteErr) {
+              done(deleteErr);
+            });
           });
-
-          // Delete temporary directories
-          deleteFolderRecursive(tmpName);
         });
       }
     }], function (err, result) {
@@ -728,19 +736,32 @@ module.exports = function (passport) {
 
   // From: http://www.geedew.com/2012/10/24/remove-a-directory-that-is-not-empty-in-nodejs/
   var deleteFolderRecursive = function(path) {
-    if( fs.existsSync(path) ) {
-      fs.readdirSync(path).forEach(function(file,index){
-        var curPath = path + "/" + file;
-        if(fs.lstatSync(curPath).isDirectory()) { // recurse
-          deleteFolderRecursive(curPath);
-        } else { // delete file
-          fs.unlinkSync(curPath);
-        }
-      });
+    var deferred = Q.defer();
+
+    rimraf(path, function(err) {
+      if (err) {
+        deferred.reject(err);
+        return;
+      }
+
+      deferred.resolve();
+    });
+
+    return deferred.promise;
+
+    // if( fs.existsSync(path) ) {
+    //   fs.readdirSync(path).forEach(function(file,index){
+    //     var curPath = path + "/" + file;
+    //     if(fs.lstatSync(curPath).isDirectory()) { // recurse
+    //       deleteFolderRecursive(curPath);
+    //     } else { // delete file
+    //       fs.unlinkSync(curPath);
+    //     }
+    //   });
       
-      // Delete root directory
-      fs.rmdirSync(path);
-    }
+    //   // Delete root directory
+    //   fs.rmdirSync(path);
+    // }
   };
 
   var uploadFileS3 = function(path, s3PathKey) {

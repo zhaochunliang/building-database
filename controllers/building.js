@@ -32,6 +32,7 @@ module.exports = function (passport) {
     Building.find({hidden: false}, function(err, buildings) {
       if (err) {
         res.send(err);
+        return;
       }
 
       res.json(buildings);
@@ -59,6 +60,7 @@ module.exports = function (passport) {
 
     var building;
 
+    // If any of the tasks pass an error to their own callback, the next function is not executed, and the main callback is immediately called with the error.
     async.waterfall([function(done) {
       var uploadPath = req.files.model.path;
       var uploadExt = req.files.model.extension;
@@ -71,6 +73,11 @@ module.exports = function (passport) {
         async.waterfall([function(zipDone) {
           // Create temporary directory
           mkdirp(tmpName, function(err) {
+            if (err) {
+              zipDone(err);
+              return;
+            }
+
             zipDone(null);
           });
         }, function(zipDone) {
@@ -96,6 +103,7 @@ module.exports = function (passport) {
             }
 
             // Unzip file to temporary directory (keeping archive directories)
+            // TODO: Make async
             zip.extractEntryTo(entry.entryName, tmpName, true, true);
           });
 
@@ -110,7 +118,10 @@ module.exports = function (passport) {
           });
         }], function (err, result) {
           // Result of last callback
-          if (err) debug(err);
+          if (err) {
+            done(err);
+            return;
+          }
 
           done(null);
         });
@@ -122,7 +133,7 @@ module.exports = function (passport) {
     }, function(done) {
       // TODO: Find a better way to quit out of the waterfall
       if (tmpModelFiles.length < 1) {
-        debug("No model files to process");
+        done(new Error("No model files to process"));
         return;
       }
 
@@ -155,6 +166,8 @@ module.exports = function (passport) {
         });
       })).done(function() {
         done(null);
+      }, function(err) {
+        done(err);
       });
     }, function(done) {
       building = new Building();
@@ -370,10 +383,17 @@ module.exports = function (passport) {
             });
           });
         });
+
+        lr.on("error", function(err) {
+          done(err);
+        });
       }
     }], function (err, result) {
       // Result of last callback
-      if (err) debug(err);
+      // TODO: Return something to the user and crash
+      if (err) {
+        throw err;
+      }
     });
   };
 

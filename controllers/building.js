@@ -542,6 +542,7 @@ module.exports = function (passport) {
     }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
         res.send(err);
+        return;
       }
 
       res.json(buildings);
@@ -579,6 +580,7 @@ module.exports = function (passport) {
     }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
         res.send(err);
+        return;
       }
 
       res.json(buildings);
@@ -609,7 +611,6 @@ module.exports = function (passport) {
       }]
     }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
-        debug(err);
         res.send(err);
         return;
       }

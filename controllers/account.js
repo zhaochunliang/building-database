@@ -82,8 +82,9 @@ module.exports = function (passport) {
 
       user.save(function(err) {
         if (err) {
-          res.send(err);
-          return;
+          debug(err);
+          req.flash("message", "Failed to update your verification status.");
+          return res.redirect("/signup");
         }
 
         req.login(user, function(err) {
@@ -175,7 +176,11 @@ module.exports = function (passport) {
       }
     ], function(err) {
       // TODO: Throw error?
-      if (err) return next(err);
+      if (err) {
+        debug(err);
+        return next(err);
+      }
+
       res.redirect("/forgot");
     });
   };
@@ -184,14 +189,16 @@ module.exports = function (passport) {
   var getReset = function(req, res) {
     User.findOne({ $and: [{resetPasswordToken: req.params.token}, {resetPasswordExpires: { $gt: Date.now() } }]}, function(err, user) {
       if (err) {
-        res.send(err);
-        return;
+        debug(err);
+        req.flash("message", "Unable to retreive your details.");
+        return res.redirect("/forgot");
       }
 
       if (!user) {
         req.flash("message", "Password reset token is invalid or has expired.");
         return res.redirect("/forgot");
       }
+
       res.render("reset", {
         bodyId: "reset",
         token: req.params.token,
@@ -207,8 +214,9 @@ module.exports = function (passport) {
       function(done) {
         User.findOne({ $and: [{resetPasswordToken: req.params.token}, {resetPasswordExpires: { $gt: Date.now() } }]}, function(err, user) {
           if (err) {
-            res.send(err);
-            return;
+            debug(err);
+            req.flash("message", "Unable to retreive your details");
+            return res.redirect("/reset/" + req.params.token);
           }
 
           if (!user) {
@@ -227,8 +235,18 @@ module.exports = function (passport) {
           user.resetPasswordExpires = undefined;
 
           user.save(function(err) {
+            if (err) {
+              done(err);
+              return;
+            }
+
             req.login(user, function(err) {
-              done(err, user);
+              if (err) {
+                done(err);
+                return;
+              }
+
+              done(null, user);
             });
           });
         });
@@ -236,8 +254,7 @@ module.exports = function (passport) {
       function(user, done) {
         // Skip if email hasn't been set up
         if (!config.email.reset.fromAddress) {
-          debug("Email reset.fromAddress not found in configuration");
-          done();
+          done(new Error("Email reset.fromAddress not found in configuration"));
           return;
         }
 
@@ -252,16 +269,21 @@ module.exports = function (passport) {
         };
         transport.sendMail(mailOptions, function(err) {
           if (err) {
+            debug("Unable to send email via SMTP server. Is it running?");
+            req.flash("message", "Unable to send reset email, please try again later.");
             done(err);
             return;
           }
           
           req.flash("message", "Success! Your password has been changed.");
           
-          done();
+          done(null);
         });
       }
     ], function(err) {
+      // TODO: Throw error?
+      debug(err);
+
       res.redirect("/");
     });
   };

@@ -31,6 +31,7 @@ module.exports = function (passport) {
   var getBuildings = function(req, res) {
     Building.find({hidden: false}, function(err, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -392,6 +393,7 @@ module.exports = function (passport) {
       // Result of last callback
       // TODO: Return something to the user and crash
       if (err) {
+        debug(err);
         throw err;
       }
     });
@@ -409,6 +411,7 @@ module.exports = function (passport) {
 
     Building.findOne(query, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -489,12 +492,16 @@ module.exports = function (passport) {
 
               res.json({message: "Building updated", building: savedBuilding});
             });
+          } else if (error) {
+            debug(error);
+            res.json({message: "Failed to update building."});
           }
         });
       } else {
         building.save(function(err, savedBuilding) {
           if (err) {
-            res.send(err);
+            debug(err);
+            res.json({message: "Failed to save updated building."});
             return;
           }
 
@@ -508,7 +515,8 @@ module.exports = function (passport) {
   var getBuilding = function(req, res) {
     Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
       if (err) {
-        res.send(err);
+        debug(err);
+        res.json({message: "Failed to retrieve building."});
         return;
       }
 
@@ -541,7 +549,8 @@ module.exports = function (passport) {
       }]
     }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
-        res.send(err);
+        debug(err);
+        res.json({message: "Failed to retrieve buildings."});
         return;
       }
 
@@ -579,7 +588,8 @@ module.exports = function (passport) {
       }]
     }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
-        res.send(err);
+        debug(err);
+        res.json({message: "Failed to retrieve buildings."});
         return;
       }
 
@@ -611,7 +621,8 @@ module.exports = function (passport) {
       }]
     }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
-        res.send(err);
+        debug(err);
+        res.json({message: "Failed to retrieve buildings."});
         return;
       }
 
@@ -623,6 +634,7 @@ module.exports = function (passport) {
   var getBuildingDownload = function(req, res) {
     Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -655,6 +667,7 @@ module.exports = function (passport) {
 
       building.save(function(err) {
         if (err) {
+          debug(err);
           res.send(err);
           return;
         }
@@ -668,6 +681,7 @@ module.exports = function (passport) {
   var getBuildingKML = function(req, res) {
     Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -717,6 +731,7 @@ module.exports = function (passport) {
 
       building.save(function(err) {
         if (err) {
+          debug(err);
           res.send(err);
           return;
         }

@@ -22,6 +22,7 @@ module.exports = function(passport) {
   passport.deserializeUser(function(id, done) {
     User.findById(id, function(err, user) {
       if (err) {
+        debug(err);
         done(err);
         return;
       }
@@ -38,8 +39,10 @@ module.exports = function(passport) {
       User.findOne({ $and: [{"username": username}, {"verified": true}, {"banned": false}]}, 
         function(err, user) {
           // In case of any error, return using the done method
-          if (err)
+          if (err) {
+            debug(err);
             return done(err);
+          }
 
           // Username does not exist, log the error and redirect back
           if (!user){

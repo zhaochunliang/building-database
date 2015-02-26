@@ -32,7 +32,9 @@ module.exports = function (passport) {
 
     Building.paginate({"location.coordinates": {$ne: [0,0]}}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
+        return;
       }
       
       res.render("admin-buildings", {
@@ -51,6 +53,7 @@ module.exports = function (passport) {
   var getBuilding = function(req, res) {
     Building.findOne({_id: req.params.building_id}, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -84,7 +87,9 @@ module.exports = function (passport) {
 
     BuildingReport.paginate({}, req.query.page, req.query.limit, function(err, pageCount, reports) {
       if (err) {
+        debug(err);
         res.send(err);
+        return;
       }
 
       res.render("admin-building-reports", {
@@ -114,7 +119,9 @@ module.exports = function (passport) {
 
     User.paginate({}, req.query.page, req.query.limit, function(err, pageCount, siteUsers) {
       if (err) {
+        debug(err);
         res.send(err);
+        return;
       }
       
       res.render("admin-users", {
@@ -134,6 +141,7 @@ module.exports = function (passport) {
   var getUser = function(req, res) {
     User.findOne({username: req.params.username}, function(err, user) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -163,6 +171,7 @@ module.exports = function (passport) {
   var postUser = function(req, res) {
     User.findOne({username: req.params.username}, function(err, user) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -194,6 +203,7 @@ module.exports = function (passport) {
       // Save user
       user.save(function(err, savedUser) {
         if (err) {
+          debug(err);
           res.send(err);
           return;
         }

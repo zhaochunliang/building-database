@@ -16,6 +16,7 @@ module.exports = function (passport) {
   var getIndex = function(req, res) {
     Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}).limit(6).sort({createdAt: -1}).exec(function(err, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -45,6 +46,7 @@ module.exports = function (passport) {
 
     Building.paginate({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -65,6 +67,7 @@ module.exports = function (passport) {
   var getBrowseAll = function(req, res) {
     Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, function(err, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
       }
       
@@ -80,6 +83,7 @@ module.exports = function (passport) {
   var getBuilding = function(req, res) {
     Building.findOne({$and: [{"slug.id": req.params.building_slugId}, {hidden: false}]}, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -92,6 +96,7 @@ module.exports = function (passport) {
       // Find uploading user
       User.findById(building.userId, function(err, user) {
         if (err) {
+          debug(err);
           res.send(err);
           return;
         }
@@ -111,6 +116,7 @@ module.exports = function (passport) {
 
         building.save(function(err) {
           if (err) {
+            debug(err);
             res.send(err);
             return;
           }
@@ -146,6 +152,7 @@ module.exports = function (passport) {
 
     report.save(function(err) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -173,6 +180,7 @@ module.exports = function (passport) {
 
       transport.sendMail(mailOptions, function(err) {
         if (err) {
+          debug(err);
           throw err;
           return;
         }
@@ -241,6 +249,7 @@ module.exports = function (passport) {
       }
     }}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -274,6 +283,7 @@ module.exports = function (passport) {
 
     User.findOne({$and: [{username: req.params.username}, {"verified": true}]}, function(err, user) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -285,6 +295,7 @@ module.exports = function (passport) {
 
       Building.paginate({$and: [{"userId": user._id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
         if (err) {
+          debug(err);
           res.send(err);
           return;
         }
@@ -318,6 +329,7 @@ module.exports = function (passport) {
 
     Building.paginate({$and: [{"osm.type": req.params.osm_type}, {"osm.id": req.params.osm_id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -350,6 +362,7 @@ module.exports = function (passport) {
 
     Building.paginate({$and: [{$or: [{"name": new RegExp(req.params.search_term, "i")}, {"description": new RegExp(req.params.search_term, "i")}]}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -388,6 +401,7 @@ module.exports = function (passport) {
 
     Building.findOne(query, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -419,6 +433,7 @@ module.exports = function (passport) {
 
     Building.findOne(query, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -441,6 +456,7 @@ module.exports = function (passport) {
     // Find uploading user
     User.findOne({$and: [{username: req.params.username}, {"verified": true}]}, function(err, user) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -468,6 +484,7 @@ module.exports = function (passport) {
 
       Building.paginate({$and: [{"userId": user._id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
         if (err) {
+          debug(err);
           res.send(err);
           return;
         }
@@ -491,6 +508,7 @@ module.exports = function (passport) {
     // Check user has access
     User.findOne({$and: [{username: req.params.username}, {_id: req.user._id}, {"verified": true}]}, function(err, user) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -521,6 +539,7 @@ module.exports = function (passport) {
     // Check user has access
     User.findOne({$and: [{username: req.params.username}, {_id: req.user._id}, {"verified": true}]}, function(err, user) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -643,6 +662,7 @@ module.exports = function (passport) {
           
           transport.sendMail(mailOptions, function(err) {
             if (err) {
+              debug("Unable to send email via SMTP server. Is it running?");
               asyncDone(err);
               return;              
             }

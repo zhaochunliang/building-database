@@ -26,13 +26,13 @@ block content
               each model, key in building.models.raw
                 - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
                 li
-                  a(href="/api/building/#{building._id}/download/raw/#{model.type}") Download .#{model.type} (#{size} KB)
+                  a(href="/api/building/#{building._id}/download/raw/#{model.type}") .#{model.type} (#{size} KB)
               each model, key in building.models.zip
                 - var size = (model.fileSize) ? (model.fileSize / 1000).toFixed(2) : 0;
                 li
-                  a(href="/api/building/#{building._id}/download/zip/#{model.type}") Download #{model.type} zip (#{size} KB)
+                  a(href="/api/building/#{building._id}/download/zip/#{model.type}") .#{model.type} zip (#{size} KB)
               li
-                a(href="/api/building/#{building._id}.kml") Download .kml
+                a(href="/api/building/#{building._id}.kml") .kml
       
       p.license Licensed as  
         a(rel="license", href="http://creativecommons.org/licenses/by-sa/4.0/") Creative Commons Attribution-ShareAlike 4.0

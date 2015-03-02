@@ -24,7 +24,7 @@ var config = require("../config/config.js");
 
 
 AWS.config.update({accessKeyId: config.s3.accessId, secretAccessKey: config.s3.accessKey});
-AWS.config.update({region: "eu-west-1"});
+AWS.config.update({region: config.s3.region});
 
 module.exports = function (passport) {
   // Endpoint /api/buildings for GET
@@ -281,7 +281,7 @@ module.exports = function (passport) {
 
         building.models.raw.push({
           type: type,
-          path: "https://polygoncity-test.s3-eu-west-1.amazonaws.com/" + path,
+          path: "https://" + config.s3.bucket + ".s3-" + config.s3.region + ".amazonaws.com/" + path,
           fileSize: fileSize
         });
 
@@ -656,11 +656,11 @@ module.exports = function (passport) {
         return;
       }
 
-      var options = {
-        headers: {
-          "Content-Disposition": "attachment; filename=" + building._id + "." + ((fileType === "raw") ? modelType : fileType)
-        }
-      }
+      // var options = {
+      //   headers: {
+      //     "Content-Disposition": "attachment; filename=" + building._id + "." + ((fileType === "raw") ? modelType : fileType)
+      //   }
+      // }
 
       // Increment statistics
       building.stats.downloads += 1;
@@ -672,7 +672,8 @@ module.exports = function (passport) {
           return;
         }
         
-        res.sendFile(path.resolve("." + file.path), options);
+        // res.sendFile(path.resolve("." + file.path), options);
+        res.redirect(file.path);
       });
     });
   };
@@ -763,14 +764,12 @@ module.exports = function (passport) {
 
     archive.pipe(output);
     
-    // TODO: Tidy up paths
-    archive.append(fs.createReadStream("./" + path), { name: pathID + "/" + path.split("model-files/" + pathID + "/raw")[1] });
+    archive.append(fs.createReadStream("./" + path), { name: path.split("tmp/")[1] });
 
     _.each(moveAssetFiles, function(assetFile) {
       var assetPath = assetFile[3];
 
-      // TODO: Tidy up paths
-      archive.append(fs.createReadStream("./" + assetPath), { name: pathID + "/" + assetPath.split("model-files/" + pathID + "/raw")[1] });
+      archive.append(fs.createReadStream("./" + assetPath), { name: assetPath.split("tmp/")[1] });
     });
 
     archive.finalize();

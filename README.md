@@ -16,8 +16,8 @@
   * `db.users.ensureIndex( { username: 1 }, { unique: true } );`
   * `db.buildings.ensureIndex( { "slug.id": 1 }, { unique: true } );`
   * `db.buildings.ensureIndex( { location: "2dsphere" } );`
-* Rename `/config/config.sample.js` to `/config/config.js` and update with your MongoDB settings
-  * example: `"url": "mongodb://user:password@localhost/building-database"`
+* Rename `/config/config.sample.js` to `/config/config.js` and update with your settings (all are required)
+  * Mongo example: `"url": "mongodb://user:password@localhost/building-database"`
 * Add a phrase to session: secret in `config.js`
 * In the project directory, run:
   * `sudo npm update`

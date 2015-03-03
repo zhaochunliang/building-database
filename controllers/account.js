@@ -87,6 +87,8 @@ module.exports = function (passport) {
           return res.redirect("/signup");
         }
 
+        req.flash("message", "Account verified.");
+
         req.login(user, function(err) {
           return res.redirect("/");
         });

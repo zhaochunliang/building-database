@@ -577,6 +577,13 @@ body > footer {
 // ************************************************
 
 #home {
+  .flash-alert {
+    position: absolute;
+    top: 75px;
+    width: 100%;
+    z-index: 999;
+  }
+
   #home-map {
     border-bottom: 10px solid #4a4a4a;
     box-sizing: border-box;

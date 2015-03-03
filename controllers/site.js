@@ -20,9 +20,10 @@ module.exports = function (passport) {
         res.send(err);
         return;
       }
-      
+
       res.render("index", {
         bodyId: "home",
+        message: req.flash("message"),
         user: req.user,
         buildings: buildings,
       });

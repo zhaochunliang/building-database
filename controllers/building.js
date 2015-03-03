@@ -281,7 +281,7 @@ module.exports = function (passport) {
 
         building.models.raw.push({
           type: type,
-          path: "https://" + config.s3.bucket + ".s3-" + config.s3.region + ".amazonaws.com/" + path,
+          path: "//" + config.s3.bucket + ".s3.amazonaws.com/" + path,
           fileSize: fileSize
         });
 

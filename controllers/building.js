@@ -300,10 +300,12 @@ module.exports = function (passport) {
           uploadFileS3(output.path, "model-files/" + pathID + "/zip/" + output.path.split("/")[2]).done(function(data) {
             debug("File uploaded to S3", data);
 
+            var path = data["Location"].split("amazonaws.com/")[1];
+
             // Store reference to model archive
             building.models.zip.push({
               type: output.type,
-              path: data["Location"],
+              path: "//" + config.s3.bucket + ".s3.amazonaws.com/" + path,
               fileSize: output.size
             });
 

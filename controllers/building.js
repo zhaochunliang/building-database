@@ -15,15 +15,25 @@ var path = require("path");
 var request = require("request");
 var shortId = require("shortid");
 var sphericalmercator = new(require("sphericalmercator"));
+var AWS = require("aws-sdk");
+var rimraf = require("rimraf");
 
 var Building = require("../models/building");
+
+var config = require("../config/config.js");
+
+
+AWS.config.update({accessKeyId: config.s3.accessId, secretAccessKey: config.s3.accessKey});
+AWS.config.update({region: config.s3.region});
 
 module.exports = function (passport) {
   // Endpoint /api/buildings for GET
   var getBuildings = function(req, res) {
     Building.find({hidden: false}, function(err, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
+        return;
       }
 
       res.json(buildings);
@@ -51,6 +61,7 @@ module.exports = function (passport) {
 
     var building;
 
+    // If any of the tasks pass an error to their own callback, the next function is not executed, and the main callback is immediately called with the error.
     async.waterfall([function(done) {
       var uploadPath = req.files.model.path;
       var uploadExt = req.files.model.extension;
@@ -60,43 +71,70 @@ module.exports = function (passport) {
       if (uploadExt === "zip") {
         tmpName = uploadPath.split("." + uploadExt)[0];
 
-        // Create temporary directory
-        mkdirp.sync(tmpName);
+        async.waterfall([function(zipDone) {
+          // Create temporary directory
+          mkdirp(tmpName, function(err) {
+            if (err) {
+              zipDone(err);
+              return;
+            }
 
-        // TODO: Replace with archiver seeing as this doesn't work
-        // for creating archives
-        var zip = new AdmZip(uploadPath);
-        var zipEntries = zip.getEntries();
+            zipDone(null);
+          });
+        }, function(zipDone) {
+          // TODO: Replace with archiver seeing as this doesn't work
+          // for creating archives
+          var zip = new AdmZip(uploadPath);
+          var zipEntries = zip.getEntries();
 
-        _.each(zipEntries, function(entry) {
-          var entryExt = entry.name.split(".").pop();
+          _.each(zipEntries, function(entry) {
+            var entryExt = entry.name.split(".").pop();
 
-          // Validate each file to ensure only accepted files are added
-          // Accept: model files (dae, obj, etc), images (jpg, png, etc)
-          if (entryExt.match("obj|dae|ply|dxf")) {
-            // Store reference to the model file
-            tmpModelFiles.push(tmpName + "/" + entry.entryName);
-          } else if (entryExt.match("jpg|png")) {
-            // Store reference to the assets (textures, etc)
-            tmpAssetFiles.push(tmpName + "/" + entry.entryName);
-          } else {
-            debug("Zip entry file type not valid:", entryExt);
+            // Validate each file to ensure only accepted files are added
+            // Accept: model files (dae, obj, etc), images (jpg, png, etc)
+            if (entryExt.match("obj|dae|ply|dxf")) {
+              // Store reference to the model file
+              tmpModelFiles.push(tmpName + "/" + entry.entryName);
+            } else if (entryExt.match("jpg|png")) {
+              // Store reference to the assets (textures, etc)
+              tmpAssetFiles.push(tmpName + "/" + entry.entryName);
+            } else {
+              debug("Zip entry file type not valid:", entryExt);
+              return;
+            }
+
+            // Unzip file to temporary directory (keeping archive directories)
+            // TODO: Make async
+            zip.extractEntryTo(entry.entryName, tmpName, true, true);
+          });
+
+          // Delete zip file
+          fs.unlink(uploadPath, function(err) {
+            if (err) {
+              zipDone(err);
+              return;
+            }
+
+            zipDone(null);
+          });
+        }], function (err, result) {
+          // Result of last callback
+          if (err) {
+            done(err);
             return;
           }
 
-          // Unzip file to temporary directory (keeping archive directories)
-          zip.extractEntryTo(entry.entryName, tmpName, true, true);
+          done(null);
         });
-
-        // Delete zip file
-        fs.unlinkSync(uploadPath);
       } else {
         tmpName = "tmp";
         tmpModelFiles.push(uploadPath);
+        done(null);
       }
-
+    }, function(done) {
+      // TODO: Find a better way to quit out of the waterfall
       if (tmpModelFiles.length < 1) {
-        debug("No model files to process");
+        done(new Error("No model files to process"));
         return;
       }
 
@@ -129,6 +167,8 @@ module.exports = function (passport) {
         });
       })).done(function() {
         done(null);
+      }, function(err) {
+        done(err);
       });
     }, function(done) {
       building = new Building();
@@ -153,39 +193,72 @@ module.exports = function (passport) {
         building.description = req.body.description.substr(0, 500);
       }
 
+      done(null);
+    }, function(done) {
       var movePromises = [];
       var moveFiles = [];
       var moveAssetFiles = [];
 
+      var uploadPromises = [];
+
+      var uploadFile = function(file, index, moveFilesRef) {
+        var deferred = Q.defer();
+
+        var splitPath = file.split(tmpName + "/");
+        //var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
+        var s3PathKey = "model-files/" + pathID + "/raw/" + splitPath[1];
+        var ext = s3PathKey.split(".").pop();
+        var stats = fs.stat(file, function(err, stats) {
+          if (err) {
+            deferred.reject(err);
+            return;
+          }
+
+          moveFilesRef.push([s3PathKey, ext, stats, file]);
+          //movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
+          movePromises.push([uploadFileS3, [file, s3PathKey]]);
+
+          deferred.resolve();
+        });
+
+        return deferred.promise;
+      };
+
       // Move model files to permanent path
       // TODO: Move files created by conversion, like .mtl
       _.each(tmpModelFiles, function(file, index) {
-        var splitPath = file.split(tmpName + "/");
-        var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
-        var ext = permPath.split(".").pop();
-
-        moveFiles.push([permPath, ext]);
-        movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
+        // Add to promise
+        uploadPromises.push([uploadFile, [file, index, moveFiles]]);
       });
 
       // Move asset files to permanent path
       _.each(tmpAssetFiles, function(file, index) {
-        var splitPath = file.split(tmpName + "/");
-        var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
-        var ext = permPath.split(".").pop();
-
-        moveAssetFiles.push([permPath, ext]);
-        movePromises.push(Q.nfcall(mv, file, permPath, {mkdirp: true}));
+        // Add to promise
+        uploadPromises.push([uploadFile, [file, index, moveAssetFiles]]);
       });
-      
-      Q.all(movePromises).done(function() {
+
+      Q.all(uploadPromises.map(function(promiseFunc) {
+        return promiseFunc[0].apply(this, promiseFunc[1]).done();
+      })).done(function() {
+        done(null, movePromises, moveFiles, moveAssetFiles);
+      }, function(err) {
+        done(err);
+      });
+    }, function(movePromises, moveFiles, moveAssetFiles, done) {
+      Q.all(movePromises.map(function(promiseFunc) {
+        return promiseFunc[0].apply(this, promiseFunc[1]).then(function(data) {
+          debug("File uploaded to S3", data);
+        });
+      })).done(function() {
         debug("Moved files");
         done(null, moveFiles, moveAssetFiles);
       }, function(err) {
         // Delete temporary directories
-        deleteFolderRecursive(tmpName);
-
-        done(err);
+        deleteFolderRecursive(tmpName).done(function() {
+          done(err);
+        }, function(deleteErr) {
+          done(deleteErr);
+        });
       });  
     }, function(moveFiles, moveAssetFiles, done) {
       var archiveQueue = [];
@@ -194,46 +267,65 @@ module.exports = function (passport) {
       _.each(moveFiles, function(file, index) {
         var type = file[1];
         var path = file[0];
+        var stats = file[2];
+        var tmpPath = file[3];
 
         debug(file);
 
         // Get file size
-        var stats = fs.statSync(path);
         var fileSize = (stats.size) ? stats.size : 0;
 
         if (type === "obj") {
-          structurePath = path;
+          structurePath = tmpPath;
         }
 
         building.models.raw.push({
           type: type,
-          path: "/" + path,
+          path: "//" + config.s3.bucket + ".s3.amazonaws.com/" + path,
           fileSize: fileSize
         });
 
         // Generate a zip archive for model
-        var outputPath = "./model-files/" + pathID + "/" + pathID + "_" + type + ".zip";
+        // var outputPath = "./model-files/" + pathID + "/" + pathID + "_" + type + ".zip";
+        var outputPath = tmpName + "/" + pathID + "_" + type + ".zip";
 
-        archiveQueue.push([createArchive, [outputPath, type, path, moveAssetFiles, pathID]]);
+        archiveQueue.push([createArchive, [outputPath, type, tmpPath, moveAssetFiles, pathID]]);
       });
 
       Q.all(archiveQueue.map(function(promiseFunc) {
         return promiseFunc[0].apply(this, promiseFunc[1]).then(function(output) {
-          // Store reference to model archive
-          building.models.zip.push({
-            type: output.type,
-            path: "/" + output.path,
-            fileSize: output.size
+          var deferred = Q.defer();
+
+          // Upload archive to S3
+          uploadFileS3(output.path, "model-files/" + pathID + "/zip/" + output.path.split("/")[2]).done(function(data) {
+            debug("File uploaded to S3", data);
+
+            var path = data["Location"].split("amazonaws.com/")[1];
+
+            // Store reference to model archive
+            building.models.zip.push({
+              type: output.type,
+              path: "//" + config.s3.bucket + ".s3.amazonaws.com/" + path,
+              fileSize: output.size
+            });
+
+            deferred.resolve();
+          }, function(err) {
+            deferred.reject(err);
           });
+
+          return deferred.promise;
         });
       })).done(function() {
         // All archives have been created
         done(null, structurePath);
       }, function(err) {
         // Delete temporary directories
-        deleteFolderRecursive(tmpName);
-
-        done(err);
+        deleteFolderRecursive(tmpName).done(function() {
+          done(err);
+        }, function(deleteErr) {
+          done(deleteErr);
+        });
       });
     }, function(structurePath, done) {
       // Attach user to building entry
@@ -285,16 +377,27 @@ module.exports = function (passport) {
             }
 
             res.json({message: "Building added", building: savedBuilding});
-            done(null);
+            
+            // Delete temporary directories
+            deleteFolderRecursive(tmpName).done(function() {
+              done(null);
+            }, function(deleteErr) {
+              done(deleteErr);
+            });
           });
+        });
 
-          // Delete temporary directories
-          deleteFolderRecursive(tmpName);
+        lr.on("error", function(err) {
+          done(err);
         });
       }
     }], function (err, result) {
       // Result of last callback
-      if (err) debug(err);
+      // TODO: Return something to the user and crash
+      if (err) {
+        debug(err);
+        throw err;
+      }
     });
   };
 
@@ -310,6 +413,7 @@ module.exports = function (passport) {
 
     Building.findOne(query, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -351,17 +455,25 @@ module.exports = function (passport) {
       }
 
       if (req.body.latitude && req.body.longitude) {
-        var url = "http://pelias.mapzen.com/reverse?lat=" + req.body.latitude + "&lon=" + req.body.longitude
+        // var url = "http://pelias.mapzen.com/reverse?lat=" + req.body.latitude + "&lon=" + req.body.longitude
+        var url = "http://open.mapquestapi.com/nominatim/v1/reverse.php?format=json&lat=" + req.body.latitude + "&lon=" + req.body.longitude;
         
         // Find location country and admin
         request(url, function (error, response, body) {
           if (!error && response.statusCode == 200) {
-            var pelias = JSON.parse(body);
-            var featureProperties = pelias.features[0].properties;
+            var locationResult = JSON.parse(body);
+            
+            // var featureProperties = locationResult.features[0].properties;
 
-            var countryCode = featureProperties.alpha3;
-            var country = featureProperties.admin0;
-            var district = featureProperties.admin1;
+            // var countryCode = featureProperties.alpha3;
+            // var country = featureProperties.admin0;
+            // var district = featureProperties.admin1;
+
+            var featureProperties = locationResult.address;
+
+            var countryCode = featureProperties.country_code;
+            var country = featureProperties.country;
+            var district = featureProperties.state_district;
 
             building.locality = {
               countryCode: countryCode,
@@ -382,12 +494,16 @@ module.exports = function (passport) {
 
               res.json({message: "Building updated", building: savedBuilding});
             });
+          } else if (error) {
+            debug(error);
+            res.json({message: "Failed to update building."});
           }
         });
       } else {
         building.save(function(err, savedBuilding) {
           if (err) {
-            res.send(err);
+            debug(err);
+            res.json({message: "Failed to save updated building."});
             return;
           }
 
@@ -401,7 +517,8 @@ module.exports = function (passport) {
   var getBuilding = function(req, res) {
     Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
       if (err) {
-        res.send(err);
+        debug(err);
+        res.json({message: "Failed to retrieve building."});
         return;
       }
 
@@ -417,6 +534,10 @@ module.exports = function (passport) {
     var e = req.params.east;
     var n = req.params.north;
 
+    var sortBy = {
+      highlight: -1
+    };
+
     Building.find({$and: [{
       "location": {
         $geoIntersects: {
@@ -427,9 +548,12 @@ module.exports = function (passport) {
         }
       } }, {
         hidden: false
-      }] }, function(err, buildings) {
+      }]
+    }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
-        res.send(err);
+        debug(err);
+        res.json({message: "Failed to retrieve buildings."});
+        return;
       }
 
       res.json(buildings);
@@ -449,6 +573,10 @@ module.exports = function (passport) {
     var e = bbox[2];
     var n = bbox[3]; 
 
+    var sortBy = {
+      highlight: -1
+    };
+
     Building.find({$and: [{
       "location": {
         $geoIntersects: {
@@ -459,9 +587,12 @@ module.exports = function (passport) {
         }
       } }, {
         hidden: false
-      }] }, function(err, buildings) {
+      }]
+    }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
-        res.send(err);
+        debug(err);
+        res.json({message: "Failed to retrieve buildings."});
+        return;
       }
 
       res.json(buildings);
@@ -474,6 +605,10 @@ module.exports = function (passport) {
     var lat = req.params.lat;
     var distance = Number(req.params.distance);
 
+    var sortBy = {
+      highlight: -1
+    };
+
     Building.find({$and: [{
       "location": {
         $nearSphere: {
@@ -485,10 +620,11 @@ module.exports = function (passport) {
         }
       } }, {
         hidden: false
-      }] }, function(err, buildings) {
+      }]
+    }).sort(sortBy).exec(function(err, buildings) {
       if (err) {
         debug(err);
-        res.send(err);
+        res.json({message: "Failed to retrieve buildings."});
         return;
       }
 
@@ -500,6 +636,7 @@ module.exports = function (passport) {
   var getBuildingDownload = function(req, res) {
     Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -521,22 +658,24 @@ module.exports = function (passport) {
         return;
       }
 
-      var options = {
-        headers: {
-          "Content-Disposition": "attachment; filename=" + building._id + "." + ((fileType === "raw") ? modelType : fileType)
-        }
-      }
+      // var options = {
+      //   headers: {
+      //     "Content-Disposition": "attachment; filename=" + building._id + "." + ((fileType === "raw") ? modelType : fileType)
+      //   }
+      // }
 
       // Increment statistics
       building.stats.downloads += 1;
 
       building.save(function(err) {
         if (err) {
+          debug(err);
           res.send(err);
           return;
         }
         
-        res.sendFile(path.resolve("." + file.path), options);
+        // res.sendFile(path.resolve("." + file.path), options);
+        res.redirect(file.path);
       });
     });
   };
@@ -545,6 +684,7 @@ module.exports = function (passport) {
   var getBuildingKML = function(req, res) {
     Building.findOne({$and: [{_id: req.params.building_id}, {hidden: false}]}, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -594,6 +734,7 @@ module.exports = function (passport) {
 
       building.save(function(err) {
         if (err) {
+          debug(err);
           res.send(err);
           return;
         }
@@ -612,7 +753,8 @@ module.exports = function (passport) {
 
     output.on("close", function() {
       deferred.resolve({
-        path: outputPath.split("./")[1],
+        // path: outputPath.split("./")[1],
+        path: outputPath,
         size: archive.pointer(),
         type: type
       });
@@ -624,14 +766,12 @@ module.exports = function (passport) {
 
     archive.pipe(output);
     
-    // TODO: Tidy up paths
-    archive.append(fs.createReadStream("./" + path), { name: pathID + "/" + path.split("model-files/" + pathID + "/raw")[1] });
+    archive.append(fs.createReadStream("./" + path), { name: path.split("tmp/")[1] });
 
     _.each(moveAssetFiles, function(assetFile) {
-      var assetPath = assetFile[0];
+      var assetPath = assetFile[3];
 
-      // TODO: Tidy up paths
-      archive.append(fs.createReadStream("./" + assetPath), { name: pathID + "/" + assetPath.split("model-files/" + pathID + "/raw")[1] });
+      archive.append(fs.createReadStream("./" + assetPath), { name: assetPath.split("tmp/")[1] });
     });
 
     archive.finalize();
@@ -641,19 +781,65 @@ module.exports = function (passport) {
 
   // From: http://www.geedew.com/2012/10/24/remove-a-directory-that-is-not-empty-in-nodejs/
   var deleteFolderRecursive = function(path) {
-    if( fs.existsSync(path) ) {
-      fs.readdirSync(path).forEach(function(file,index){
-        var curPath = path + "/" + file;
-        if(fs.lstatSync(curPath).isDirectory()) { // recurse
-          deleteFolderRecursive(curPath);
-        } else { // delete file
-          fs.unlinkSync(curPath);
-        }
-      });
+    var deferred = Q.defer();
+
+    rimraf(path, function(err) {
+      if (err) {
+        deferred.reject(err);
+        return;
+      }
+
+      deferred.resolve();
+    });
+
+    return deferred.promise;
+
+    // if( fs.existsSync(path) ) {
+    //   fs.readdirSync(path).forEach(function(file,index){
+    //     var curPath = path + "/" + file;
+    //     if(fs.lstatSync(curPath).isDirectory()) { // recurse
+    //       deleteFolderRecursive(curPath);
+    //     } else { // delete file
+    //       fs.unlinkSync(curPath);
+    //     }
+    //   });
       
-      // Do not delete root directory
-      // fs.rmdirSync(path);
-    }
+    //   // Delete root directory
+    //   fs.rmdirSync(path);
+    // }
+  };
+
+  var uploadFileS3 = function(path, s3PathKey) {
+    var deferred = Q.defer();
+
+    var fileStream = fs.createReadStream(path);
+    
+    fileStream.on("error", function(err) {
+      deferred.reject(err);
+    });
+
+    fileStream.on("open", function() {
+      var s3 = new AWS.S3();
+      
+      s3.upload({
+        Bucket: config.s3.bucket,
+        Key: s3PathKey,
+        ACL: "public-read",
+        Body: fileStream
+      }).on("httpUploadProgress", function(evt) {
+        // console.log(evt);
+      }).send(function(err, data) {
+        if (err) {
+          deferred.reject(err);
+          return;
+        }
+
+        deferred.resolve(data);
+      });
+
+    });
+
+    return deferred.promise;
   };
 
   return {

@@ -21,8 +21,13 @@ module.exports = function(passport) {
 
   passport.deserializeUser(function(id, done) {
     User.findById(id, function(err, user) {
-      // debug("Deserializing user: ", user);
-      done(err, user);
+      if (err) {
+        debug(err);
+        done(err);
+        return;
+      }
+      
+      done(null, user);
     });
   });
 
@@ -34,8 +39,11 @@ module.exports = function(passport) {
       User.findOne({ $and: [{"username": username}, {"verified": true}, {"banned": false}]}, 
         function(err, user) {
           // In case of any error, return using the done method
-          if (err)
+          if (err) {
+            debug(err);
             return done(err);
+          }
+
           // Username does not exist, log the error and redirect back
           if (!user){
             debug("User not found with username "+username);
@@ -100,8 +108,13 @@ module.exports = function(passport) {
               function(asyncDone) {
                 // Generate verify token
                 crypto.randomBytes(20, function(err, buf) {
+                  if (err) {
+                    done(err);
+                    return;
+                  }
+
                   var token = buf.toString("hex");
-                  asyncDone(err, token);
+                  asyncDone(null, token);
                 });
               }, function(token, asyncDone) {
                 // Store verify token
@@ -110,15 +123,19 @@ module.exports = function(passport) {
               }, function(token, asyncDone) {
                 // Save the user
                 newUser.save(function(err) {
-                  asyncDone(err, token);
+                  if (err) {
+                    asyncDone(err);
+                    return;
+                  }
+
+                  asyncDone(null, token);
                 });
               }, function(token, asyncDone) {
                 // Send verify email
                 
                 // Skip if email hasn't been set up
                 if (!config.email.verify.fromAddress) {
-                  debug("Email verify.fromAddress not found in configuration");
-                  asyncDone("Email verify.fromAddress not found in configuration");
+                  asyncDone(new Error("Email verify.fromAddress not found in configuration"));
                   return;
                 }
 
@@ -135,23 +152,25 @@ module.exports = function(passport) {
                 };
                 
                 transport.sendMail(mailOptions, function(err) {
-                  if (!err) {
-                    req.flash("message", "A verification link has been sent by e-mail to " + newUser.email + ".");
-                  } else {
+                  if (err) {
                     debug("Unable to send email via SMTP server. Is it running?");
+                    asyncDone(err);
+                    return;
                   }
+
+                  req.flash("message", "A verification link has been sent by e-mail to " + newUser.email + ".");
                   
-                  asyncDone(err, newUser);
+                  asyncDone(null, newUser);
                 });
               }
             ], function(err) {
-              if (!err) {
-                done(null, newUser);
+              if (err) {
+                debug("Error in saving user");
+                done(err);
                 return;
               }
 
-              debug("Error in saving user: " + err);
-              throw err;
+              done(null, newUser);
             });
           }
         });

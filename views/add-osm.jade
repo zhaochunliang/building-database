@@ -34,6 +34,8 @@ block content
     div.col-7
       div#add-osm-map
 
+  script(src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.3.1/lodash.min.js")
+
   link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
 
@@ -121,13 +123,38 @@ block content
       overpass.handlers["onDataRecieved"] = function(amount,txt, abortCB,continueCB) {continueCB();};
 
       overpass.handlers["onClickFeature"] = function(feature) {
-        var osmSplit = feature.id.split("/");
+        // TODO: Use relation ID if way isn't a building and has a relation that is
+        var id;
+
+        if (feature.properties.tags.building) {
+          id = feature.id;
+        } else if (feature.properties.relations) {
+          var buildingRel = _.find(feature.properties.relations, function(relation) {
+            return (relation.reltags.building);
+          });
+
+          if (buildingRel) {
+            id = "relation/" + buildingRel.rel;
+          }
+        } else {
+          return false;
+        }
+
+        var osmSplit = id.split("/");
         osmTypeInput.value = osmSplit[0].toLowerCase();
         osmIDInput.value = osmSplit[1];
       };
       
       // Request data
-      var query = "[out:json];((way({s},{w},{n},{e})['building'];);(._;node(w);););out;";
+      var query = "[out:json];(" +
+        "(" +
+        "rel({s},{w},{n},{e})['building'][building!='roof'];" +
+        "rel({s},{w},{n},{e})[type='building'];" +
+        ");(._;way(r););(._;node(w););(" +
+        "way({s},{w},{n},{e})['building'];" +
+        //- "way({s},{w},{n},{e})['building:part'];" +
+        ");(._;node(w);););" +
+        "out;";
 
       var bounds = ide.map.getBounds();
       var parameters = {

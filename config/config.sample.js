@@ -2,6 +2,12 @@ module.exports = {
   "db": {
     "url": "mongodb://<dbUser>:<dbPassword>@<dbPath>:<dbPort>/<dbName>"
   },
+  "s3": {
+    "accessId": "your_access_id",
+    "accessKey": "your_access_key",
+    "bucket": "your_bucket",
+    "region": "your_bucket_region"
+  },
   "email": {
     "smtp": {
       "host": "localhost",

@@ -6,14 +6,18 @@ block content
       h1 Set building location
 
       form#add-location-form
-        label(for="pelias") Move to:
-        input#pelias(type="text" placeholder="Enter name of place to move to")
+        label(for="location-search") Move to:
+        input#location-search(type="text" placeholder="Enter name of place to move to")
 
         label(for="scale") Scale:
         input#scale(type="text", name="scale" value=(building.scale !== undefined) ? building.scale : "" required)
+        button.less(data-action="scale") -
+        button.more(data-action="scale") +
 
         label(for="angle") Angle:
         input#angle(type="text", name="angle" value=(building.angle !== undefined) ? building.angle : "" required)
+        button.less(data-action="angle") -
+        button.more(data-action="angle") +
 
         label(for="scale") Latitude:
         input#latitude(type="number", name="latitude" min=-90 max=90 step=0.000001 value=(building.location && building.location.coordinates[1]) ? building.location.coordinates[1] : "51.50358" required)
@@ -37,30 +41,84 @@ block content
     var longitudeInput = document.getElementById("longitude");
     var addLocationButton = document.getElementById("add-location-button");
 
-    var pelias = new Bloodhound({
+    // Scale and angle buttons
+    var moreButtons = document.getElementsByClassName("more");
+    var lessButtons = document.getElementsByClassName("less");
+
+    for (var i = 0; i < moreButtons.length; i++) {
+      var moreButton = moreButtons[i];
+    
+      moreButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        
+        var button = event.target;
+        var dataset = button.dataset;
+        var action = dataset.action;
+
+        if (action === "scale") {
+          scaleInput.value *= 1.05;
+          updateScale(scaleInput.value);
+        } else if (action === "angle") {
+          angleInput.value = (!angleInput.value || angleInput.value === 0) ? 0.25 : Number(angleInput.value) + 0.25;
+          updateAngle(angleInput.value);
+        }
+      });
+    }
+
+    for (var i = 0; i < lessButtons.length; i++) {
+      var lessButton = lessButtons[i];
+    
+      lessButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        
+        var button = event.target;
+        var dataset = button.dataset;
+        var action = dataset.action;
+
+        if (action === "scale") {
+          scaleInput.value *= 0.95;
+          updateScale(scaleInput.value);
+        } else if (action === "angle") {
+          angleInput.value = (!angleInput.value || angleInput.value === 0) ? -0.25 : Number(angleInput.value) - 0.25;
+          updateAngle(angleInput.value);
+        }
+      });
+    }
+
+    var locationSearch = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"),
       queryTokenizer: Bloodhound.tokenizers.whitespace,
       remote: {
-        url: "https://pelias.mapzen.com/search/coarse?input=%QUERY&size=10",
+        //- url: "https://pelias.mapzen.com/search/coarse?input=%QUERY&size=10",
+        url: "http://open.mapquestapi.com/nominatim/v1/search.php?format=json&limit=5&addressdetails=1&q=%QUERY",
         filter: function(response) {
-          return $.map(response.features, function(feature) {
-            var properties = feature.properties;
+          // Nominatim
+          return $.map(response, function(feature) {
             return {
-              name: properties.name + ", " + properties.admin2 + ", " + properties.admin0,
-              geometry: feature.geometry
+              name: feature.display_name,
+              coordinates: [feature.lat, feature.lon]
             };
           });
+
+          // Pelias
+          //- return $.map(response.features, function(feature) {
+          //-   var properties = feature.properties;
+          //-   return {
+          //-     name: properties.name + ", " + properties.admin2 + ", " + properties.admin0,
+          //-     geometry: feature.geometry
+          //-   };
+          //- });
         }
       }
     });
      
-    pelias.initialize();
+    locationSearch.initialize();
      
-    $("#pelias").typeahead(null, {
+    $("#location-search").typeahead(null, {
       autoselect: true,
-      name: "pelias",
+      name: "location-search",
       displayKey: "name",
-      source: pelias.ttAdapter()
+      source: locationSearch.ttAdapter()
     }).keypress(function (event) {
       // Prevent form submission when selecting an autocomplete item
       if (event.which == 13) {
@@ -70,10 +128,10 @@ block content
         var e = jQuery.Event("keydown")
         e.keyCode = e.which = 9;
         
-        $("#pelias").triggerHandler(e);
+        $("#location-search").triggerHandler(e);
 
         // Close drop down
-        $("#pelias").trigger("blur");
+        $("#location-search").trigger("blur");
       }
     }).on("typeahead:autocompleted", function(event, suggestion, actionName) {
       changeLocation(suggestion);
@@ -86,8 +144,9 @@ block content
       // - Right now ViziCities doesn't let you change camera position easily
       // - Need to add nice way to say world.moveToLatLon(coords) and have
       // everything done for you
-      var coords = suggestion.geometry.coordinates;
-      var viziCoords = new VIZI.LatLon(coords[1], coords[0]);
+      //- var coords = suggestion.geometry.coordinates;
+      var coords = suggestion.coordinates;
+      var viziCoords = new VIZI.LatLon(coords[0], coords[1]);
 
       var projected = world.project(viziCoords);
 
@@ -130,6 +189,8 @@ block content
     var controls = new VIZI.ControlsMap(world.camera, {
       viewport: world.options.viewport
     });
+
+    controls.controls.noKeys = true;
 
     VIZI.Messenger.on("controls:move", function(point) {  
       // Move building
@@ -298,21 +359,30 @@ block content
       }
     }
     
-    // TODO: Work out a way to do this without a timeout
-    setTimeout(function() {
-      // Update scale
+    var checkForModel = function() {
+      if (!world.layers[1].object.children[0]) {
+        setTimeout(checkForModel, 250);
+        return;
+      }
+
+      // Check scale
       if (#{(building.scale) ? true : false} === true) {
         updateScale(#{building.scale});
       } else {
         scaleInput.value = world.layers[1].object.children[0].scale.x;
       }
 
-      // Update angle
-      updateAngle(#{building.angle});
+      // Check angle
+      if (#{(building.angle) ? true : false} === true) {
+        updateAngle(#{building.angle});
+      }
 
       // Check for unloaded materials and replace with default colour
+      // TODO: Find a better way to do this as currently it replaces all materials
       checkColladaMaterials(world.layers[1].object.children[0], 0xffffff);
-    }, 1000);
+    };
+    
+    checkForModel();
 
     var onScaleChange = function(event) {
       event.preventDefault();

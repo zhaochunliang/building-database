@@ -3,7 +3,8 @@ var debug = require("debug")("polygoncity");
 var app = require("../app");
 
 app.set("port", process.env.PORT || 3000);
+app.set("host", process.env.HOST || '127.0.0.1');
 
-var server = app.listen(app.get("port"), function() {
+var server = app.listen(app.get("port"), app.get("host"), function() {
   debug("Express server listening on port " + server.address().port);
 });

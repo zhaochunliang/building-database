@@ -1,6 +1,10 @@
 extends layout
 
 block content
+  if message && message.length > 0
+    div.flash-alert
+      span #{message}
+          
   div#home-map
     div#home-map-overlay
       h2

@@ -409,10 +409,10 @@ block content
     scaleInput.addEventListener("mousewheel", onScaleChange);
     scaleInput.addEventListener("DOMMouseScroll", onScaleChange);
 
-    angleInput.addEventListener("input", function(event) {
-      var angle = event.target.value;
+    scaleInput.addEventListener("input", function(event) {
+      var scale = event.target.value;
 
-      updateAngle(angle);
+      updateScale(scale);
     });
 
     var onAngleChange = function(event) {

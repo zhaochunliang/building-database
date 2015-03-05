@@ -5,6 +5,9 @@ block content
     div.col-7
       h1 Add a building
 
+      div.flash-error.flash-hidden
+        span Error!
+
       form#add-form
         label(for="name") Name:
         input#name(type="text" name="name" placeholder="Building name" required)
@@ -53,11 +56,14 @@ block content
     var descInput = document.getElementById("description");
     var addButton = document.getElementById("add-button");
 
+    var flash = document.querySelector(".flash-error");
+
     // TODO: Catch errors and notify user
     addForm.addEventListener("submit", function(event) {
       event.target.checkValidity();
       event.preventDefault();
-
+  
+      flash.style.display = "none";
       addButton.innerHTML = "Uploading&hellip;";
 
       var files = fileInput.files;
@@ -96,7 +102,13 @@ block content
         contentType: false,
         type: "POST",
         success: function(data, status, xhr) {
-          window.location.href = "/add/location/" + data.building._id;
+          if (data.error) {
+            flash.querySelector("span").textContent = data.error;
+            flash.style.display = "block";
+            addButton.innerHTML = "Add building";
+          } else {
+            window.location.href = "/add/location/" + data.building._id;
+          }
         },
         error: function(xhr, errorType, error) {
           // TODO: Display error and course of action

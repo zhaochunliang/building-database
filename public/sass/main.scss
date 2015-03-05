@@ -142,6 +142,9 @@ a.button, button {
   @include flash($success-color);
 }
 
+.flash-hidden {
+  display: none;
+}
 
 // ************************************************
 // Navigation

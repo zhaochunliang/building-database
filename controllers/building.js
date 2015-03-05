@@ -396,7 +396,11 @@ module.exports = function (passport) {
       // TODO: Return something to the user and crash
       if (err) {
         debug(err);
-        throw err;
+
+        res.json({error: err.message});
+        
+        // TODO: Only throw on specific errors, or throw before getting here
+        //throw err;
       }
     });
   };

@@ -127,9 +127,27 @@ module.exports = function (passport) {
           done(null);
         });
       } else {
-        tmpName = "tmp";
-        tmpModelFiles.push(uploadPath);
-        done(null);
+        tmpName = uploadPath.split("." + uploadExt)[0];
+        
+        var newPath = tmpName + "/" + uploadPath.split("tmp/")[1];
+
+        mkdirp(tmpName, function(err) {
+          if (err) {
+            done(err);
+            return;
+          }
+
+          fs.rename(uploadPath, newPath, function(err) {
+            if (err) {
+              done(err);
+              return;
+            }
+
+            tmpModelFiles.push(newPath);
+
+            done(null);
+          });
+        });
       }
     }, function(done) {
       // TODO: Find a better way to quit out of the waterfall
@@ -295,6 +313,8 @@ module.exports = function (passport) {
       Q.all(archiveQueue.map(function(promiseFunc) {
         return promiseFunc[0].apply(this, promiseFunc[1]).then(function(output) {
           var deferred = Q.defer();
+
+          console.log(output);
 
           // Upload archive to S3
           uploadFileS3(output.path, "model-files/" + pathID + "/zip/" + output.path.split("/")[2]).done(function(data) {

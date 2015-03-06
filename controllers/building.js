@@ -127,6 +127,11 @@ module.exports = function (passport) {
           done(null);
         });
       } else {
+        if (!uploadExt.match("obj|dae|ply|dxf")) {
+          done(null);
+          return;
+        }
+
         tmpName = uploadPath.split("." + uploadExt)[0];
         
         var newPath = tmpName + "/" + uploadPath.split("tmp/")[1];
@@ -165,28 +170,33 @@ module.exports = function (passport) {
       var tmpModelPath = tmpModelFiles[0];
       var tmpModelExt = tmpModelPath.split(".").pop();
 
-      // Convert to Collada
-      if (tmpModelExt !== "dae") {
-        convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split(tmpModelExt)[0] + "dae"]]);
-      }
+      // Convert / fix the original file
+      modelConverter.convert(tmpModelPath, tmpModelPath).done(function() {
+        // Convert to other formats
 
-      // Convert to Wavefront Object
-      if (tmpModelExt !== "obj") {
-        convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split(tmpModelExt)[0] + "obj"]]);
-      }
+        // Convert to Collada
+        if (tmpModelExt !== "dae") {
+          convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split(tmpModelExt)[0] + "dae"]]);
+        }
 
-      // Wait for all conversion promises to complete before adding to db
-      Q.all(convertQueue.map(function(promiseFunc) {
-        return promiseFunc[0].apply(this, promiseFunc[1]).then(function(path) {
-          debug("Upload promise complete");
-          debug(path);
+        // Convert to Wavefront Object
+        if (tmpModelExt !== "obj") {
+          convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split(tmpModelExt)[0] + "obj"]]);
+        }
 
-          tmpModelFiles.push(path);
+        // Wait for all conversion promises to complete before adding to db
+        Q.all(convertQueue.map(function(promiseFunc) {
+          return promiseFunc[0].apply(this, promiseFunc[1]).then(function(path) {
+            debug("Upload promise complete");
+            debug(path);
+
+            tmpModelFiles.push(path);
+          });
+        })).done(function() {
+          done(null);
+        }, function(err) {
+          done(err);
         });
-      })).done(function() {
-        done(null);
-      }, function(err) {
-        done(err);
       });
     }, function(done) {
       building = new Building();

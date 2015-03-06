@@ -314,8 +314,6 @@ module.exports = function (passport) {
         return promiseFunc[0].apply(this, promiseFunc[1]).then(function(output) {
           var deferred = Q.defer();
 
-          console.log(output);
-
           // Upload archive to S3
           uploadFileS3(output.path, "model-files/" + pathID + "/zip/" + output.path.split("/")[2]).done(function(data) {
             debug("File uploaded to S3", data);

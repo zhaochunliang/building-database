@@ -420,10 +420,11 @@ module.exports = function (passport) {
           });
         });
 
-        lr.on("error", function(err) {
-          debug("Problem reading lines:", structurePath);
-          done(err);
-        });
+        // TODO: Enable this when a method can be worked out to not trigger when the LR process has ended and the file has been deleted.
+        // lr.on("error", function(err) {
+        //   debug("Problem reading lines:", structurePath);
+        //   done(err);
+        // });
       }
     }], function (err, result) {
       // Result of last callback

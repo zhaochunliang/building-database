@@ -511,7 +511,7 @@ module.exports = function (passport) {
 
             var countryCode = featureProperties.country_code;
             var country = featureProperties.country;
-            var district = featureProperties.state_district;
+            var district = featureProperties.city;
 
             building.locality = {
               countryCode: countryCode,

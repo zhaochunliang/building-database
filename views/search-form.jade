@@ -15,8 +15,8 @@ block content
 
       p
         strong or
-
-      input#pelias(type="text" placeholder="Enter place to search nearby")
+      
+      input#location-search(type="text" placeholder="Enter place to search nearby")
       
       p
         strong or
@@ -38,32 +38,47 @@ block content
   script.
     var findNearMeButton = document.getElementById("find-near-me");
 
-    var pelias = new Bloodhound({
+    var locationSearch = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"),
       queryTokenizer: Bloodhound.tokenizers.whitespace,
       remote: {
-        // TODO: Work out how to perform a non-local search with Pelias
-        url: "https://pelias.mapzen.com/search/coarse?input=%QUERY&size=10",
+        url: "http://open.mapquestapi.com/nominatim/v1/search.php?format=json&limit=5&addressdetails=1&q=%QUERY",
         filter: function(response) {
-          return $.map(response.features, function(feature) {
-            var properties = feature.properties;
+          return $.map(response, function(feature) {
             return {
-              name: properties.name + ", " + properties.admin2 + ", " + properties.admin0,
-              geometry: feature.geometry
+              name: feature.display_name,
+              coordinates: [feature.lat, feature.lon]
             };
           });
         }
       }
     });
      
-    pelias.initialize();
+    locationSearch.initialize();
      
-    $("#pelias").typeahead(null, {
-      name: "pelias",
+    $("#location-search").typeahead(null, {
+      autoselect: true,
+      name: "location-search",
       displayKey: "name",
-      source: pelias.ttAdapter()
+      source: locationSearch.ttAdapter()
+    }).keypress(function (event) {
+      // Prevent form submission when selecting an autocomplete item
+      if (event.which == 13) {
+        event.preventDefault();
+  
+        // Auto-select first suggestion
+        var e = jQuery.Event("keydown")
+        e.keyCode = e.which = 9;
+        
+        $("#location-search").triggerHandler(e);
+
+        // Close drop down
+        $("#location-search").trigger("blur");
+      }
+    }).on("typeahead:autocompleted", function(event, suggestion, actionName) {
+      window.location.href = "/search/near/" + suggestion.coordinates[0] + "," + suggestion.coordinates[1] + ",1000";
     }).on("typeahead:selected", function(event, suggestion, actionName) {
-      window.location.href = "/search/near/" + suggestion.geometry.coordinates[0] + "," + suggestion.geometry.coordinates[1] + ",1000";
+      window.location.href = "/search/near/" + suggestion.coordinates[0] + "," + suggestion.coordinates[1] + ",1000";
     });
 
     findNearMeButton.addEventListener("click", function(e) {

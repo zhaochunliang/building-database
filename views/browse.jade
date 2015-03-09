@@ -46,6 +46,8 @@ block content
     if (buildings.length > 0) {
       var building = buildings[0];
       coords = [building.location.coordinates[1], building.location.coordinates[0]];
+    } else {
+      coords = near;
     }
 
     if (near[0] !== "") {

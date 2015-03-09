@@ -176,12 +176,12 @@ module.exports = function (passport) {
 
         // Convert to Collada
         if (tmpModelExt !== "dae") {
-          convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split(tmpModelExt)[0] + "dae"]]);
+          convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split("." + tmpModelExt)[0] + ".dae"]]);
         }
 
         // Convert to Wavefront Object
         if (tmpModelExt !== "obj") {
-          convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split(tmpModelExt)[0] + "obj"]]);
+          convertQueue.push([modelConverter.convert, [tmpModelPath, tmpModelPath.split("." + tmpModelExt)[0] + ".obj"]]);
         }
 
         // Wait for all conversion promises to complete before adding to db
@@ -407,15 +407,21 @@ module.exports = function (passport) {
             res.json({message: "Building added", building: savedBuilding});
             
             // Delete temporary directories
-            deleteFolderRecursive(tmpName).done(function() {
-              done(null);
-            }, function(deleteErr) {
-              done(deleteErr);
-            });
+            // Delay to prevent random LR "error" events after recursive delete
+            setTimeout(function() {
+              deleteFolderRecursive(tmpName).done(function() {
+                debug("Building added successfully, deleting temporary files:", savedBuilding._id);
+                done(null);
+              }, function(deleteErr) {
+                debug("Problem deleting building files:", savedBuilding._id);
+                done(deleteErr);
+              });
+            }, 500);
           });
         });
 
         lr.on("error", function(err) {
+          debug("Problem reading lines:", structurePath);
           done(err);
         });
       }
@@ -812,8 +818,11 @@ module.exports = function (passport) {
   };
 
   // From: http://www.geedew.com/2012/10/24/remove-a-directory-that-is-not-empty-in-nodejs/
+  // TODO: Sometimes the files are already deleted - need to detect that
   var deleteFolderRecursive = function(path) {
     var deferred = Q.defer();
+
+    debug("Recursive delete:", path);
 
     rimraf(path, function(err) {
       if (err) {
@@ -825,20 +834,6 @@ module.exports = function (passport) {
     });
 
     return deferred.promise;
-
-    // if( fs.existsSync(path) ) {
-    //   fs.readdirSync(path).forEach(function(file,index){
-    //     var curPath = path + "/" + file;
-    //     if(fs.lstatSync(curPath).isDirectory()) { // recurse
-    //       deleteFolderRecursive(curPath);
-    //     } else { // delete file
-    //       fs.unlinkSync(curPath);
-    //     }
-    //   });
-      
-    //   // Delete root directory
-    //   fs.rmdirSync(path);
-    // }
   };
 
   var uploadFileS3 = function(path, s3PathKey) {

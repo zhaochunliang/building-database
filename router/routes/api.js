@@ -12,6 +12,9 @@ module.exports = function (passport) {
   router.route("/buildings/bbox/:west,:south,:east,:north")
     .get(buildingController.getBuildingsBbox);
 
+  router.route("/buildings/bbox/:west,:south,:east,:north/:kml")
+    .get(buildingController.getBuildingsBbox);
+
   router.route("/buildings/near/:lon,:lat,:distance")
     .get(buildingController.getBuildingsNear);
 

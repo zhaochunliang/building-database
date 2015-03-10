@@ -303,6 +303,7 @@ module.exports = function (passport) {
         // Get file size
         var fileSize = (stats.size) ? stats.size : 0;
 
+        var structurePath;
         if (type === "obj") {
           structurePath = tmpPath;
         }
@@ -344,8 +345,10 @@ module.exports = function (passport) {
 
           return deferred.promise;
         });
-      })).done(function() {
+      })).done(function(structurePath) {
         // All archives have been created
+        // TODO: Fix random crash where structurePath is undefined
+        // - Seems to happen rarely, on first start. Restart fixes.
         done(null, structurePath);
       }, function(err) {
         // Delete temporary directories
@@ -421,10 +424,12 @@ module.exports = function (passport) {
         });
 
         // TODO: Enable this when a method can be worked out to not trigger when the LR process has ended and the file has been deleted.
-        // lr.on("error", function(err) {
-        //   debug("Problem reading lines:", structurePath);
-        //   done(err);
-        // });
+        lr.on("error", function(err) {
+          debug("Problem reading lines:", structurePath);
+          res.json({"error": "Problem reading lines"});
+          // done(err);
+          done(null);
+        });
       }
     }], function (err, result) {
       // Result of last callback
@@ -565,7 +570,7 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /api/buildings/bbox/:west,:south,:east,:north for GET
+  // Endpoint /api/buildings/bbox/:west,:south,:east,:north/:kml for GET
   // TODO: Limit bounding box size, or cap results
   var getBuildingsBbox = function(req, res) {
     var w = req.params.west;
@@ -595,7 +600,53 @@ module.exports = function (passport) {
         return;
       }
 
-      res.json(buildings);
+      if (!req.params.kml) {
+        res.json(buildings);
+      } else {
+        var kmlObj = {
+          "kml": {
+            "@xmlns": "http://www.opengis.net/kml/2.2",
+            "Placemark": []
+          }
+        };
+
+        _.each(buildings, function(building) {
+          var daeModel = _.find(building.models.raw, function(model) {
+            return (model.type === "dae");
+          });
+
+          kmlObj["kml"]["Placemark"].push({
+            "name": building.name,
+            "Model": {
+              "@id": building._id,
+              "altitudeMode": "relativeToGround",
+              "Location": {
+                "longitude": building.location.coordinates[0] || -0.01924,
+                "latitude": building.location.coordinates[1] || 51.50358,
+                "altitude": 0
+              },
+              "Orientation": {
+                "heading": building.angle || 0,
+                "tilt": 0,
+                "roll": 0
+              },
+              "Scale": {
+                "x": building.scale || 1,
+                "y": building.scale || 1,
+                "z": building.scale || 1
+              },
+              "Link": {
+                "href": daeModel.path
+              }
+            }
+          });
+        });
+        
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        res.set("content-Type", "text/xml");
+        res.send("<?xml version='1.0' encoding='UTF-8'?>" + JXON.stringify(kmlObj));
+      }
     });
   };
 
@@ -778,6 +829,8 @@ module.exports = function (passport) {
           return;
         }
         
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         res.set("content-Type", "text/xml");
         res.send("<?xml version='1.0' encoding='UTF-8'?>" + JXON.stringify(kmlObj));
       });

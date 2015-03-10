@@ -1,4 +1,5 @@
 var debug = require("debug")("polygoncity");
+var _ = require("underscore");
 var async = require("async");
 var crypto = require("crypto");
 var nodemailer = require("nodemailer");
@@ -66,12 +67,20 @@ module.exports = function (passport) {
 
   // Endpoint /browse/all for GET
   var getBrowseAll = function(req, res) {
-    Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, function(err, buildings) {
+    var columns = {
+      _id: 1,
+      slug: 1,
+      name: 1,
+      locality: 1,
+      location: 1
+    };
+
+    Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, columns, function(err, buildings) {
       if (err) {
         debug(err);
         res.send(err);
       }
-      
+
       res.render("browse_all", {
         bodyId: "browse",
         user: req.user,

@@ -22,8 +22,10 @@ var Building = require("../models/building");
 
 var config = require("../config/config.js");
 
+if (config.s3.accessId && config.s3.accessKey) {
+  AWS.config.update({accessKeyId: config.s3.accessId, secretAccessKey: config.s3.accessKey});
+}
 
-AWS.config.update({accessKeyId: config.s3.accessId, secretAccessKey: config.s3.accessKey});
 AWS.config.update({region: config.s3.region});
 
 module.exports = function (passport) {

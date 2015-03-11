@@ -1172,17 +1172,20 @@ body > footer {
   }
 
   #vizicities-viewport {
-    border-bottom: 10px solid #4a4a4a;
-    height: calc(100% - 64px);
-    min-height: 1150px;
-    overflow: hidden;
-    position: absolute;
+    // border-bottom: 10px solid #4a4a4a;
+    height: 800px;
+    // height: calc(100% - 64px);
+    // min-height: 1150px;
+    // overflow: hidden;
+    margin-left: 50px;
+    margin-top: 154px;
+    position: relative;
     width: 100%;
-    z-index: 10;
+    // z-index: 10;
 
     canvas {
-      margin-left: 250px;
-      margin-top: 74px;
+      // margin-left: 250px;
+      // margin-top: 74px;
     }
   }
 }

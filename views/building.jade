@@ -1,7 +1,6 @@
 extends layout
 
 block content
-  div#vizicities-viewport
   div#building-map
 
   section.container
@@ -61,6 +60,9 @@ block content
         if (user && user._id.toString() === buildingUser.id.toString())
           a.right(href="/add/location/#{building._id}") Edit location
 
+    div.col-7
+      div#vizicities-viewport
+
   script(src="/lib/webcomponentsjs/webcomponents.min.js")
   link(rel="import" href="/lib/flag-icon/flag-icon.html")
 
@@ -109,7 +111,7 @@ block content
     var controls = new VIZI.ControlsMap(world.camera, {
       viewport: world.options.viewport
     });
-    
+
     controls.controls.rotateUp(-16 * Math.PI / 180)
     controls.controls.dollyOut(1.15);
     controls.controls.autoRotate = true;
@@ -117,46 +119,6 @@ block content
     controls.controls.noPan = true;
     controls.controls.noZoom = true;
     controls.controls.noRotate = true;
-
-    var mapConfig = {
-      input: {
-        type: "BlueprintInputStaticMapImage",
-        options: {
-          imagePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{lon},{lat},{z}/{w}x{h}@2x.png"
-        }
-      },
-      output: {
-        type: "BlueprintOutputImage",
-        options: {
-          distance: 200, // Distance from center in metres
-          shadowTexture: "/images/vizicities-shadow.png"
-        }
-      },
-      triggers: [{
-        triggerObject: "output",
-        triggerName: "initialised",
-        triggerArguments: ["bounds"],
-        actionObject: "input",
-        actionName: "requestImage",
-        actionArguments: ["bounds"],
-        actionOutput: {
-          bounds: "bounds"
-        }
-      }, {
-        triggerObject: "input",
-        triggerName: "imageReceived",
-        triggerArguments: ["image"],
-        actionObject: "output",
-        actionName: "outputImage",
-        actionArguments: ["image"],
-        actionOutput: {
-          image: "image"
-        }
-      }]
-    };
-
-    var switchboardMap = new VIZI.BlueprintSwitchboard(mapConfig);
-    switchboardMap.addToWorld(world);
 
     var colladaConfig = {
       input: {
@@ -249,18 +211,18 @@ block content
 
     var updateScale = function(scale) {
       // TODO: Find a more respectable way of accessing the collada object
-      world.layers[1].object.children[0].scale.set(scale, scale, scale);
-      world.layers[1].object.children[0].updateMatrix();
+      world.layers[0].object.children[0].scale.set(scale, scale, scale);
+      world.layers[0].object.children[0].updateMatrix();
     }
 
     var updateAngle = function(angle) {
       // TODO: Find a more respectable way of accessing the collada object
-      world.layers[1].object.children[0].rotation.y = -(angle * Math.PI / 180);
-      world.layers[1].object.children[0].updateMatrix();
+      world.layers[0].object.children[0].rotation.y = -(angle * Math.PI / 180);
+      world.layers[0].object.children[0].updateMatrix();
     }
 
     var checkForModel = function() {
-      if (!world.layers[1].object.children[0]) {
+      if (!world.layers[0].object.children[0]) {
         setTimeout(checkForModel, 250);
         return;
       }
@@ -274,10 +236,70 @@ block content
       if (#{(building.angle) ? true : false} === true) {
         updateAngle(#{building.angle});
       }
+      
+      var bbox = new THREE.Box3().setFromObject(world.layers[0].object.children[0]);
+      var bboxMaxHorizontal = Math.max(Math.abs(bbox.min.z - bbox.max.z), Math.abs(bbox.min.x - bbox.max.x));
+      var bboxMaxVertical = Math.abs(bbox.min.y - bbox.max.y);
+      var bboxMax = Math.max(bboxMaxHorizontal, bboxMaxVertical);
+      var ppm = world.pixelsPerMeter(world.center);
+      var mpp = 1 / ppm.x;
+      var tileDistance = Math.max(100, Math.ceil(bboxMaxHorizontal * 5));
+
+      var mapConfig = {
+        input: {
+          type: "BlueprintInputStaticMapImage",
+          options: {
+            imagePath: "https://a.tiles.mapbox.com/v3/examples.map-i86l3621/{lon},{lat},{z}/{w}x{h}@2x.png"
+          }
+        },
+        output: {
+          type: "BlueprintOutputImage",
+          options: {
+            // TODO: Make this a certain number of metres beyond the bound of
+            // the building being visualised.
+            // TODO: Use the resulting bounds of this layer to change camera
+            // distance
+            distance: tileDistance * mpp, // Distance from center in metres
+            shadowTexture: "/images/vizicities-shadow.png"
+          }
+        },
+        triggers: [{
+          triggerObject: "output",
+          triggerName: "initialised",
+          triggerArguments: ["bounds"],
+          actionObject: "input",
+          actionName: "requestImage",
+          actionArguments: ["bounds"],
+          actionOutput: {
+            bounds: "bounds"
+          }
+        }, {
+          triggerObject: "input",
+          triggerName: "imageReceived",
+          triggerArguments: ["image"],
+          actionObject: "output",
+          actionName: "outputImage",
+          actionArguments: ["image"],
+          actionOutput: {
+            image: "image"
+          }
+        }]
+      };
+
+      var switchboardMap = new VIZI.BlueprintSwitchboard(mapConfig);
+      switchboardMap.addToWorld(world);
+
+      // Update camera
+      var distance = controls.getZoom();
+      // Using tileDistance in this way isn't perfect (as it's in metres) but it works
+      var buildingHeight = Math.max(bboxMax + 100, (tileDistance * 1.3) * ppm.x);
+      
+      world.camera.camera.fov = 2 * Math.atan( buildingHeight * 1.2 / ( 2 * distance ) ) * ( 180 / Math.PI );
+      world.camera.camera.updateProjectionMatrix();
 
       // Check for unloaded materials and replace with default colour
       // TODO: Find a better way to do this as currently it replaces all materials
-      checkColladaMaterials(world.layers[1].object.children[0], 0xffffff);
+      checkColladaMaterials(world.layers[0].object.children[0], 0xffffff);
     };
     
     checkForModel();

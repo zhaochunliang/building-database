@@ -290,6 +290,7 @@ module.exports = function (passport) {
       });  
     }, function(moveFiles, moveAssetFiles, done) {
       var archiveQueue = [];
+      var structurePath;
 
       // Add model paths to building entry
       _.each(moveFiles, function(file, index) {
@@ -303,7 +304,6 @@ module.exports = function (passport) {
         // Get file size
         var fileSize = (stats.size) ? stats.size : 0;
 
-        var structurePath;
         if (type === "obj") {
           structurePath = tmpPath;
         }
@@ -345,7 +345,7 @@ module.exports = function (passport) {
 
           return deferred.promise;
         });
-      })).done(function(structurePath) {
+      })).done(function() {
         // All archives have been created
         // TODO: Fix random crash where structurePath is undefined
         // - Seems to happen rarely, on first start. Restart fixes.

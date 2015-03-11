@@ -788,6 +788,10 @@ module.exports = function (passport) {
         return (model.type === "dae");
       });
 
+      var objModel = _.find(building.models.raw, function(model) {
+        return (model.type === "obj");
+      });
+
       var kmlObj = {
         "kml": {
           "@xmlns": "http://www.opengis.net/kml/2.2",
@@ -812,7 +816,8 @@ module.exports = function (passport) {
                 "z": building.scale || 1
               },
               "Link": {
-                "href": daeModel.path
+                "href": daeModel.path,
+                "hrefobj": objModel.path
               }
             }
           }

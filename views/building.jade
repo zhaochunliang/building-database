@@ -213,11 +213,11 @@ block content
     //-   }
     //- }
 
-    //- var updateScale = function(scale) {
-    //-   // TODO: Find a more respectable way of accessing the collada object
-    //-   world.layers[0].object.children[0].scale.set(scale, scale, scale);
-    //-   world.layers[0].object.children[0].updateMatrix();
-    //- }
+    var updateScale = function(scale) {
+      // TODO: Find a more respectable way of accessing the collada object
+      world.layers[0].object.children[0].scale.set(scale, scale, scale);
+      world.layers[0].object.children[0].updateMatrix();
+    }
 
     var updateAngle = function(angle) {
       // TODO: Find a more respectable way of accessing the collada object
@@ -232,20 +232,21 @@ block content
       }
 
       // Check scale
-      // Removed as OBJ is perfectly scaled if designed in metre units
-      //- if (#{(building.scale) ? true : false} === true) {
-      //-   updateScale(#{building.scale});
-      //- }
+      if (#{(building.scale) ? true : false} === true) {
+        updateScale(#{building.scale});
+      }
 
       // Check angle
       if (#{(building.angle) ? true : false} === true) {
         updateAngle(#{building.angle});
       }
+
+      var scale = world.layers[0].object.children[0].scale;
       
       var bbox = new THREE.Box3().setFromObject(world.layers[0].object.children[0]);
       var bboxMaxHorizontal = Math.max(Math.abs(bbox.min.z - bbox.max.z), Math.abs(bbox.min.x - bbox.max.x));
       var bboxMaxVertical = Math.abs(bbox.min.y - bbox.max.y);
-      var bboxMax = Math.max(bboxMaxHorizontal, bboxMaxVertical);
+      var bboxMax = Math.max(bboxMaxHorizontal, bboxMaxVertical) * scale.x;
       var ppm = world.pixelsPerMeter(world.center);
       var mpp = 1 / ppm.x;
       var tileDistance = Math.max(100, Math.ceil(bboxMaxHorizontal * 5));

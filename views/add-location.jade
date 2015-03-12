@@ -33,6 +33,10 @@ block content
 
   link(rel="stylesheet", href="/lib/vizicities/vizi.css")
   script(src="/lib/vizicities/vizi.min.js")
+
+  script(src="/lib/vizicities/OBJLoader.js")
+  script(src="/lib/vizicities/BlueprintOutputOBJ.js")
+
   script.
     var addLocationForm = document.getElementById("add-location-form");
     var scaleInput = document.getElementById("scale");
@@ -280,7 +284,7 @@ block content
         }
       },
       output: {
-        type: "BlueprintOutputCollada",
+        type: "BlueprintOutputOBJ",
         options: {}
       },
       triggers: [{
@@ -296,16 +300,16 @@ block content
         triggerName: "dataReceived",
         triggerArguments: ["kml"],
         actionObject: "output",
-        actionName: "outputCollada",
-        actionArguments: ["collada"],
+        actionName: "outputOBJ",
+        actionArguments: ["obj"],
         actionOutput: {
-          collada: {
+          obj: {
             process: "map",
             itemsObject: "kml",
             itemsProperties: "placemark.model",
             transformation: {
               coordinates: ["location.longitude", "location.latitude"],
-              modelPath: "link.href"
+              modelPath: "link.hrefobj"
             }
           }
         }
@@ -379,7 +383,7 @@ block content
 
       // Check for unloaded materials and replace with default colour
       // TODO: Find a better way to do this as currently it replaces all materials
-      checkColladaMaterials(world.layers[1].object.children[0], 0xffffff);
+      //- checkColladaMaterials(world.layers[1].object.children[0], 0xffffff);
 
       // Move camera to fit object
       var bbox = new THREE.Box3().setFromObject(world.layers[1].object.children[0]);

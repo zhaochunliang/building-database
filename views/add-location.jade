@@ -380,6 +380,19 @@ block content
       // Check for unloaded materials and replace with default colour
       // TODO: Find a better way to do this as currently it replaces all materials
       checkColladaMaterials(world.layers[1].object.children[0], 0xffffff);
+
+      // Move camera to fit object
+      var bbox = new THREE.Box3().setFromObject(world.layers[1].object.children[0]);
+      var height = bbox.max.y;
+      var width = bbox.max.x - bbox.min.x;
+      var vertical_FOV = world.camera.camera.fov * (Math.PI/ 180);
+      var max_z = bbox.max.z;
+      var horizontal_FOV = 2 * Math.atan (Math.tan (vertical_FOV/2) * world.camera.camera.aspect);
+      var distance_vertical = height / (2 * Math.tan(vertical_FOV/2));
+      var distance_horizontal = width / (2 * Math.tan(horizontal_FOV/2));
+      var z_distance = distance_vertical >= distance_horizontal ? distance_vertical : distance_horizontal;
+
+      controls.zoomTo(z_distance * 3);
     };
     
     checkForModel();

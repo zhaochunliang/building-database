@@ -396,7 +396,9 @@ block content
       var distance_horizontal = width / (2 * Math.tan(horizontal_FOV/2));
       var z_distance = distance_vertical >= distance_horizontal ? distance_vertical : distance_horizontal;
 
-      controls.zoomTo(z_distance * 3);
+      z_distance = (z_distance * 3 < 10) ? 10 : z_distance * 3;
+
+      controls.zoomTo(z_distance);
     };
     
     checkForModel();

@@ -303,7 +303,7 @@ block content
       // Cap dimension so camera doesn't break
       buildingHeight = Math.min(buildingHeight, 1000);
       
-      world.camera.camera.fov = 2 * Math.atan( buildingHeight * 1.2 / ( 2 * distance ) ) * ( 180 / Math.PI );
+      world.camera.camera.fov = 2 * Math.atan( buildingHeight * 1.4 / ( 2 * distance ) ) * ( 180 / Math.PI );
       world.camera.camera.updateProjectionMatrix();
 
       // Check for unloaded materials and replace with default colour

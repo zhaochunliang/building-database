@@ -81,7 +81,7 @@ block content
       var formData = new FormData();
 
       // Check the file type.
-      if (!file.name.match(".*\.zip|.*\.obj|.*\.dae|.*\.ply|.*\.dxf")) {
+      if (!file.name.toLowerCase().match(".*\.zip|.*\.obj|.*\.dae|.*\.ply|.*\.dxf")) {
         console.log("Model file type not valid");
         return;
       }

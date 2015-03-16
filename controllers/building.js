@@ -65,8 +65,8 @@ module.exports = function (passport) {
 
     // If any of the tasks pass an error to their own callback, the next function is not executed, and the main callback is immediately called with the error.
     async.waterfall([function(done) {
-      var uploadPath = req.files.model.path;
-      var uploadExt = req.files.model.extension;
+      var uploadPath = req.files.model.path.toLowerCase();
+      var uploadExt = req.files.model.extension.toLowerCase();
 
       // Zip upload detection
       // TODO: There's probably a better way to detect a zip file
@@ -90,16 +90,16 @@ module.exports = function (passport) {
           var zipEntries = zip.getEntries();
 
           _.each(zipEntries, function(entry) {
-            var entryExt = entry.name.split(".").pop();
+            var entryExt = entry.name.split(".").pop().toLowerCase();
 
             // Validate each file to ensure only accepted files are added
             // Accept: model files (dae, obj, etc), images (jpg, png, etc)
             if (entryExt.match("obj|dae|ply|dxf")) {
               // Store reference to the model file
-              tmpModelFiles.push(tmpName + "/" + entry.entryName);
+              tmpModelFiles.push(tmpName + "/" + entry.entryName.toLowerCase());
             } else if (entryExt.match("jpg|png")) {
               // Store reference to the assets (textures, etc)
-              tmpAssetFiles.push(tmpName + "/" + entry.entryName);
+              tmpAssetFiles.push(tmpName + "/" + entry.entryName.toLowerCase());
             } else {
               debug("Zip entry file type not valid:", entryExt);
               return;

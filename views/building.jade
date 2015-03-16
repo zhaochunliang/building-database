@@ -299,6 +299,9 @@ block content
       var distance = controls.getZoom();
       // Using tileDistance in this way isn't perfect (as it's in metres) but it works
       var buildingHeight = Math.max(bboxMax + 100, (tileDistance * 1.3) * ppm.x);
+  
+      // Cap dimension so camera doesn't break
+      buildingHeight = Math.min(buildingHeight, 1000);
       
       world.camera.camera.fov = 2 * Math.atan( buildingHeight * 1.2 / ( 2 * distance ) ) * ( 180 / Math.PI );
       world.camera.camera.updateProjectionMatrix();

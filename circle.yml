@@ -1,0 +1,12 @@
+machine:
+  ruby:
+    version: 2.1.2
+test:
+  override:
+    - echo "we need no tests"
+
+deployment:
+  staging:
+    branch: master
+    commands:
+      - ./bin/deploy dev

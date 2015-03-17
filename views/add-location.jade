@@ -10,7 +10,7 @@ block content
         input#location-search(type="text" placeholder="Enter name of place to move to")
 
         label(for="scale") Scale:
-        input#scale(type="text", name="scale" value=(building.scale !== undefined) ? building.scale : "" required)
+        input#scale(type="text", name="scale" value=(building.scale !== undefined) ? building.scale : "1" required)
         button.less(data-action="scale") -
         button.more(data-action="scale") +
 
@@ -372,8 +372,6 @@ block content
       // Check scale
       if (#{(building.scale) ? true : false} === true) {
         updateScale(#{building.scale});
-      } else {
-        scaleInput.value = world.layers[1].object.children[0].scale.x;
       }
 
       // Check angle
@@ -417,10 +415,17 @@ block content
 
       updateScale(scaleInput.value);
     };
-
+  
+    var originScale;
     var updateScale = function(scale) {
+      if (!originScale) {
+        originScale = world.layers[1].object.children[0].scale.x;
+      }
+
+      var newScale = originScale * scale;
+
       // TODO: Find a more respectable way of accessing the collada object
-      world.layers[1].object.children[0].scale.set(scale, scale, scale);
+      world.layers[1].object.children[0].scale.set(newScale, newScale, newScale);
       world.layers[1].object.children[0].updateMatrix();
     }
 

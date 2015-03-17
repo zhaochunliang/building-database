@@ -215,7 +215,7 @@ block content
 
     var updateScale = function(scale) {
       // TODO: Find a more respectable way of accessing the collada object
-      world.layers[0].object.children[0].scale.set(scale, scale, scale);
+      world.layers[0].object.children[0].scale.multiplyScalar(scale);
       world.layers[0].object.children[0].updateMatrix();
     }
 

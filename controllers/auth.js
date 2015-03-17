@@ -167,7 +167,7 @@ module.exports = function(passport) {
               if (err) {
                 debug("Error in creating user");
                 debug(err);
-                done("Error in creating user");
+                done(err);
                 return;
               }
 

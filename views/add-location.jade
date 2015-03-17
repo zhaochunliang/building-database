@@ -19,10 +19,10 @@ block content
         button.less(data-action="angle") -
         button.more(data-action="angle") +
 
-        label(for="scale") Latitude:
+        label(for="latitude") Latitude:
         input#latitude(type="number", name="latitude" min=-90 max=90 step=0.000001 value=(building.location && building.location.coordinates[1]) ? building.location.coordinates[1] : "51.50358" required)
 
-        label(for="scale") Longitude:
+        label(for="longitude") Longitude:
         input#longitude(type="number", name="longitude" min=-180 max=180 step=0.000001 value=(building.location && building.location.coordinates[0]) ? building.location.coordinates[0] : "-0.01924" required)
         
         button#add-location-button(type="submit") Set location

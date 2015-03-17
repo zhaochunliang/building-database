@@ -24,13 +24,14 @@ block content
 
           tbody
           each report, key in reports
-            tr
-              td
-                a(href="/building/#{report.building.slug.id}/#{report.building.slug.name}") #{report.building.name}
-              td #{report.reason}
-              td #{report.details}
-              td #{report.email}
-              td #{report.createdAt}
+            if report.building
+              tr
+                td
+                  a(href="/building/#{report.building.slug.id}/#{report.building.slug.name}") #{report.building.name}
+                td #{report.reason}
+                td #{report.details}
+                td #{report.email}
+                td #{report.createdAt}
         
         include _pagination
       else

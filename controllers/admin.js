@@ -26,6 +26,8 @@ module.exports = function (passport) {
       sortBy["createdAt"] = -1;
     } else if (req.query.sort == "name") {
       sortBy["name"] = 1;
+    } else if (req.query.sort == "polygons") {
+      sortBy["structure.faces"] = -1;
     } else if (req.query.sort == "downloads") {
       sortBy["stats.downloads"] = -1;
     }

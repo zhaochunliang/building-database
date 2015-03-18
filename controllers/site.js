@@ -728,7 +728,16 @@ module.exports = function (passport) {
 
   // Endpoint /ping for GET
   var getPing = function(req, res) {
-    res.sendStatus(200);
+    // Run a simple database query
+    Building.find({hidden: false}).limit(1).sort({createdAt: -1}).exec(function(err, buildings) {
+      if (err) {
+        debug(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      res.sendStatus(200);
+    });
   };
 
   return {

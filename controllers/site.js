@@ -726,6 +726,11 @@ module.exports = function (passport) {
     });
   };
 
+  // Endpoint /ping for GET
+  var getPing = function(req, res) {
+    res.sendStatus(200);
+  };
+
   return {
     getIndex: getIndex,
     getBrowse: getBrowse,
@@ -746,6 +751,7 @@ module.exports = function (passport) {
     getUserEdit: getUserEdit,
     postUserEdit: postUserEdit,
     getTerms: getTerms,
-    getContributing: getContributing
+    getContributing: getContributing,
+    getPing: getPing
   };
 };

@@ -59,5 +59,8 @@ module.exports = function (passport) {
   router.route("/contributing")
     .get(siteController.getContributing);
 
+  router.route("/ping")
+    .get(siteController.getPing);
+
   return router;
 };

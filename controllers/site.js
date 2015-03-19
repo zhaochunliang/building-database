@@ -237,16 +237,23 @@ module.exports = function (passport) {
 
   // Endpoint /search/near/:lon,:lat,:distance for GET
   var getSearchNear = function(req, res) {
-    var sortBy = {
-      highlight: -1
-    };
+    var sortBy;
+    if (req.query.sort) {
+      sortBy = {
+        highlight: -1
+      };
 
-    if (!req.query.sort || req.query.sort == "date") {
-      sortBy["createdAt"] = -1
-    } else if (req.query.sort == "name") {
-      sortBy["name"] = 1
-    } else if (req.query.sort == "downloads") {
-      sortBy["stats.downloads"] = -1
+      if (req.query.sort == "date") {
+        sortBy["createdAt"] = -1
+      } else if (req.query.sort == "name") {
+        sortBy["name"] = 1
+      } else if (req.query.sort == "downloads") {
+        sortBy["stats.downloads"] = -1
+      }
+    } else {
+      sortBy = {
+        $natural: 1
+      }
     }
 
     Building.paginate({$and: [{"location": {

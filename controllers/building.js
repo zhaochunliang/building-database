@@ -519,7 +519,7 @@ module.exports = function (passport) {
 
             var countryCode = featureProperties.country_code;
             var country = featureProperties.country;
-            var district = featureProperties.city;
+            var district = featureProperties.city || featureProperties.city_district || featureProperties.suburb || featureProperties.state;
 
             building.locality = {
               countryCode: countryCode,

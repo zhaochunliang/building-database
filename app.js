@@ -73,7 +73,7 @@ app.use(passport.session());
 app.use(multer({dest: "./tmp/"}));
 
 // Pagination defaults
-app.use(paginate.middleware(8, 50));
+app.use(paginate.middleware(7, 50));
 
 // Serve static files from directory
 app.use("/", express.static(path.join(__dirname, "public")));

@@ -114,6 +114,9 @@ block content
         ide.map.setView([0,0],18,true);
         ide.map.fitBounds(e.layer.getBounds() );
       });
+  
+      // Add building position to map
+      var marker = L.marker([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}]).addTo(ide.map);
 
       overpass.handlers["onEmptyMap"] = function(empty_msg, data_mode) {$('<div id="map_blank" style="z-index:1; display:block; position:absolute; top:42px; width:100%; text-align:center; background-color:#eee; opacity: 0.8;">This map intentionally left blank. <small>('+empty_msg+')</small></div>').appendTo("#map");};
       overpass.handlers["onAjaxError"] = function(errmsg) {console.log("An error occured during the execution of the overpass query!\n" + errmsg);};

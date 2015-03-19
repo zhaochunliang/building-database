@@ -63,11 +63,26 @@ block content
     var addButton = document.getElementById("add-button");
 
     var flash = document.querySelector(".flash-error");
+    var uploading = false;
+
+    var updateProgress = function(percent) {
+      if (percent < 100) {
+        addButton.innerHTML = "Uploading&hellip; " + percent + "%";
+      } else {
+        addButton.innerHTML = "Upload complete. Processing&hellip;";
+      }
+    };
 
     // TODO: Catch errors and notify user
     addForm.addEventListener("submit", function(event) {
       event.target.checkValidity();
       event.preventDefault();
+
+      if (uploading) {
+        return;
+      }
+
+      uploading = true;
   
       flash.style.display = "none";
       addButton.innerHTML = "Uploading&hellip;";
@@ -100,6 +115,23 @@ block content
       formData.append("method", methodInput.value);
       
       formData.append("description", descInput.value);
+
+      var xhr, provider;
+      xhr = $.ajaxSettings.xhr();
+      
+      if (xhr.upload) {
+        xhr.upload.onprogress = function (e) {
+          if (e.lengthComputable) {
+            updateProgress(Math.round((e.loaded / e.total) * 100));
+          }
+        };
+      }
+
+      provider = function () {
+        return xhr;
+      };
+
+      $.ajaxSettings.xhr = provider;
 
       $.ajax({
         url: "/api/buildings",

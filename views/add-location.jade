@@ -187,7 +187,8 @@ block content
       center: new VIZI.LatLon(
         #{(building.location && building.location.coordinates[1]) ? building.location.coordinates[1] : "51.50358"},
         #{(building.location && building.location.coordinates[0]) ? building.location.coordinates[0] : "-0.01924"}
-      )
+      ),
+      layersUI: false
     });
 
     var controls = new VIZI.ControlsMap(world.camera, {

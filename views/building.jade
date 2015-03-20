@@ -183,37 +183,6 @@ block content
 
     update();
 
-    //- var checkColladaMaterials = function(node, colour) {
-    //-   if (node.material) {
-    //-     // console.log(node.material);
-    //-     if (node.material.materials) {
-    //-       var loaded = true;
-    //-       var newMaterials = [];
-    //-       for (var i = 0; i < node.material.materials.length; i++) {
-    //-         var material = node.material.materials[i];
-    //-         if (!material.map || (material.map && !material.map.image)) {
-    //-           loaded = false;
-    //-           newMaterials.push(new THREE.MeshLambertMaterial({color: colour}));
-    //-         }
-    //-       }
-
-    //-       if (!loaded) {
-    //-         node.material = new THREE.MeshFaceMaterial(newMaterials);
-    //-       }
-    //-     } else {
-    //-       if (!node.material.map || (node.material.map && !node.material.map.image)) {
-    //-         node.material = new THREE.MeshLambertMaterial({color: colour});
-    //-       }
-    //-     }
-    //-   }
-
-    //-   if (node.children) {
-    //-     for (var i = 0; i < node.children.length; i++) {
-    //-       checkColladaMaterials(node.children[i], colour);
-    //-     }
-    //-   }
-    //- }
-
     var updateScale = function(scale) {
       // TODO: Find a more respectable way of accessing the collada object
       world.layers[0].object.children[0].scale.multiplyScalar(scale);

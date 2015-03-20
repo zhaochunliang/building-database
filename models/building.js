@@ -14,6 +14,9 @@ var BuildingSchema = new Schema({
     id: String,
     name: String
   },
+  batch: {
+    id: String
+  },
   creator: {
     name: String,
     url: String

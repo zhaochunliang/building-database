@@ -4,6 +4,13 @@ var router = express.Router();
 module.exports = function (passport) {
   var authController = require("../../controllers/auth")(passport);
   var buildingController = require("../../controllers/building")(passport);
+  var batchController = require("../../controllers/batch")(passport);
+
+  router.route("/batch/id")
+    .get(batchController.getBatchID);
+
+  router.route("/batch/status/:batch_id")
+    .get(batchController.getBatchStatus);
 
   router.route("/buildings")
     .get(buildingController.getBuildings)

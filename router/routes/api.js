@@ -7,10 +7,10 @@ module.exports = function (passport) {
   var batchController = require("../../controllers/batch")(passport);
 
   router.route("/batch/id")
-    .get(batchController.getBatchID);
+    .get(authController.isAuthenticated, batchController.getBatchID);
 
-  router.route("/batch/status/:batch_id")
-    .get(batchController.getBatchStatus);
+  router.route("/batch/:batch_id")
+    .get(authController.isAuthenticated, batchController.getBatch);
 
   router.route("/buildings")
     .get(buildingController.getBuildings)

@@ -9,9 +9,16 @@ module.exports = function (passport) {
     res.json({id: UUID.v4()});
   };
 
-  // Endpoint /api/batch/status/:batch_id for GET
-  var getBatchStatus = function(req, res) {
-    Building.find({"batch.id": req.params.batch_id}, function(err, buildings) {
+  // Endpoint /api/batch/:batch_id for GET
+  var getBatch = function(req, res) {
+    var columns = {
+      "_id": 1,
+      "name": 1,
+      "batch": 1,
+      "location": 1
+    };
+
+    Building.find({"batch.id": req.params.batch_id}, columns, function(err, buildings) {
       if (err) {
         debug(err);
         res.json({message: "Failed to retrieve buildings."});
@@ -25,6 +32,6 @@ module.exports = function (passport) {
 
   return {
     getBatchID: getBatchID,
-    getBatchStatus: getBatchStatus
+    getBatch: getBatch
   };
 };

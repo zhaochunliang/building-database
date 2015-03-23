@@ -223,7 +223,29 @@ module.exports = function (passport) {
         building.description = req.body.description.substr(0, 500);
       }
 
-      done(null);
+      if (req.body.scale) {
+        building.scale = req.body.scale;
+      }
+
+      if (req.body.angle) {
+        building.angle = req.body.angle;
+      }
+
+      if (req.body.batchID) {
+        building.batch.id = req.body.batchID;
+      }
+
+      if (req.body.latitude && req.body.longitude) {
+        updateLocation(building, req.body.latitude, req.body.longitude).done(function() {
+          done(null);
+          return;
+        }, function(error) {
+          done(error);
+          return;
+        });
+      } else {
+        done(null);
+      }
     }, function(done) {
       var movePromises = [];
       var moveFiles = [];
@@ -367,10 +389,12 @@ module.exports = function (passport) {
       // Set default location (to satisfy geo-search)
       // TODO: Remove this requirement or find a better way to detect
       // a building that has just been added
-      building.location = {
-        type : "Point",
-        coordinates : [0, 0]
-      };
+      if (!building.location || !building.location.coordinates || building.location.coordinates.length === 0) {
+        building.location = {
+          type : "Point",
+          coordinates : [0, 0]
+        };
+      }
 
       var vertexRegex = /^v /;
       var faceRegex = /^f /;
@@ -403,12 +427,7 @@ module.exports = function (passport) {
           building.structure.vertices = vertices;
           building.structure.faces = faces;
 
-          building.save(function(err, savedBuilding) {
-            if (err) {
-              res.send(err);
-              return;
-            }
-
+          saveBuilding(building).done(function(savedBuilding) {
             res.json({message: "Building added", building: savedBuilding});
             
             // Delete temporary directories
@@ -500,64 +519,75 @@ module.exports = function (passport) {
         }
       }
 
+      // TODO: De-dupe the res.json bits here
       if (req.body.latitude && req.body.longitude) {
-        // var url = "http://pelias.mapzen.com/reverse?lat=" + req.body.latitude + "&lon=" + req.body.longitude
-        var url = "http://open.mapquestapi.com/nominatim/v1/reverse.php?format=json&lat=" + req.body.latitude + "&lon=" + req.body.longitude;
-        
-        // Find location country and admin
-        request(url, function (error, response, body) {
-          if (!error && response.statusCode == 200) {
-            var locationResult = JSON.parse(body);
-            
-            // var featureProperties = locationResult.features[0].properties;
-
-            // var countryCode = featureProperties.alpha3;
-            // var country = featureProperties.admin0;
-            // var district = featureProperties.admin1;
-
-            var featureProperties = locationResult.address;
-
-            var countryCode = featureProperties.country_code;
-            var country = featureProperties.country;
-            var district = featureProperties.city || featureProperties.city_district || featureProperties.suburb || featureProperties.state;
-
-            building.locality = {
-              countryCode: countryCode,
-              country: country,
-              district: district
-            }
-
-            building.location = {
-              type : "Point",
-              coordinates : [req.body.longitude, req.body.latitude]
-            };
-
-            building.save(function(err, savedBuilding) {
-              if (err) {
-                res.send(err);
-                return;
-              }
-
-              res.json({message: "Building updated", building: savedBuilding});
-            });
-          } else if (error) {
-            debug(error);
-            res.json({message: "Failed to update building."});
-          }
+        updateLocation(building, req.body.latitude ,req.body.longitude).done(function() {
+          saveBuilding(building).done(function(savedBuilding) {
+            res.json({message: "Building updated", building: savedBuilding});
+          });
+        }, function(error) {
+          debug("Failed to save building:", error);
         });
       } else {
-        building.save(function(err, savedBuilding) {
-          if (err) {
-            debug(err);
-            res.json({message: "Failed to save updated building."});
-            return;
-          }
-
+        saveBuilding(building).done(function(savedBuilding) {
           res.json({message: "Building updated", building: savedBuilding});
         });
       }
     });
   };
+
+  var saveBuilding = function(building) {
+    var deferred = Q.defer();
+
+    building.save(function(err, savedBuilding) {
+      if (err) {
+        deferred.reject(err);
+        return;
+      }
+
+      deferred.resolve(savedBuilding);
+    });
+
+    return deferred.promise;
+  };
+
+  var updateLocation = function(building, latitude, longitude) {
+    var deferred = Q.defer();
+
+    // var url = "http://pelias.mapzen.com/reverse?lat=" + req.body.latitude + "&lon=" + req.body.longitude
+    var url = "http://open.mapquestapi.com/nominatim/v1/reverse.php?format=json&lat=" + latitude + "&lon=" + longitude;
+    
+    // Find location country and admin
+    request(url, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var locationResult = JSON.parse(body);
+
+        var featureProperties = locationResult.address;
+
+        var countryCode = featureProperties.country_code;
+        var country = featureProperties.country;
+        var district = featureProperties.city || featureProperties.city_district || featureProperties.suburb || featureProperties.state;
+
+        building.locality = {
+          countryCode: countryCode,
+          country: country,
+          district: district
+        }
+
+        building.location = {
+          type : "Point",
+          coordinates : [longitude, latitude]
+        };
+
+        deferred.resolve(building);
+      } else if (error) {
+        debug(error);
+        deferred.reject(error);
+      }
+    });
+
+    return deferred.promise;
+  }
 
   // Endpoint /api/building/ for GET
   var getBuilding = function(req, res) {

@@ -19,6 +19,7 @@ module.exports = {
     },
     "report": {
       "fromAddress": "noreply@example.com",
+      "toAddress": "somebody@example.com",
       "subject": "Building report"
     },
     "reset": {

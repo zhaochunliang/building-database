@@ -13,7 +13,11 @@ block content
 
       if building.description
         hr
-        p.description!= building.description.substr(0, 500).replace(/\n/g, "<br>") + ((building.description.length > 500) ? "&hellip;" : "")
+        p.description
+          !=building.description.substr(0, 500).replace(/\n/g, "<br>") + ((building.description.length > 500) ? "&hellip;" : "")
+          if building.creator
+            br
+            small Source: #[a(href="#{building.creator.url}") #{building.creator.name}]
 
       hr
 

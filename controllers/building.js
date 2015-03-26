@@ -203,11 +203,9 @@ module.exports = function (passport) {
     }, function(done) {
       building = new Building();
 
-      building.name = req.body.name;
-      building.slug = {
-        id: shortId.generate(),
-        name: building.name.replace(/([^a-z0-9]+)/gi, "-").substring(0, 100)
-      };
+      if (req.body.name) {
+        building.name = req.body.name;
+      }
 
       building.method = req.body.method;
 
@@ -233,6 +231,10 @@ module.exports = function (passport) {
 
       if (req.body.batchID) {
         building.batch.id = req.body.batchID;
+      }
+
+      if (req.body.batchBuildingRef) {
+        building.batch.buildingRef = req.body.batchBuildingRef;
       }
 
       if (req.body.latitude && req.body.longitude) {
@@ -396,6 +398,12 @@ module.exports = function (passport) {
         };
       }
 
+      // Sort out building slug
+      building.slug = {
+        id: shortId.generate(),
+        name: building.name.replace(/([^a-z0-9]+)/gi, "-").substring(0, 100)
+      };
+
       var vertexRegex = /^v /;
       var faceRegex = /^f /;
 
@@ -555,12 +563,14 @@ module.exports = function (passport) {
     var deferred = Q.defer();
 
     // var url = "http://pelias.mapzen.com/reverse?lat=" + req.body.latitude + "&lon=" + req.body.longitude
-    var url = "http://open.mapquestapi.com/nominatim/v1/reverse.php?format=json&lat=" + latitude + "&lon=" + longitude;
+    var url = "http://open.mapquestapi.com/nominatim/v1/reverse.php?format=json&zoom=18&lat=" + latitude + "&lon=" + longitude;
     
     // Find location country and admin
     request(url, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var locationResult = JSON.parse(body);
+
+        building.nominatim = locationResult;
 
         var featureProperties = locationResult.address;
 
@@ -578,6 +588,32 @@ module.exports = function (passport) {
           type : "Point",
           coordinates : [longitude, latitude]
         };
+
+        if (!building.name) {
+          var addressStr = "";
+
+          if (featureProperties.house || featureProperties.address29) {
+            addressStr += (featureProperties.house) ? featureProperties.house : featureProperties.address29;
+          }
+
+          if (featureProperties.house_number) {
+            if (addressStr.length > 0) {
+              addressStr += ", ";  
+            }
+
+            addressStr += featureProperties.house_number;
+          }
+
+          if (featureProperties.road) {
+            if (addressStr.length > 0) {
+              addressStr += ", ";  
+            }
+            
+            addressStr += featureProperties.road;
+          }
+
+          building.name = addressStr;
+        }
 
         deferred.resolve(building);
       } else if (error) {

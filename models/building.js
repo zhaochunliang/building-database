@@ -15,7 +15,8 @@ var BuildingSchema = new Schema({
     name: String
   },
   batch: {
-    id: String
+    id: String,
+    buildingRef: String
   },
   creator: {
     name: String,
@@ -32,6 +33,7 @@ var BuildingSchema = new Schema({
     country: String,
     district: String
   },
+  nominatim: {},
   scale: Number,
   angle: { type: Number, default: 0 },
   structure: {

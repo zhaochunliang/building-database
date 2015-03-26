@@ -225,6 +225,14 @@ block content
       var mpp = 1 / ppm.x;
       var tileDistance = Math.max(100, Math.ceil(bboxMaxHorizontal * 5));
 
+      // Get centroid
+      var centroid = bbox.min.clone();
+      centroid.add(bbox.max);
+      centroid.divideScalar(2);
+
+      // Move camera
+      controls.moveTo(new VIZI.Point(centroid.x, centroid.z));
+
       var mapConfig = {
         input: {
           type: "BlueprintInputStaticMapImage",
@@ -277,7 +285,7 @@ block content
       // Cap dimension so camera doesn't break
       buildingHeight = Math.min(buildingHeight, 1000);
       
-      world.camera.camera.fov = 2 * Math.atan( buildingHeight * 1.4 / ( 2 * distance ) ) * ( 180 / Math.PI );
+      world.camera.camera.fov = 2 * Math.atan( buildingHeight * 1.5 / ( 2 * distance ) ) * ( 180 / Math.PI );
       world.camera.camera.updateProjectionMatrix();
 
       // Check for unloaded materials and replace with default colour

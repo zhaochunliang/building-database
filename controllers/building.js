@@ -604,15 +604,15 @@ module.exports = function (passport) {
             addressStr += featureProperties.house_number;
           }
 
-          if (featureProperties.road) {
+          if (featureProperties.road || featureProperties.footway || featureProperties.pedestrian) {
             if (addressStr.length > 0) {
               addressStr += ", ";  
             }
             
-            addressStr += featureProperties.road;
+            addressStr += (featureProperties.road) ? featureProperties.road : (featureProperties.footway || featureProperties.pedestrian);
           }
 
-          building.name = addressStr;
+          building.name = (addressStr.length > 0) ? addressStr : (building.slug.id || building._id);
         }
 
         deferred.resolve(building);

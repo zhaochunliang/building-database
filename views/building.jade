@@ -114,7 +114,8 @@ block content
     var world = new VIZI.World({
       viewport: document.querySelector("#vizicities-viewport"),
       center: new VIZI.LatLon(#{building.location.coordinates[1]}, #{building.location.coordinates[0]}),
-      layersUI: false
+      layersUI: false,
+      antialias: true
     });
 
     var controls = new VIZI.ControlsMap(world.camera, {

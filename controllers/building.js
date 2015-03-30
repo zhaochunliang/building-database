@@ -260,7 +260,7 @@ module.exports = function (passport) {
 
         var splitPath = file.split(tmpName + "/");
         //var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
-        var s3PathKey = "model-files/" + pathID + "/raw/" + splitPath[1];
+        var s3PathKey = config.s3.directory + "/model-files/" + pathID + "/raw/" + splitPath[1];
         var ext = s3PathKey.split(".").pop();
         var stats = fs.stat(file, function(err, stats) {
           if (err) {
@@ -352,7 +352,7 @@ module.exports = function (passport) {
           var deferred = Q.defer();
 
           // Upload archive to S3
-          uploadFileS3(output.path, "model-files/" + pathID + "/zip/" + output.path.split("/")[2]).done(function(data) {
+          uploadFileS3(output.path, config.s3.directory + "/model-files/" + pathID + "/zip/" + output.path.split("/")[2]).done(function(data) {
             debug("File uploaded to S3", data);
 
             var path = data["Location"].split("amazonaws.com/")[1];

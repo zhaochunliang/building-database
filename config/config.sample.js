@@ -7,6 +7,7 @@ module.exports = {
     "accessId": "your_access_id",
     "accessKey": "your_access_key",
     "bucket": "your_bucket",
+    "directory": "bucket_directory_for_model_files",
     "region": "your_bucket_region"
   },
   "email": {

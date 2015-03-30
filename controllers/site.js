@@ -652,7 +652,7 @@ module.exports = function (passport) {
             subject: (config.email.verify.subject) ? config.email.verify.subject : "Please verify your change in email",
             text: "You are receiving this because a request has been received to change the email on your account to this one.\n\n" +
               "Please click on the following link, or paste this into your browser to complete the verification process:\n\n" +
-              "http://" + req.headers.host + "/verify/" + token + "\n\n" +
+              config.siteURL + "/verify/" + token + "\n\n" +
               "If you did not request this, please ignore this email.\n"
           };
           

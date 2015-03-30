@@ -1,4 +1,5 @@
 module.exports = {
+  "siteURL": "http://yourdomain.ext",
   "db": {
     "url": "mongodb://<dbUser>:<dbPassword>@<dbPath>:<dbPort>/<dbName>"
   },

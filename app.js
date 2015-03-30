@@ -19,6 +19,19 @@ var mongoose = require("mongoose");
 
 
 // --------------------------------------------------------------------
+// GENERAL CONFIG CHECK
+// TODO: Check email settings here too
+// --------------------------------------------------------------------
+
+if (!config.siteURL) {
+  throw new Error("Required siteURL setting not found");
+  return;
+} else {
+  debug("Site URL:", config.siteURL);
+}
+
+
+// --------------------------------------------------------------------
 // SET UP MONGOOSE
 // --------------------------------------------------------------------
 

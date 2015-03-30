@@ -81,11 +81,8 @@ block content
       if (uploading) {
         return;
       }
-
-      uploading = true;
   
       flash.style.display = "none";
-      addButton.innerHTML = "Uploading&hellip;";
 
       var files = fileInput.files;
       var file = files[0];
@@ -98,6 +95,8 @@ block content
       // Check the file type.
       if (!file.name.toLowerCase().match(".*\.zip|.*\.obj|.*\.dae|.*\.ply|.*\.dxf")) {
         console.log("Model file type not valid");
+        flash.querySelector("span").textContent = "Model file type not valid.";
+        flash.style.display = "block";
         return;
       }
 
@@ -132,6 +131,9 @@ block content
       };
 
       $.ajaxSettings.xhr = provider;
+
+      addButton.innerHTML = "Uploading&hellip;";
+      uploading = true;
 
       $.ajax({
         url: "/api/buildings",

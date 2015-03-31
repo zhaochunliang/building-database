@@ -28,6 +28,8 @@ if (config.s3.accessId && config.s3.accessKey) {
 
 AWS.config.update({region: config.s3.region});
 
+var s3Directory = config.s3.directory || "buildings";
+
 module.exports = function (passport) {
   // Endpoint /api/buildings for GET
   var getBuildings = function(req, res) {
@@ -260,7 +262,7 @@ module.exports = function (passport) {
 
         var splitPath = file.split(tmpName + "/");
         //var permPath = "model-files/" + pathID + "/raw/" + splitPath[1];
-        var s3PathKey = config.s3.directory + "/model-files/" + pathID + "/raw/" + splitPath[1];
+        var s3PathKey = s3Directory + "/model-files/" + pathID + "/raw/" + splitPath[1];
         var ext = s3PathKey.split(".").pop();
         var stats = fs.stat(file, function(err, stats) {
           if (err) {
@@ -352,7 +354,7 @@ module.exports = function (passport) {
           var deferred = Q.defer();
 
           // Upload archive to S3
-          uploadFileS3(output.path, config.s3.directory + "/model-files/" + pathID + "/zip/" + output.path.split("/")[2]).done(function(data) {
+          uploadFileS3(output.path, s3Directory + "/model-files/" + pathID + "/zip/" + output.path.split("/")[2]).done(function(data) {
             debug("File uploaded to S3", data);
 
             var path = data["Location"].split("amazonaws.com/")[1];

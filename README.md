@@ -28,3 +28,4 @@
 * To start the server, run `grunt` in the project directory
 * Open [http://localhost:3000](http://localhost:3000)
 * Sign up for a new account
+

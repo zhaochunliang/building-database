@@ -5,6 +5,7 @@ var crypto = require("crypto");
 var nodemailer = require("nodemailer");
 var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
+var git = require("git-rev");
 
 var config = require("../config/config.js");
 
@@ -722,7 +723,10 @@ module.exports = function (passport) {
         return;
       }
 
-      res.sendStatus(200);
+      git.short(function (sha) {
+        res.send(sha);
+        return;
+      });
     });
   };
 

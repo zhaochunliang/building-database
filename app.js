@@ -7,7 +7,8 @@ var logger = require("morgan");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 var passport = require("passport");
-var session = require("express-session")
+var session = require("express-session");
+var MongoStore = require("connect-mongo")(session);
 var flash = require("connect-flash");
 var multer = require("multer");
 var paginate = require("express-paginate");
@@ -74,7 +75,8 @@ if (!config.session.secret) {
 app.use(session({
   secret: config.session.secret,
   resave: true,
-  saveUninitialized: true
+  saveUninitialized: true,
+  store: new MongoStore({mongooseConnection: mongoose.connection})
 }));
 
 // Configuring Passport

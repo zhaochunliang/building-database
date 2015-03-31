@@ -147,7 +147,7 @@ module.exports = function(passport) {
                   subject: (config.email.verify.subject) ? config.email.verify.subject : "Please verify your account",
                   text: "You are receiving this because an account has been registered using this email address and requires verification before it can be used.\n\n" +
                     "Please click on the following link, or paste this into your browser to complete the verification process:\n\n" +
-                    config.siteURL + "/verify/" + token + "\n\n" +
+                    (config.siteURL || "http://" + req.headers.host) + "/verify/" + token + "\n\n" +
                     "If you did not request this, please ignore this email.\n"
                 };
                 

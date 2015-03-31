@@ -24,8 +24,7 @@ var mongoose = require("mongoose");
 // --------------------------------------------------------------------
 
 if (!config.siteURL) {
-  throw new Error("Required siteURL setting not found");
-  return;
+  debug("Required siteURL setting not found so a default will be used");
 } else {
   debug("Site URL:", config.siteURL);
 }

@@ -162,7 +162,7 @@ module.exports = function (passport) {
           subject: (config.email.reset.subject) ? config.email.reset.subject : "Password reset",
           text: "You are receiving this because a password reset has been requested for your account.\n\n" +
             "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
-            config.siteURL + "/reset/" + token + "\n\n" +
+            (config.siteURL || "http://" + req.headers.host) + "/reset/" + token + "\n\n" +
             "If you did not request this, please ignore this email and your password will remain unchanged.\n"
         };
         transport.sendMail(mailOptions, function(err) {

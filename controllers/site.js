@@ -1,23 +1,31 @@
+var debug = require("debug")("polygoncity");
+var _ = require("underscore");
 var async = require("async");
 var crypto = require("crypto");
 var nodemailer = require("nodemailer");
+var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
+var git = require("git-rev");
 
 var config = require("../config/config.js");
 
 module.exports = function (passport) {
   var Building = require("../models/building");
+  var BuildingReport = require("../models/building-report");
   var User = require("../models/user");
 
   // Endpoint / for GET
   var getIndex = function(req, res) {
     Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}).limit(6).sort({createdAt: -1}).exec(function(err, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
+        return;
       }
-      
-      res.render("index_new", {
+
+      res.render("index", {
         bodyId: "home",
+        message: req.flash("message"),
         user: req.user,
         buildings: buildings,
       });
@@ -27,7 +35,9 @@ module.exports = function (passport) {
   // Endpoint /browse for GET
   var getBrowse = function(req, res) {
 
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -39,10 +49,12 @@ module.exports = function (passport) {
 
     Building.paginate({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
+        return;
       }
       
-      res.render("browse_new", {
+      res.render("browse", {
         bodyId: "browse",
         user: req.user,
         sort: (!req.query.sort) ? "date" : req.query.sort,
@@ -56,11 +68,20 @@ module.exports = function (passport) {
 
   // Endpoint /browse/all for GET
   var getBrowseAll = function(req, res) {
-    Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, function(err, buildings) {
+    var columns = {
+      _id: 1,
+      slug: 1,
+      name: 1,
+      locality: 1,
+      location: 1
+    };
+
+    Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, columns, function(err, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
       }
-      
+
       res.render("browse_all", {
         bodyId: "browse",
         user: req.user,
@@ -73,6 +94,7 @@ module.exports = function (passport) {
   var getBuilding = function(req, res) {
     Building.findOne({$and: [{"slug.id": req.params.building_slugId}, {hidden: false}]}, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -85,6 +107,7 @@ module.exports = function (passport) {
       // Find uploading user
       User.findById(building.userId, function(err, user) {
         if (err) {
+          debug(err);
           res.send(err);
           return;
         }
@@ -104,11 +127,12 @@ module.exports = function (passport) {
 
         building.save(function(err) {
           if (err) {
+            debug(err);
             res.send(err);
             return;
           }
           
-          res.render("building_new", {
+          res.render("building", {
             bodyId: "building",
             user: req.user,
             building: building,
@@ -121,7 +145,7 @@ module.exports = function (passport) {
 
   // Endpoint /report/:building_id for GET
   var getBuildingReport = function(req, res) {
-    res.render("building-report_new", {
+    res.render("building-report", {
       bodyId: "building-report",
       message: req.flash("message"),
       user: req.user
@@ -130,40 +154,60 @@ module.exports = function (passport) {
 
   // Endpoint /report/:building_id for POST
   var postBuildingReport = function(req, res) {
-    // Skip if email hasn't been set up
-    if (!config.email.report.fromAddress || !config.email.report.toAddress) {
-      debug("Email report from or to address not found in configuration");
-      res.sendStatus(500);
-      return;
-    }
+    var report = new BuildingReport();
 
-    // TODO: Move to an external service for email
-    // - https://github.com/andris9/Nodemailer
-    var smtpTransport = nodemailer.createTransport();
+    report.building = req.params.building_id;
+    report.reason = req.body.reason;
+    report.details = req.body.details;
+    report.email = req.body.email;
 
-    // TODO: Pull to email from server-side config file
-    var mailOptions = {
-      to: config.email.report.toAddress,
-      from: config.email.report.fromAddress,
-      subject: (config.email.report.subject) ? config.email.report.subject : "Building report",
-      text: "The following building has been reported.\n\n" +
-        "Building: " + req.params.building_id + "\n" +
-        "Reason: " + req.body.reason + "\n" +
-        "Details: " + req.body.details + "\n" +
-        "From: " + req.body.email
-    };
+    report.save(function(err) {
+      if (err) {
+        debug(err);
+        res.send(err);
+        return;
+      }
+      
+      // Skip if email hasn't been set up
+      if (!config.email.report.fromAddress || !config.email.report.toAddress) {
+        throw new Error("Email report from or to address not found in configuration");
+        // res.sendStatus(500);
+        return;
+      }
 
-    smtpTransport.sendMail(mailOptions, function(err) {
-      req.flash("message", "Report received, thank you.");
-      res.redirect("/building/" + req.params.building_id + "/report");
+      var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
+
+      // TODO: Pull to email from server-side config file
+      var mailOptions = {
+        to: config.email.report.toAddress,
+        from: config.email.report.fromAddress,
+        subject: (config.email.report.subject) ? config.email.report.subject : "Building report",
+        text: "The following building has been reported.\n\n" +
+          "Building: " + req.params.building_id + "\n" +
+          "Reason: " + req.body.reason + "\n" +
+          "Details: " + req.body.details + "\n" +
+          "From: " + req.body.email
+      };
+
+      transport.sendMail(mailOptions, function(err) {
+        if (err) {
+          debug(err);
+          throw err;
+          return;
+        }
+
+        req.flash("message", "Report received, thank you.");
+        res.redirect("/report/" + req.params.building_id);
+      });
     });
   };
 
   // Endpoint /search for GET
   var getSearch = function(req, res) {
-    res.render("search-form_new", {
+    res.render("search-form", {
       bodyId: "search-form",
-      user: req.user
+      user: req.user,
+      message: req.flash("message")
     });
   };
 
@@ -184,38 +228,32 @@ module.exports = function (passport) {
         var latitude = req.body.latitude;
         var distance = req.body.distance | 1000;
 
-        res.redirect("/search/near/" + longitude + "/" + latitude + "/" + distance);
+        res.redirect("/search/near/" + longitude + "," + latitude + "," + distance);
+      } else {
+        req.flash("message", "Please enter a search term");
+        res.redirect("/search");
       }
     }
   };
 
-  // Endpoint /search/near/:lon/:lat for GET
+  // Endpoint /search/near/:lon,:lat,:distance for GET
   var getSearchNear = function(req, res) {
-    var sortBy = {};
-
-    if (!req.query.sort || req.query.sort == "date") {
-      sortBy["createdAt"] = -1
-    } else if (req.query.sort == "name") {
-      sortBy["name"] = 1
-    } else if (req.query.sort == "downloads") {
-      sortBy["stats.downloads"] = -1
-    }
-
     Building.paginate({$and: [{"location": {
       $nearSphere: {
         $geometry: {
           type: "Point",
           coordinates: [req.params.lon, req.params.lat]
         },
-        $maxDistance: req.params.distance | 1000
+        $maxDistance: Number(req.params.distance) | 1000
       }
     }}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
-        console.log(err);
+        debug(err);
         res.send(err);
+        return;
       }
 
-      res.render("browse_new", {
+      res.render("browse", {
         bodyId: "search",
         user: req.user,
         near: [req.params.lon, req.params.lat],
@@ -223,22 +261,14 @@ module.exports = function (passport) {
         pageCount: pageCount,
         buildings: buildings
       });
-      
-      // res.render("search", {
-      //   bodyId: "search",
-      //   user: req.user,
-      //   near: [req.params.lon, req.params.lat],
-      //   pageCount: pageCount,
-      //   buildings: buildings
-      // });
-    }, {
-      sortBy: sortBy
     });
   };
 
   // Endpoint /search/user/:username for GET
   var getSearchUser = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -250,8 +280,9 @@ module.exports = function (passport) {
 
     User.findOne({$and: [{username: req.params.username}, {"verified": true}]}, function(err, user) {
       if (err) {
-        console.log(err);
+        debug(err);
         res.send(err);
+        return;
       }
 
       if (!user) {
@@ -261,11 +292,12 @@ module.exports = function (passport) {
 
       Building.paginate({$and: [{"userId": user._id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
         if (err) {
-          console.log(err);
+          debug(err);
           res.send(err);
+          return;
         }
 
-        res.render("browse_new", {
+        res.render("browse", {
           bodyId: "search",
           user: req.user,
           sort: (!req.query.sort) ? "date" : req.query.sort,
@@ -280,7 +312,9 @@ module.exports = function (passport) {
 
   // Endpoint /search/osm/:osm_type/:osm_id for GET
   var getSearchOSM = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -292,23 +326,18 @@ module.exports = function (passport) {
 
     Building.paginate({$and: [{"osm.type": req.params.osm_type}, {"osm.id": req.params.osm_id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
+        return;
       }
 
-      res.render("browse_new", {
+      res.render("browse", {
         bodyId: "search",
         user: req.user,
         sort: (!req.query.sort) ? "date" : req.query.sort,
         pageCount: pageCount,
         buildings: buildings
       });
-      
-      // res.render("search", {
-      //   bodyId: "search",
-      //   user: req.user,
-      //   pageCount: pageCount,
-      //   buildings: buildings
-      // });
     }, {
       sortBy: sortBy
     });
@@ -316,7 +345,9 @@ module.exports = function (passport) {
 
   // Endpoint /search/:search_term for GET
   var getSearchTerm = function(req, res) {
-    var sortBy = {};
+    var sortBy = {
+      highlight: -1
+    };
 
     if (!req.query.sort || req.query.sort == "date") {
       sortBy["createdAt"] = -1
@@ -328,23 +359,18 @@ module.exports = function (passport) {
 
     Building.paginate({$and: [{$or: [{"name": new RegExp(req.params.search_term, "i")}, {"description": new RegExp(req.params.search_term, "i")}]}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
+        debug(err);
         res.send(err);
+        return;
       }
 
-      res.render("browse_new", {
+      res.render("browse", {
         bodyId: "search",
         user: req.user,
         sort: (!req.query.sort) ? "date" : req.query.sort,
         pageCount: pageCount,
         buildings: buildings
       });
-      
-      // res.render("search", {
-      //   bodyId: "search",
-      //   user: req.user,
-      //   pageCount: pageCount,
-      //   buildings: buildings
-      // });
     }, {
       sortBy: sortBy
     });
@@ -352,7 +378,7 @@ module.exports = function (passport) {
 
   // Endpoint /add for GET
   var getAdd = function(req, res) {
-    res.render("add_new", {
+    res.render("add", {
       bodyId: "building-add",
       user: req.user
     });
@@ -363,8 +389,16 @@ module.exports = function (passport) {
     // Check that user owns this building
     // Check that location hasn't already been added
     // Building.findOne({_id: req.params.building_id, userId: req.user._id, "location.coordinates": [0,0]}, function(err, building) {
-    Building.findOne({$and: [{_id: req.params.building_id}, {userId: req.user._id}]}, function(err, building) {
+
+    var query = {$and: [{_id: req.params.building_id}, {userId: req.user._id}]};
+
+    if (req.user.group && req.user.group === "admin") {
+      query = {_id: req.params.building_id};
+    }
+
+    Building.findOne(query, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -374,7 +408,7 @@ module.exports = function (passport) {
         return;
       }
 
-      res.render("add-location_new", {
+      res.render("add-location", {
         bodyId: "building-add-location",
         user: req.user,
         building: building
@@ -387,8 +421,16 @@ module.exports = function (passport) {
     // Check that user owns this building
     // Check that OSM hasn't already been linked
     // Building.findOne({_id: req.params.building_id, userId: req.user._id, osm: {$exists: false}}, function(err, building) {
-    Building.findOne({$and: [{_id: req.params.building_id}, {userId: req.user._id}]}, function(err, building) {
+
+    var query = {$and: [{_id: req.params.building_id}, {userId: req.user._id}]};
+
+    if (req.user.group && req.user.group === "admin") {
+      query = {_id: req.params.building_id};
+    }
+
+    Building.findOne(query, function(err, building) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -398,7 +440,7 @@ module.exports = function (passport) {
         return;
       }
 
-      res.render("add-osm_new", {
+      res.render("add-osm", {
         bodyId: "building-add-osm",
         user: req.user,
         building: building
@@ -411,6 +453,7 @@ module.exports = function (passport) {
     // Find uploading user
     User.findOne({$and: [{username: req.params.username}, {"verified": true}]}, function(err, user) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -438,8 +481,9 @@ module.exports = function (passport) {
 
       Building.paginate({$and: [{"userId": user._id}, {"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
         if (err) {
-          console.log(err);
+          debug(err);
           res.send(err);
+          return;
         }
 
         res.render("user", {
@@ -449,7 +493,10 @@ module.exports = function (passport) {
           buildings: buildings,
           pageCount: pageCount
         });
-      }, {sortBy: {createdAt: -1}});
+      }, {sortBy: {
+        highlight: -1,
+        createdAt: -1
+      }});
     });
   };
 
@@ -458,6 +505,7 @@ module.exports = function (passport) {
     // Check user has access
     User.findOne({$and: [{username: req.params.username}, {_id: req.user._id}, {"verified": true}]}, function(err, user) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -488,6 +536,7 @@ module.exports = function (passport) {
     // Check user has access
     User.findOne({$and: [{username: req.params.username}, {_id: req.user._id}, {"verified": true}]}, function(err, user) {
       if (err) {
+        debug(err);
         res.send(err);
         return;
       }
@@ -537,8 +586,13 @@ module.exports = function (passport) {
               }, function(verifyDone) {
                 // Generate verify token
                 crypto.randomBytes(20, function(err, buf) {
+                  if (err) {
+                    verifyDone(err);
+                    return;
+                  }
+
                   var token = buf.toString("hex");
-                  verifyDone(err, token);
+                  verifyDone(null, token);
                 });
               }, function(token, verifyDone) {
                 // Store verify token
@@ -551,13 +605,13 @@ module.exports = function (passport) {
                 verifyDone(null, token);
               }
             ], function(err, token) {
-              if (!err) {
-                asyncDone(null, token);
+              if (err) {
+                debug("Error in creating verification details");
+                asyncDone(err);
                 return;
               }
 
-              debug("Error in creating verification details: " + err);
-              throw err;
+              asyncDone(null, token);
             });
           } else {
             asyncDone(null, null);
@@ -565,7 +619,12 @@ module.exports = function (passport) {
         }, function(token, asyncDone) {
           // Save the user
           user.save(function(err, savedUser) {
-            asyncDone(err, token, savedUser);
+            if (err) {
+              asyncDone(err);
+              return;
+            }
+
+            asyncDone(null, token, savedUser);
           });
         }, function(token, savedUser, asyncDone) {
           // Skip if no token
@@ -576,21 +635,17 @@ module.exports = function (passport) {
 
           // Skip if email hasn't been set up
           if (!config.email.verify.fromAddress) {
-            debug("Email verify.fromAddress not found in configuration");
-            asyncDone("Email verify.fromAddress not found in configuration");
+            asyncDone(new Error("Email verify.fromAddress not found in configuration"));
             return;
           }
 
           // Check that user.changeEmail exists
           if (!user.changeEmail) {
-            debug("Email user.changeEmail wasn't set");
-            asyncDone("Email user.changeEmail wasn't set");
+            asyncDone(new Error("Email user.changeEmail wasn't set"));
             return;
           }
 
-          // TODO: Move to an external service for email
-          // - https://github.com/andris9/Nodemailer
-          var smtpTransport = nodemailer.createTransport();
+          var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
 
           var mailOptions = {
             to: user.changeEmail,
@@ -598,41 +653,79 @@ module.exports = function (passport) {
             subject: (config.email.verify.subject) ? config.email.verify.subject : "Please verify your change in email",
             text: "You are receiving this because a request has been received to change the email on your account to this one.\n\n" +
               "Please click on the following link, or paste this into your browser to complete the verification process:\n\n" +
-              "http://" + req.headers.host + "/verify/" + token + "\n\n" +
+              (config.siteURL || "http://" + req.headers.host) + "/verify/" + token + "\n\n" +
               "If you did not request this, please ignore this email.\n"
           };
           
-          smtpTransport.sendMail(mailOptions, function(err) {
-            // Add message to flash
+          transport.sendMail(mailOptions, function(err) {
+            if (err) {
+              debug("Unable to send email via SMTP server. Is it running?");
+              asyncDone(err);
+              return;              
+            }
+
             msg = "Profile updated, verification email sent.";
 
-            asyncDone(err, token, savedUser);
+            asyncDone(null, token, savedUser);
           });
         }
       ], function(err, token, savedUser) {
-        if (!err) {
-          var profile = {
-            id: savedUser._id,
-            username: savedUser.username,
-            email: savedUser.email,
-            twitter: savedUser.twitter,
-            website: savedUser.website
-          };
-
-          req.flash("message", msg);
-
-          res.render("user-edit", {
-            bodyId: "user-edit",
-            user: req.user,
-            profile: profile,
-            message: req.flash("message")
-          });
-
-          return;
+        if (err) {
+          debug("Error in saving user");
+          throw err;
         }
 
-        debug("Error in saving user: " + err);
-        throw err;
+        var profile = {
+          id: savedUser._id,
+          username: savedUser.username,
+          email: savedUser.email,
+          twitter: savedUser.twitter,
+          website: savedUser.website
+        };
+
+        req.flash("message", msg);
+
+        res.render("user-edit", {
+          bodyId: "user-edit",
+          user: req.user,
+          profile: profile,
+          message: req.flash("message")
+        });
+
+        return;
+      });
+    });
+  };
+
+  // Endpoint /terms for GET
+  var getTerms = function(req, res) {
+    res.render("terms", {
+      bodyId: "static-content",
+      user: req.user
+    });
+  };
+
+  // Endpoint /contributing for GET
+  var getContributing = function(req, res) {
+    res.render("contributing", {
+      bodyId: "static-content",
+      user: req.user
+    });
+  };
+
+  // Endpoint /ping for GET
+  var getPing = function(req, res) {
+    // Run a simple database query
+    Building.find({hidden: false}).limit(1).sort({createdAt: -1}).exec(function(err, buildings) {
+      if (err) {
+        debug(err);
+        res.sendStatus(500);
+        return;
+      }
+
+      git.short(function (sha) {
+        res.send(sha);
+        return;
       });
     });
   };
@@ -655,6 +748,9 @@ module.exports = function (passport) {
     getAddOSM: getAddOSM,
     getUser: getUser,
     getUserEdit: getUserEdit,
-    postUserEdit: postUserEdit
+    postUserEdit: postUserEdit,
+    getTerms: getTerms,
+    getContributing: getContributing,
+    getPing: getPing
   };
 };

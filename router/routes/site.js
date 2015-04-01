@@ -21,7 +21,7 @@ module.exports = function (passport) {
     .get(siteController.getBuildingReport)
     .post(siteController.postBuildingReport);
 
-  router.route("/search/near/:lon/:lat/:distance")
+  router.route("/search/near/:lon,:lat,:distance")
     .get(siteController.getSearchNear);
 
   router.route("/search/user/:username")
@@ -52,6 +52,15 @@ module.exports = function (passport) {
   router.route("/user/edit/:username")
     .get(authController.isAuthenticated, siteController.getUserEdit)
     .post(authController.isAuthenticated, siteController.postUserEdit);
+
+  router.route("/terms")
+    .get(siteController.getTerms);
+
+  router.route("/contributing")
+    .get(siteController.getContributing);
+
+  router.route("/ping")
+    .get(siteController.getPing);
 
   return router;
 };

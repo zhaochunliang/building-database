@@ -1,25 +1,40 @@
 extends layout
 
 block content
-  h1 Link building to OpenStreetMap
+  section.container
+    div.col-5
+      h1 Link building to OpenStreetMap
 
-  div.wrapper
-    section.details
       form#add-osm-form
         label(for="osm-id") OpenStreetMap type:
         select#osm-type(required)
           option(value="") Select a type
-          option(value="way") Way
-          option(value="relation") Relation
-          option(value="node") Node
+          if building.osm.type === "way"
+            option(value="way" selected) Way
+          else
+            option(value="way") Way
+          
+          if building.osm.type === "relation"
+            option(value="relation" selected) Relation
+          else
+            option(value="relation") Relation
+
+          if building.osm.type === "node"
+            option(value="node" selected) Node
+          else
+            option(value="node") Node
 
         label(for="osm-id") OpenStreetMap ID:
-        input#osm-id(type="text" placeholder="OpenStreetMap feature ID")
-
+        input#osm-id(type="text" placeholder="OpenStreetMap feature ID" value=(building.osm.id ? building.osm.id : ""))
+        
+        a#back-button.button(href="/add/location/#{building._id}") Back
         button#add-osm-button(type="submit") Link with OpenStreetMap
+        a#skip-button.button(href="/building/#{building.slug.id}/#{building.slug.name}") Skip
+    
+    div.col-7
+      div#add-osm-map
 
-    section.view
-      div#map
+  script(src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.3.1/lodash.min.js")
 
   link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css")
   script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js")
@@ -54,7 +69,7 @@ block content
         contentType: false,
         type: "PUT",
         success: function(data, status, xhr) {
-          window.location.href = "/building/" + data.building._id;
+          window.location.href = "/building/" + data.building.slug.id + "/" + data.building.slug.name;
         },
         error: function(xhr, errorType, error) {
           // TODO: Display error and course of action
@@ -86,7 +101,7 @@ block content
       
       overpass.init();
       
-      ide.map = new L.Map("map");
+      ide.map = new L.Map("add-osm-map");
       var tilesUrl = settings.tileServer;
       var tilesAttrib = '&copy; <a href="www.openstreetmap.org/copyright">OpenStreetMap</a> contributors&ensp;<small>Data:ODbL, Map:cc-by-sa</small>';
       var tiles = new L.TileLayer(tilesUrl,{attribution:tilesAttrib});
@@ -99,22 +114,50 @@ block content
         ide.map.setView([0,0],18,true);
         ide.map.fitBounds(e.layer.getBounds() );
       });
+  
+      // Add building position to map
+      var marker = L.marker([#{building.location.coordinates[1]}, #{building.location.coordinates[0]}]).addTo(ide.map);
 
       overpass.handlers["onEmptyMap"] = function(empty_msg, data_mode) {$('<div id="map_blank" style="z-index:1; display:block; position:absolute; top:42px; width:100%; text-align:center; background-color:#eee; opacity: 0.8;">This map intentionally left blank. <small>('+empty_msg+')</small></div>').appendTo("#map");};
-      overpass.handlers["onAjaxError"] = function(errmsg) {alert("An error occured during the execution of the overpass query!\n" + errmsg);};
-      overpass.handlers["onQueryError"] = function(errmsg) {alert("An error occured during the execution of the overpass query!\nThis is what overpass API returned:\n" + errmsg);};
+      overpass.handlers["onAjaxError"] = function(errmsg) {console.log("An error occured during the execution of the overpass query!\n" + errmsg);};
+      overpass.handlers["onQueryError"] = function(errmsg) {console.log("An error occured during the execution of the overpass query!\nThis is what overpass API returned:\n" + errmsg);};
       overpass.handlers["onGeoJsonReady"] = function() {ide.map.addLayer(overpass.osmLayer);};
       overpass.handlers["onPopupReady"] = function(p) {p.openOn(ide.map);};
       overpass.handlers["onDataRecieved"] = function(amount,txt, abortCB,continueCB) {continueCB();};
 
       overpass.handlers["onClickFeature"] = function(feature) {
-        var osmSplit = feature.id.split("/");
+        // TODO: Use relation ID if way isn't a building and has a relation that is
+        var id;
+
+        if (feature.properties.tags.building) {
+          id = feature.id;
+        } else if (feature.properties.relations) {
+          var buildingRel = _.find(feature.properties.relations, function(relation) {
+            return (relation.reltags.building);
+          });
+
+          if (buildingRel) {
+            id = "relation/" + buildingRel.rel;
+          }
+        } else {
+          return false;
+        }
+
+        var osmSplit = id.split("/");
         osmTypeInput.value = osmSplit[0].toLowerCase();
         osmIDInput.value = osmSplit[1];
       };
       
       // Request data
-      var query = "[out:json];((way({s},{w},{n},{e})['building'];);(._;node(w);););out;";
+      var query = "[out:json];(" +
+        "(" +
+        "rel({s},{w},{n},{e})['building'][building!='roof'];" +
+        "rel({s},{w},{n},{e})[type='building'];" +
+        ");(._;way(r););(._;node(w););(" +
+        "way({s},{w},{n},{e})['building'];" +
+        //- "way({s},{w},{n},{e})['building:part'];" +
+        ");(._;node(w);););" +
+        "out;";
 
       var bounds = ide.map.getBounds();
       var parameters = {

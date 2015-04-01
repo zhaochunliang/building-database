@@ -2,6 +2,7 @@ doctype html
 html
   head
     title Polygon City
+    link(rel="icon", href="/images/favicon.png")
     link(rel="stylesheet", href="/style/main.css")
     script(src="/lib/jquery/dist/jquery.min.js")
   - var body = (bodyId) ? bodyId : "";
@@ -18,6 +19,8 @@ html
             li.nav-link
               a(href="/browse") Browse
             li.nav-link
+              a(href="/browse/all") Map
+            li.nav-link
               a(href="/add") Add building
             li.nav-link
               a(href="/search") Adv. Search
@@ -30,12 +33,44 @@ html
                   img(src="/images/search-icon.png", alt="Search icon")
           if (user)
             a.logout(href="/logout") Logout
+            a.profile(href="/user/#{user.username}") #{user.username}
           else
             a.login(href="/login") Login
             a.signup(href="/signup") Sign up
-    
+
+      if body === "home"
+        .banner-wrapper
+          .banner
+            .navigation-wrapper
+              h1 PolygonCity
+              p.tagline Free and open 3D building library
+
+              section.columns
+                div.col-4
+                  p Upload your models &mdash; 
+                    a(href="") contact us
+                    |  if you represent a city with an open datasource.
+
+                div.col-4.middle
+                  p Download a single, high-resolution model of a specific structure or get a low-resolution bulk download of an area.
+
+                div.col-4 
+                  p Search by name, on a map, or use an 
+                    a(href="/search") advanced search.
+
+              p.cta
+                a.button(href="/browse/all") Find a building
+                a.button(href="/add") Add a building
+      
     section.content
       block content
+
+    footer
+      section.container
+        p
+          a(href="/contributing") Contributing
+          | &bullet;
+          a(href="/terms") Terms
 
     script.
       $(document).ready(function() {

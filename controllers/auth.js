@@ -4,6 +4,7 @@ var bCrypt = require("bcrypt-nodejs");
 var async = require("async");
 var crypto = require("crypto");
 var nodemailer = require("nodemailer");
+var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
 
 var config = require("../config/config.js");
@@ -20,8 +21,13 @@ module.exports = function(passport) {
 
   passport.deserializeUser(function(id, done) {
     User.findById(id, function(err, user) {
-      // debug("Deserializing user: ", user);
-      done(err, user);
+      if (err) {
+        debug(err);
+        done(err);
+        return;
+      }
+      
+      done(null, user);
     });
   });
 
@@ -33,8 +39,11 @@ module.exports = function(passport) {
       User.findOne({ $and: [{"username": username}, {"verified": true}, {"banned": false}]}, 
         function(err, user) {
           // In case of any error, return using the done method
-          if (err)
+          if (err) {
+            debug(err);
             return done(err);
+          }
+
           // Username does not exist, log the error and redirect back
           if (!user){
             debug("User not found with username "+username);
@@ -99,8 +108,13 @@ module.exports = function(passport) {
               function(asyncDone) {
                 // Generate verify token
                 crypto.randomBytes(20, function(err, buf) {
+                  if (err) {
+                    done(err);
+                    return;
+                  }
+
                   var token = buf.toString("hex");
-                  asyncDone(err, token);
+                  asyncDone(null, token);
                 });
               }, function(token, asyncDone) {
                 // Store verify token
@@ -109,21 +123,23 @@ module.exports = function(passport) {
               }, function(token, asyncDone) {
                 // Save the user
                 newUser.save(function(err) {
-                  asyncDone(err, token);
+                  if (err) {
+                    asyncDone(err);
+                    return;
+                  }
+
+                  asyncDone(null, token);
                 });
               }, function(token, asyncDone) {
                 // Send verify email
                 
                 // Skip if email hasn't been set up
                 if (!config.email.verify.fromAddress) {
-                  debug("Email verify.fromAddress not found in configuration");
-                  asyncDone("Email verify.fromAddress not found in configuration");
+                  asyncDone(new Error("Email verify.fromAddress not found in configuration"));
                   return;
                 }
 
-                // TODO: Move to an external service for email
-                // - https://github.com/andris9/Nodemailer
-                var smtpTransport = nodemailer.createTransport();
+                var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
 
                 var mailOptions = {
                   to: newUser.email,
@@ -131,24 +147,31 @@ module.exports = function(passport) {
                   subject: (config.email.verify.subject) ? config.email.verify.subject : "Please verify your account",
                   text: "You are receiving this because an account has been registered using this email address and requires verification before it can be used.\n\n" +
                     "Please click on the following link, or paste this into your browser to complete the verification process:\n\n" +
-                    "http://" + req.headers.host + "/verify/" + token + "\n\n" +
+                    (config.siteURL || "http://" + req.headers.host) + "/verify/" + token + "\n\n" +
                     "If you did not request this, please ignore this email.\n"
                 };
                 
-                smtpTransport.sendMail(mailOptions, function(err) {
-                  // var err = null; // Fake err
+                transport.sendMail(mailOptions, function(err) {
+                  if (err) {
+                    debug("Unable to send email via SMTP server. Is it running?");
+                    asyncDone(err);
+                    return;
+                  }
+
                   req.flash("message", "A verification link has been sent by e-mail to " + newUser.email + ".");
-                  asyncDone(err, newUser);
+                  
+                  asyncDone(null, newUser);
                 });
               }
             ], function(err) {
-              if (!err) {
-                done(null, newUser);
+              if (err) {
+                debug("Error in creating user");
+                debug(err);
+                done(new Error("Error in creating user"));
                 return;
               }
 
-              debug("Error in saving user: " + err);
-              throw err;
+              done(null, newUser);
             });
           }
         });

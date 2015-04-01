@@ -1,0 +1,38 @@
+extends layout
+ 
+block content
+  section.container
+    h1
+      | Building reports
+      span
+        a(href="/admin") Back to admin
+      
+    div.details.col-12
+      if reports.length > 0
+        table.reports
+          thead
+            tr
+              th
+                a(class=(sort == "building") ? "active" : "" href="?sort=building") Building
+              th
+                a(class=(sort == "reason") ? "active" : "" href="?sort=reason") Reason
+              th Details
+              th
+                a(class=(sort == "email") ? "active" : "" href="?sort=email") Email
+              th
+                a(class=(sort == "date") ? "active" : "" href="?sort=date") Date added
+
+          tbody
+          each report, key in reports
+            if report.building
+              tr
+                td
+                  a(href="/building/#{report.building.slug.id}/#{report.building.slug.name}") #{report.building.name}
+                td #{report.reason}
+                td #{report.details}
+                td #{report.email}
+                td #{report.createdAt}
+        
+        include _pagination
+      else
+        p No reports

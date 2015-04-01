@@ -1,6 +1,8 @@
+var debug = require("debug")("polygoncity");
 var async = require("async");
 var crypto = require("crypto");
 var nodemailer = require("nodemailer");
+var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
 
 var config = require("../config/config.js");
@@ -12,7 +14,7 @@ module.exports = function (passport) {
 
   // Endpoint /login for GET
   var getLogin = function(req, res) {
-    res.render("login_new", {
+    res.render("login", {
       bodyId: "login",
       message: req.flash("message"),
       user: req.user
@@ -36,7 +38,7 @@ module.exports = function (passport) {
 
   // Endpoint /signup for GET
   var getSignup = function(req, res) {
-    res.render("register_new", {
+    res.render("register", {
       bodyId: "register",
       message: req.flash("message")
     });
@@ -79,6 +81,14 @@ module.exports = function (passport) {
       }
 
       user.save(function(err) {
+        if (err) {
+          debug(err);
+          req.flash("message", "Failed to update your verification status.");
+          return res.redirect("/signup");
+        }
+
+        req.flash("message", "Account verified.");
+
         req.login(user, function(err) {
           return res.redirect("/");
         });
@@ -88,7 +98,7 @@ module.exports = function (passport) {
 
   // Endpoint /forgot for GET
   var getForgot = function(req, res) {
-    res.render("forgot_new", {
+    res.render("forgot", {
       bodyId: "forgot",
       message: req.flash("message"),
       user: req.user
@@ -100,8 +110,13 @@ module.exports = function (passport) {
     async.waterfall([
       function(done) {
         crypto.randomBytes(20, function(err, buf) {
+          if (err) {
+            done(err);
+            return;
+          }
+
           var token = buf.toString("hex");
-          done(err, token);
+          done(null, token);
         });
       },
       function(token, done) {
@@ -116,21 +131,30 @@ module.exports = function (passport) {
           user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
           user.save(function(err) {
-            done(err, token, user);
+            if (err) {
+              done(err);
+              return;
+            }
+
+            done(null, token, user);
           });
         });
       },
       function(token, user, done) {
         // Skip if email hasn't been set up
         if (!config.email.reset.fromAddress) {
-          debug("Email reset.fromAddress not found in configuration");
-          done();
+          done(new Error("Email reset.fromAddress not found in configuration"));
           return;
         }
 
         // TODO: Move to an external service for email
         // - https://github.com/andris9/Nodemailer
-        var smtpTransport = nodemailer.createTransport();
+        if (!config.email.smtp) {
+          done(new Error("SMTP options not found in configuration"));
+          return;
+        }
+
+        var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
 
         var mailOptions = {
           to: user.email,
@@ -138,17 +162,27 @@ module.exports = function (passport) {
           subject: (config.email.reset.subject) ? config.email.reset.subject : "Password reset",
           text: "You are receiving this because a password reset has been requested for your account.\n\n" +
             "Please click on the following link, or paste this into your browser to complete the process:\n\n" +
-            "http://" + req.headers.host + "/reset/" + token + "\n\n" +
+            (config.siteURL || "http://" + req.headers.host) + "/reset/" + token + "\n\n" +
             "If you did not request this, please ignore this email and your password will remain unchanged.\n"
         };
-        smtpTransport.sendMail(mailOptions, function(err) {
-          // var err = null; // Fake err
+        transport.sendMail(mailOptions, function(err) {
+          if (err) {
+            done(err);
+            return;
+          }
+
           req.flash("message", "An e-mail has been sent to " + user.email + " with further instructions.");
-          done(err, "done");
+
+          done();
         });
       }
     ], function(err) {
-      if (err) return next(err);
+      // TODO: Throw error?
+      if (err) {
+        debug(err);
+        return next(err);
+      }
+
       res.redirect("/forgot");
     });
   };
@@ -156,11 +190,18 @@ module.exports = function (passport) {
   // Endpoint /reset/:token for GET
   var getReset = function(req, res) {
     User.findOne({ $and: [{resetPasswordToken: req.params.token}, {resetPasswordExpires: { $gt: Date.now() } }]}, function(err, user) {
+      if (err) {
+        debug(err);
+        req.flash("message", "Unable to retreive your details.");
+        return res.redirect("/forgot");
+      }
+
       if (!user) {
         req.flash("message", "Password reset token is invalid or has expired.");
         return res.redirect("/forgot");
       }
-      res.render("reset_new", {
+
+      res.render("reset", {
         bodyId: "reset",
         token: req.params.token,
         message: req.flash("message"),
@@ -174,6 +215,12 @@ module.exports = function (passport) {
     async.waterfall([
       function(done) {
         User.findOne({ $and: [{resetPasswordToken: req.params.token}, {resetPasswordExpires: { $gt: Date.now() } }]}, function(err, user) {
+          if (err) {
+            debug(err);
+            req.flash("message", "Unable to retreive your details");
+            return res.redirect("/reset/" + req.params.token);
+          }
+
           if (!user) {
             req.flash("message", "Password reset token is invalid or has expired.");
             return res.redirect("/reset/" + req.params.token);
@@ -190,8 +237,18 @@ module.exports = function (passport) {
           user.resetPasswordExpires = undefined;
 
           user.save(function(err) {
+            if (err) {
+              done(err);
+              return;
+            }
+
             req.login(user, function(err) {
-              done(err, user);
+              if (err) {
+                done(err);
+                return;
+              }
+
+              done(null, user);
             });
           });
         });
@@ -199,14 +256,11 @@ module.exports = function (passport) {
       function(user, done) {
         // Skip if email hasn't been set up
         if (!config.email.reset.fromAddress) {
-          debug("Email reset.fromAddress not found in configuration");
-          done();
+          done(new Error("Email reset.fromAddress not found in configuration"));
           return;
         }
 
-        // TODO: Move to an external service for email
-        // - https://github.com/andris9/Nodemailer
-        var smtpTransport = nodemailer.createTransport();
+        var transport = nodemailer.createTransport(smtpTransport(config.email.smtp));
 
         var mailOptions = {
           to: user.email,
@@ -215,12 +269,23 @@ module.exports = function (passport) {
           text: "Hello,\n\n" +
             "This is a confirmation that the password for your account " + user.email + " has been changed.\n"
         };
-        smtpTransport.sendMail(mailOptions, function(err) {
+        transport.sendMail(mailOptions, function(err) {
+          if (err) {
+            debug("Unable to send email via SMTP server. Is it running?");
+            req.flash("message", "Unable to send reset email, please try again later.");
+            done(err);
+            return;
+          }
+          
           req.flash("message", "Success! Your password has been changed.");
-          done(err);
+          
+          done(null);
         });
       }
     ], function(err) {
+      // TODO: Throw error?
+      debug(err);
+
       res.redirect("/");
     });
   };

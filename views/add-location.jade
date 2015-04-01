@@ -1,35 +1,42 @@
 extends layout
 
 block content
-  h1 Set building location
+  section.container
+    div.col-5
+      h1 Set building location
 
-  div.wrapper
-    section.details
       form#add-location-form
-        label(for="pelias") Move to:
-        input#pelias(type="text" placeholder="Enter name of place to move to")
+        label(for="location-search") Move to:
+        input#location-search(type="text" placeholder="Enter name of place to move to")
 
         label(for="scale") Scale:
-        input#scale(type="number", name="scale" min=0 step=0.01 value=1)
+        input#scale(type="text", name="scale" value=(building.scale !== undefined) ? building.scale : "1" required)
+        button.less(data-action="scale") -
+        button.more(data-action="scale") +
 
         label(for="angle") Angle:
-        input#angle(type="number", name="angle" min=0 max=360 step=0.001 value=0)
+        input#angle(type="text", name="angle" value=(building.angle !== undefined) ? building.angle : "" required)
+        button.less(data-action="angle") -
+        button.more(data-action="angle") +
 
-        label(for="scale") Latitude:
-        input#latitude(type="number", name="latitude" min=-90 max=90 step=0.0005 value=51.50358)
+        label(for="latitude") Latitude:
+        input#latitude(type="number", name="latitude" min=-90 max=90 step=0.000001 value=(building.location && building.location.coordinates[1]) ? building.location.coordinates[1] : "51.50358" required)
 
-        label(for="scale") Longitude:
-        input#longitude(type="number", name="longitude" min=-180 max=180 step=0.0005 value=-0.01924)
-
+        label(for="longitude") Longitude:
+        input#longitude(type="number", name="longitude" min=-180 max=180 step=0.000001 value=(building.location && building.location.coordinates[0]) ? building.location.coordinates[0] : "-0.01924" required)
+        
         button#add-location-button(type="submit") Set location
-
-    section.view
+    div.col-7
       div#vizicities-viewport
 
   script(src="/lib/typeahead.js/dist/typeahead.bundle.min.js")
 
   link(rel="stylesheet", href="/lib/vizicities/vizi.css")
   script(src="/lib/vizicities/vizi.min.js")
+
+  script(src="/lib/vizicities/OBJLoader.js")
+  script(src="/lib/vizicities/BlueprintOutputOBJ.js")
+
   script.
     var addLocationForm = document.getElementById("add-location-form");
     var scaleInput = document.getElementById("scale");
@@ -38,29 +45,84 @@ block content
     var longitudeInput = document.getElementById("longitude");
     var addLocationButton = document.getElementById("add-location-button");
 
-    var pelias = new Bloodhound({
+    // Scale and angle buttons
+    var moreButtons = document.getElementsByClassName("more");
+    var lessButtons = document.getElementsByClassName("less");
+
+    for (var i = 0; i < moreButtons.length; i++) {
+      var moreButton = moreButtons[i];
+    
+      moreButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        
+        var button = event.target;
+        var dataset = button.dataset;
+        var action = dataset.action;
+
+        if (action === "scale") {
+          scaleInput.value *= 1.05;
+          updateScale(scaleInput.value);
+        } else if (action === "angle") {
+          angleInput.value = (!angleInput.value || angleInput.value === 0) ? 0.25 : Number(angleInput.value) + 0.25;
+          updateAngle(angleInput.value);
+        }
+      });
+    }
+
+    for (var i = 0; i < lessButtons.length; i++) {
+      var lessButton = lessButtons[i];
+    
+      lessButton.addEventListener("click", function(event) {
+        event.preventDefault();
+        
+        var button = event.target;
+        var dataset = button.dataset;
+        var action = dataset.action;
+
+        if (action === "scale") {
+          scaleInput.value *= 0.95;
+          updateScale(scaleInput.value);
+        } else if (action === "angle") {
+          angleInput.value = (!angleInput.value || angleInput.value === 0) ? -0.25 : Number(angleInput.value) - 0.25;
+          updateAngle(angleInput.value);
+        }
+      });
+    }
+
+    var locationSearch = new Bloodhound({
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace("value"),
       queryTokenizer: Bloodhound.tokenizers.whitespace,
       remote: {
-        url: "http://pelias.mapzen.com/suggest?input=%QUERY&lat=51.50358&lon=-0.01924",
+        //- url: "https://pelias.mapzen.com/search/coarse?input=%QUERY&size=10",
+        url: "http://open.mapquestapi.com/nominatim/v1/search.php?format=json&limit=5&addressdetails=1&q=%QUERY",
         filter: function(response) {
-          return $.map(response.features, function(feature) {
+          // Nominatim
+          return $.map(response, function(feature) {
             return {
-              name: feature.properties.name,
-              geometry: feature.geometry
+              name: feature.display_name,
+              coordinates: [feature.lat, feature.lon]
             };
           });
+
+          // Pelias
+          //- return $.map(response.features, function(feature) {
+          //-   var properties = feature.properties;
+          //-   return {
+          //-     name: properties.name + ", " + properties.admin2 + ", " + properties.admin0,
+          //-     geometry: feature.geometry
+          //-   };
+          //- });
         }
       }
     });
      
-    pelias.initialize();
+    locationSearch.initialize();
      
-    $("#pelias").typeahead(null, {
+    $("#location-search").typeahead(null, {
       autoselect: true,
-      name: "pelias",
+      name: "location-search",
       displayKey: "name",
-      source: pelias.ttAdapter()
+      source: locationSearch.ttAdapter()
     }).keypress(function (event) {
       // Prevent form submission when selecting an autocomplete item
       if (event.which == 13) {
@@ -70,18 +132,25 @@ block content
         var e = jQuery.Event("keydown")
         e.keyCode = e.which = 9;
         
-        $("#pelias").triggerHandler(e);
+        $("#location-search").triggerHandler(e);
 
         // Close drop down
-        $("#pelias").trigger("blur");
+        $("#location-search").trigger("blur");
       }
+    }).on("typeahead:autocompleted", function(event, suggestion, actionName) {
+      changeLocation(suggestion);
     }).on("typeahead:selected", function(event, suggestion, actionName) {
+      changeLocation(suggestion);
+    });
+
+    var changeLocation = function(suggestion) {
       // TODO: Tidy this up (probably within ViziCities core)
       // - Right now ViziCities doesn't let you change camera position easily
       // - Need to add nice way to say world.moveToLatLon(coords) and have
       // everything done for you
-      var coords = suggestion.geometry.coordinates;
-      var viziCoords = new VIZI.LatLon(coords[1], coords[0]);
+      //- var coords = suggestion.geometry.coordinates;
+      var coords = suggestion.coordinates;
+      var viziCoords = new VIZI.LatLon(coords[0], coords[1]);
 
       var projected = world.project(viziCoords);
 
@@ -111,14 +180,33 @@ block content
         grid.grid.emit("moved", grid.grid.tiles, grid.grid.gridDiffSinceMouseUp);
         grid.grid.gridDiffSinceMouseUp = new VIZI.Point();
       });
-    });
+    };
 
     var world = new VIZI.World({
-      viewport: document.querySelector("#vizicities-viewport")
+      viewport: document.querySelector("#vizicities-viewport"),
+      center: new VIZI.LatLon(
+        #{(building.location && building.location.coordinates[1]) ? building.location.coordinates[1] : "51.50358"},
+        #{(building.location && building.location.coordinates[0]) ? building.location.coordinates[0] : "-0.01924"}
+      ),
+      layersUI: false
     });
 
     var controls = new VIZI.ControlsMap(world.camera, {
       viewport: world.options.viewport
+    });
+
+    controls.controls.noKeys = true;
+
+    VIZI.Messenger.on("controls:move", function(point) {  
+      // Move building
+      world.layers[1].object.children[0].position.x = point.x;
+      world.layers[1].object.children[0].position.z = point.y;
+      world.layers[1].object.children[0].updateMatrix();
+
+      // Update location
+      var unproject = world.unproject(point);
+      latitudeInput.value = Number(unproject.lat.toFixed(6));
+      longitudeInput.value = Number(unproject.lon.toFixed(6));
     });
 
     var mapConfig = {
@@ -197,7 +285,7 @@ block content
         }
       },
       output: {
-        type: "BlueprintOutputCollada",
+        type: "BlueprintOutputOBJ",
         options: {}
       },
       triggers: [{
@@ -213,16 +301,16 @@ block content
         triggerName: "dataReceived",
         triggerArguments: ["kml"],
         actionObject: "output",
-        actionName: "outputCollada",
-        actionArguments: ["collada"],
+        actionName: "outputOBJ",
+        actionArguments: ["obj"],
         actionOutput: {
-          collada: {
+          obj: {
             process: "map",
             itemsObject: "kml",
             itemsProperties: "placemark.model",
             transformation: {
               coordinates: ["location.longitude", "location.latitude"],
-              modelPath: "link.href"
+              modelPath: "link.hrefobj"
             }
           }
         }
@@ -245,26 +333,156 @@ block content
 
     update();
 
+    var checkColladaMaterials = function(node, colour) {
+      if (node.material) {
+        // console.log(node.material);
+        if (node.material.materials) {
+          var loaded = true;
+          var newMaterials = [];
+          for (var i = 0; i < node.material.materials.length; i++) {
+            var material = node.material.materials[i];
+            if (!material.map || (material.map && !material.map.image)) {
+              loaded = false;
+              newMaterials.push(new THREE.MeshLambertMaterial({color: colour}));
+            }
+          }
+
+          if (!loaded) {
+            node.material = new THREE.MeshFaceMaterial(newMaterials);
+          }
+        } else {
+          if (!node.material.map || (node.material.map && !node.material.map.image)) {
+            node.material = new THREE.MeshLambertMaterial({color: colour});
+          }
+        }
+      }
+
+      if (node.children) {
+        for (var i = 0; i < node.children.length; i++) {
+          checkColladaMaterials(node.children[i], colour);
+        }
+      }
+    }
+    
+    var checkForModel = function() {
+      if (!world.layers[1].object.children[0]) {
+        setTimeout(checkForModel, 250);
+        return;
+      }
+
+      // Check scale
+      if (#{(building.scale) ? true : false} === true) {
+        updateScale(#{building.scale});
+      }
+
+      // Check angle
+      if (#{(building.angle) ? true : false} === true) {
+        updateAngle(#{building.angle});
+      }
+
+      // Check for unloaded materials and replace with default colour
+      // TODO: Find a better way to do this as currently it replaces all materials
+      //- checkColladaMaterials(world.layers[1].object.children[0], 0xffffff);
+
+      // Move camera to fit object
+      var bbox = new THREE.Box3().setFromObject(world.layers[1].object.children[0]);
+      var height = bbox.max.y;
+      var width = bbox.max.x - bbox.min.x;
+      var vertical_FOV = world.camera.camera.fov * (Math.PI/ 180);
+      var max_z = bbox.max.z;
+      var horizontal_FOV = 2 * Math.atan (Math.tan (vertical_FOV/2) * world.camera.camera.aspect);
+      var distance_vertical = height / (2 * Math.tan(vertical_FOV/2));
+      var distance_horizontal = width / (2 * Math.tan(horizontal_FOV/2));
+      var z_distance = distance_vertical >= distance_horizontal ? distance_vertical : distance_horizontal;
+
+      z_distance = (z_distance * 3 < 10) ? 10 : Math.min(z_distance * 3, 2500);
+
+      controls.zoomTo(z_distance);
+    };
+    
+    checkForModel();
+
+    var onScaleChange = function(event) {
+      event.preventDefault();
+  
+      // TODO: Implement intelligent fractional change based on speed of scroll
+      if (event.wheelDelta > 0 || event.detail < 0) {
+        // Scroll (and scale) up
+        scaleInput.value *= 1.05;
+      } else {
+        // Scroll (and scale) down
+        scaleInput.value *= 0.95;
+      }
+
+      updateScale(scaleInput.value);
+    };
+  
+    var originScale;
+    var updateScale = function(scale) {
+      if (!originScale) {
+        originScale = world.layers[1].object.children[0].scale.x;
+      }
+
+      var newScale = originScale * scale;
+
+      // TODO: Find a more respectable way of accessing the collada object
+      world.layers[1].object.children[0].scale.set(newScale, newScale, newScale);
+      world.layers[1].object.children[0].updateMatrix();
+    }
+
+    // Implement custom stepper logic for scale input
+    scaleInput.addEventListener("mousewheel", onScaleChange);
+    scaleInput.addEventListener("DOMMouseScroll", onScaleChange);
+
     scaleInput.addEventListener("input", function(event) {
       var scale = event.target.value;
 
-      // TODO: Find a more respectable way of accessing the collada object
-      world.layers[1].object.children[0].scale.set(scale, scale, scale);
-      world.layers[1].object.children[0].updateMatrix();
+      updateScale(scale);
     });
 
-    angleInput.addEventListener("input", function(event) {
-      var angle = event.target.value;
+    var onAngleChange = function(event) {
+      event.preventDefault();
+      
+      // TODO: Implement intelligent fractional change based on speed of scroll
+      if (event.wheelDelta > 0 || event.detail < 0) {
+        // Scroll up
+        angleInput.value = (!angleInput.value || angleInput.value === 0) ? 0.05 : Number(angleInput.value) + 0.05;
+      } else {
+        // Scroll down
+        angleInput.value = (!angleInput.value || angleInput.value === 0) ? -0.05 : Number(angleInput.value) - 0.05;
+      }
 
+      updateAngle(angleInput.value);
+    };
+
+    var updateAngle = function(angle) {
       // TODO: Find a more respectable way of accessing the collada object
       world.layers[1].object.children[0].rotation.y = -(angle * Math.PI / 180);
       world.layers[1].object.children[0].updateMatrix();
+    }
+
+    // Implement custom stepper logic for scale input
+    angleInput.addEventListener("mousewheel", onAngleChange);
+    angleInput.addEventListener("DOMMouseScroll", onAngleChange);
+
+    angleInput.addEventListener("input", function(event) {
+      var angle = event.target.value;
+      updateAngle(angle);
     });
 
     latitudeInput.addEventListener("input", function(event) {
       var latitude = event.target.value;
 
       var projected = world.project(new VIZI.LatLon(latitude, longitudeInput.value));
+
+      // Move camera
+      var scale = controls.getZoom();
+
+      controls.controls.target.x = projected.x;
+      controls.controls.target.z = projected.y;
+
+      controls.controls.update();
+      controls.zoomTo(scale);
 
       // TODO: Find a more respectable way of accessing the collada object
       world.layers[1].object.children[0].position.z = projected.y;
@@ -275,6 +493,15 @@ block content
       var longitude = event.target.value;
 
       var projected = world.project(new VIZI.LatLon(latitudeInput.value, longitude));
+
+      // Move camera
+      var scale = controls.getZoom();
+
+      controls.controls.target.x = projected.x;
+      controls.controls.target.z = projected.y;
+
+      controls.controls.update();
+      controls.zoomTo(scale);
 
       // TODO: Find a more respectable way of accessing the collada object
       world.layers[1].object.children[0].position.x = projected.x;

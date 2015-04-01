@@ -1,16 +1,18 @@
 extends layout
  
 block content
-  section.details
-    h1 Login 
-    
-    form(action="/login", method="POST")
-      input(type="text", name="username" placeholder="Username", required, autofocus)
-      input(type="password", name="password" placeholder="Password", required)
-      button(type="submit") Sign in
-    a(href="/forgot") Forgot your login details?
-    br
-    a(href="/signup") Create an account
-    #message
-      if message
-        h1.text-center.error-message #{message}
+  section.container
+    div.col-7
+      h1 Login 
+
+      if message && message.length > 0
+        div.flash-alert
+          span #{message}
+      
+      form(action="/login", method="POST")
+        input(type="text", name="username" placeholder="Username", required, autofocus)
+        input(type="password", name="password" placeholder="Password", required)
+        button(type="submit") Sign in
+      a(href="/forgot") Forgot your login details?
+      br
+      a(href="/signup") Create an account

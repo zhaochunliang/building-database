@@ -14,6 +14,15 @@ var BuildingSchema = new Schema({
     id: String,
     name: String
   },
+  batch: {
+    id: String,
+    buildingRef: String
+  },
+  creator: {
+    name: String,
+    url: String
+  },
+  method: String,
   description: String,
   location: {
     type: { type: String },
@@ -24,7 +33,8 @@ var BuildingSchema = new Schema({
     country: String,
     district: String
   },
-  scale: { type: Number, default: 1 },
+  nominatim: {},
+  scale: Number,
   angle: { type: Number, default: 0 },
   structure: {
     vertices: { type: Number, default: 0 },
@@ -43,6 +53,7 @@ var BuildingSchema = new Schema({
     downloads: {type: Number, default: 0},
     views: {type: Number, default: 0}
   },
+  highlight: {type: Boolean, default: false},
   hidden: {type: Boolean, default: false},
   createdAt: Date,
   updatedAt: Date

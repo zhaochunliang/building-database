@@ -1,4 +1,4 @@
-extends layout_new
+extends layout
 
 block content
   div#browse-map
@@ -62,7 +62,7 @@ block content
             maxWidth: 450,
             closeButton: false
           }).setLatLng(circle.getLatLng())
-          .setContent("<div id='browse-map-overlay'><h2><a href='/building/" + building.slug + "'>" + building.name + "</a></h2><p>" + building.locality.district + ", " + building.locality.country + ((building.locality.countryCode) ? " <flag-icon key='" + building.locality.countryCode + "' img>" : "") + "</p><p class='buttons'><a class='button' href='/building/" + building.slug + "'>View building</a></p><span class='stalk'></span>");
+          .setContent("<div id='browse-map-overlay'><h2><a href='/building/" + building.slug.id + "/" + building.slug.name + "'>" + building.name + "</a></h2><p>" + building.locality.district + ", " + building.locality.country + ((building.locality.countryCode) ? " <flag-icon key='" + building.locality.countryCode + "' img>" : "") + "</p><p class='buttons'><a class='button' href='/building/" + building.slug.id + "/" + building.slug.name + "'>View building</a></p><span class='stalk'></span>");
         
         building.popup = popup;
 

@@ -7,7 +7,8 @@ var logger = require("morgan");
 var cookieParser = require("cookie-parser");
 var bodyParser = require("body-parser");
 var passport = require("passport");
-var session = require("express-session")
+var session = require("express-session");
+var MongoStore = require("connect-mongo")(session);
 var flash = require("connect-flash");
 var multer = require("multer");
 var paginate = require("express-paginate");
@@ -16,6 +17,18 @@ var authController = require("./controllers/auth")(passport);
 
 var config = require("./config/config.js");
 var mongoose = require("mongoose");
+
+
+// --------------------------------------------------------------------
+// GENERAL CONFIG CHECK
+// TODO: Check email settings here too
+// --------------------------------------------------------------------
+
+if (!config.siteURL) {
+  debug("Required siteURL setting not found so a default will be used");
+} else {
+  debug("Site URL:", config.siteURL);
+}
 
 
 // --------------------------------------------------------------------
@@ -62,7 +75,8 @@ if (!config.session.secret) {
 app.use(session({
   secret: config.session.secret,
   resave: true,
-  saveUninitialized: true
+  saveUninitialized: true,
+  store: new MongoStore({mongooseConnection: mongoose.connection})
 }));
 
 // Configuring Passport
@@ -73,16 +87,14 @@ app.use(passport.session());
 app.use(multer({dest: "./tmp/"}));
 
 // Pagination defaults
-app.use(paginate.middleware(8, 50));
+app.use(paginate.middleware(7, 50));
 
 // Serve static files from directory
 app.use("/", express.static(path.join(__dirname, "public")));
 app.use("/model-files", express.static(path.join(__dirname, "model-files")));
 
 // Pretty HTML output
-if (app.get("env") === "development") {
-  app.locals.pretty = true;
-}
+app.locals.pretty = true;
 
 // Routes
 var routes = require("./router")(app, passport);

@@ -24,16 +24,25 @@ config = {
 }
 
 client = AWS::OpsWorks::Client.new
+app_layer_id = client.describe_layers(
+  stack_id: config[environment.to_sym][:stack_id],
+)[:layers].select { |layer| layer[:name] == "app" }[0][:layer_id]
+
+app_instances = client.describe_instances(
+  stack_id: config[environment.to_sym][:stack_id],
+)[:instances].select {|instance| instance[:layer_ids].include?(app_layer_id) }.map {|x| x[:instance_id] }
 
 deployment = client.create_deployment(
   stack_id: config[environment.to_sym][:stack_id],
+  instance_ids: app_instances,
   command: {
     name: "execute_recipes",
-    args: {"recipes" => ["buildingdb::default"]}
+    args: {"recipes" => ["buildingdb::app"]}
   },
   comment: "Deploying build from circleci: #{ENV['CIRCLE_BUILD_NUM']} sha: #{ENV['CIRCLE_SHA1']} #{ENV['CIRCLE_COMPARE_URL']}"
 )
 
+exit 0
 timeout = 60 * 5
 time_start = Time.now.utc
 time_passed = 0

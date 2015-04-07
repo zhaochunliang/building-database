@@ -35,6 +35,7 @@ if (!config.siteURL) {
 // SET UP MONGOOSE
 // --------------------------------------------------------------------
 
+debug("database config:", config.db);
 if (!config.db || !config.db.url) {
   throw new Error("Database connection settings not found");
   return;

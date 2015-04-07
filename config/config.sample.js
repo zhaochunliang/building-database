@@ -1,7 +1,12 @@
 module.exports = {
   "siteURL": "http://yourdomain.ext",
   "db": {
-    "url": "mongodb://<dbUser>:<dbPassword>@<dbPath>:<dbPort>/<dbName>"
+    "url": "mongodb://<dbUser>:<dbPassword>@<dbPath>:<dbPort>/<dbName>",
+    "options": {
+      "server": {
+        "auto_reconnect": true
+      }
+    }
   },
   "s3": {
     "accessId": "your_access_id",

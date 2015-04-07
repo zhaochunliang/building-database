@@ -40,7 +40,7 @@ if (!config.db || !config.db.url) {
   return;
 }
 
-mongoose.connect(config.db.url, {server:{auto_reconnect:true}});
+mongoose.connect(config.db.url, config.db.options);
 var db = mongoose.connection;
 db.on('connecting', function() {
   console.log('connecting to MongoDB...');
@@ -60,7 +60,7 @@ db.on('reconnected', function () {
 });
 db.on('disconnected', function() {
   console.log('MongoDB disconnected!');
-  mongoose.connect(config.db.url, {server:{auto_reconnect:true}});
+  mongoose.connect(config.db.url, config.db.options);
 });
 
 

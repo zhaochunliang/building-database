@@ -32,8 +32,9 @@ var s3Directory = config.s3.directory || "buildings";
 
 module.exports = function (passport) {
   // Endpoint /api/buildings for GET
+  // Capped to the 100 most recent
   var getBuildings = function(req, res) {
-    Building.find({hidden: false}, function(err, buildings) {
+    Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}).limit(100).sort({createdAt: -1}).exec(function(err, buildings) {
       if (err) {
         debug(err);
         res.send(err);

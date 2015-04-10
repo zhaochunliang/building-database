@@ -65,9 +65,9 @@ describe("getBuildings()", function () {
     var findRes = mongooseStub.model(buildingData);
     sandbox.stub(Building, "find").returns(mongooseStub.query(findRes));
 
-    // TODO: Validate response data
     res.json = function(data) {
       expect(data).to.exist;
+      expect(data).to.equal(buildingData);
       done();
     };
 
@@ -164,10 +164,12 @@ describe("postBuildings()", function () {
 
     var res = expressStub.res();
 
-    // TODO: Validate response data
     res.json = function(data) {
       expect(data).to.exist;
       expect(data.error).to.not.exist;
+      expect(data.message).to.exist;
+      expect(data.building.name).to.equal(req.body.name);
+      expect(data.building.method).to.equal(req.body.method);
       done();
     };
 
@@ -188,31 +190,58 @@ describe("putBuildings()", function () {
     done();
   });
 
+  // TODO: Remove reliance on calling the Nominatim API
   it("successfully saves building changes", function(done) {
+    var selectedBuilding = _.first(buildingData);
+
     var req = expressStub.req({
+      body: {
+        hidden: !selectedBuilding.hidden,
+        highlight: !selectedBuilding.highlight,
+        description: selectedBuilding.description += "_new",
+        name: selectedBuilding.name += "_new",
+        scale: selectedBuilding.scale *= 0.9,
+        angle: selectedBuilding.angle *= 0.9,
+        osmType: "relation",
+        osmID: 123,
+        latitude: 50,
+        longitude: 1
+      },
       params: {
-        building_id: 123
+        building_id: selectedBuilding._id
+      },
+      user: {
+        group: "admin"
       }
     });
 
     var res = expressStub.res();
 
-    var findOneRes = mongooseStub.model(_.first(buildingData));
+    var findOneRes = mongooseStub.model(selectedBuilding);
     sandbox.stub(Building, "findOne").yields(null, findOneRes);
 
     res.send = function(err) {
-      expect(err).to.not.exist;
+      expect.fail();
       done();
     };
 
     res.sendStatus = function(status) {
-      expect(status).to.not.exist;
+      expect.fail();
       done();
     };
 
-    // TODO: Validate response data is set to changes in req
     res.json = function(data) {
       expect(data).to.exist;
+      expect(data.building.hidden).to.equal(req.body.hidden);
+      expect(data.building.highlight).to.equal(req.body.highlight);
+      expect(data.building.description).to.equal(req.body.description);
+      expect(data.building.name).to.equal(req.body.name);
+      expect(data.building.scale).to.equal(req.body.scale);
+      expect(data.building.angle).to.equal(req.body.angle);
+      expect(data.building.osm.type).to.equal(req.body.osmType);
+      expect(data.building.osm.id).to.equal(req.body.osmID);
+      expect(data.building.location.coordinates[0]).to.equal(req.body.longitude);
+      expect(data.building.location.coordinates[1]).to.equal(req.body.latitude);
       done();
     };
 
@@ -233,22 +262,51 @@ describe("getBuildingsBbox()", function () {
     done();
   });
 
-  it("returns valid buildings response", function(done) {
+  it("returns valid buildings JSON response", function(done) {
+    var selectedBuildings = _.take(buildingData, 10);
+
     var req = expressStub.req();
     var res = expressStub.res();
 
-    var findRes = mongooseStub.model(_.take(buildingData, 10));
+    var findRes = mongooseStub.model(selectedBuildings);
     sandbox.stub(Building, "find").returns(mongooseStub.query(findRes));
 
-    // TODO: Handle KML response
     res.send = function(err) {
-      expect(err).to.not.exist;
+      expect.fail();
       done();
     };
 
-    // TODO: Validate response data is corrent
     res.json = function(data) {
       expect(data).to.exist;
+      expect(data).to.equal(selectedBuildings);
+      done();
+    };
+
+    building.getBuildingsBbox(req, res);
+  });
+
+  it("returns valid buildings KML response", function(done) {
+    var selectedBuildings = _.take(buildingData, 10);
+
+    var req = expressStub.req({
+      params: {
+        kml: true 
+      }
+    });
+    var res = expressStub.res();
+
+    var findRes = mongooseStub.model(selectedBuildings);
+    sandbox.stub(Building, "find").returns(mongooseStub.query(findRes));
+
+    res.send = function(data) {
+      expect(data).to.exist;
+      expect(res.set).to.be.calledWith("Content-Type", "text/xml");
+      expect(data.indexOf("<?xml version='1.0' encoding='UTF-8'?>")).to.not.equal(-1);
+      done();
+    };
+
+    res.json = function(data) {
+      expect.fail();
       done();
     };
 
@@ -270,15 +328,17 @@ describe("getBuildingsNear()", function () {
   });
 
   it("returns valid buildings response", function(done) {
+    var selectedBuildings = _.take(buildingData, 10);
+
     var req = expressStub.req();
     var res = expressStub.res();
 
-    var findRes = mongooseStub.model(_.take(buildingData, 10));
+    var findRes = mongooseStub.model(selectedBuildings);
     sandbox.stub(Building, "find").returns(mongooseStub.query(findRes));
 
-    // TODO: Validate response data is corrent
     res.json = function(data) {
       expect(data).to.exist;
+      expect(data).to.equal(selectedBuildings);
       done();
     };
 
@@ -300,15 +360,17 @@ describe("getBuildingsTile()", function () {
   });
 
   it("returns valid buildings response", function(done) {
+    var selectedBuildings = _.take(buildingData, 10);
+
     var req = expressStub.req();
     var res = expressStub.res();
 
-    var findRes = mongooseStub.model(_.take(buildingData, 10));
+    var findRes = mongooseStub.model(selectedBuildings);
     sandbox.stub(Building, "find").returns(mongooseStub.query(findRes));
 
-    // TODO: Validate response data is corrent
     res.json = function(data) {
       expect(data).to.exist;
+      expect(data).to.equal(selectedBuildings);
       done();
     };
 
@@ -330,15 +392,17 @@ describe("getBuilding()", function () {
   });
 
   it("returns valid building response", function(done) {
+    var selectedBuilding = _.first(buildingData);
+
     var req = expressStub.req();
     var res = expressStub.res();
 
-    var findRes = mongooseStub.model(_.first(buildingData));
+    var findRes = mongooseStub.model(selectedBuilding);
     sandbox.stub(Building, "findOne").yields(null, findRes);
 
-    // TODO: Validate response data is corrent
     res.json = function(data) {
       expect(data).to.exist;
+      expect(data).to.equal(selectedBuilding);
       done();
     };
 
@@ -377,18 +441,18 @@ describe("getBuildingDownload()", function () {
     sandbox.stub(Building, "findOne").yields(null, findRes);
 
     res.send = function(err) {
-      expect(err).to.not.exist;
+      expect.fail();
       done();
     };
 
     res.sendStatus = function(status) {
-      expect(status).to.not.exist;
+      expect.fail();
       done();
     };
 
-    // TODO: Validate path is corrent
     res.redirect = function(path) {
       expect(path).to.exist;
+      expect(path).to.equal(selectedBuilding.models.zip[1].path);
       done();
     };
 
@@ -421,17 +485,17 @@ describe("getBuildingKML()", function () {
     var res = expressStub.res();
 
     var findRes = mongooseStub.model(selectedBuilding);
-
     sandbox.stub(Building, "findOne").yields(null, findRes);
 
-    // TODO: Validate returned data and response header
     res.send = function(data) {
       expect(data).to.exist;
+      expect(res.set).to.be.calledWith("Content-Type", "text/xml");
+      expect(data.indexOf("<?xml version='1.0' encoding='UTF-8'?>")).to.not.equal(-1);
       done();
     };
 
     res.sendStatus = function(status) {
-      expect(status).to.not.exist;
+      expect.fail();
       done();
     };
 

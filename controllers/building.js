@@ -715,7 +715,7 @@ module.exports = function (passport) {
         
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        res.set("content-Type", "text/xml");
+        res.set("Content-Type", "text/xml");
         res.send("<?xml version='1.0' encoding='UTF-8'?>" + JXON.stringify(kmlObj));
       }
     });
@@ -907,7 +907,7 @@ module.exports = function (passport) {
         
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        res.set("content-Type", "text/xml");
+        res.set("Content-Type", "text/xml");
         res.send("<?xml version='1.0' encoding='UTF-8'?>" + JXON.stringify(kmlObj));
       });
     });

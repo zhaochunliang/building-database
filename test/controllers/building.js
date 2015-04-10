@@ -1,3 +1,6 @@
+// TODO: Clean up the Mongoose stubbing
+// TODO: Make the example building model easier to update
+
 var _ = require("lodash");
 var proxyquire = require("proxyquire");
 var Q = require("q");
@@ -42,7 +45,6 @@ after(function(done) {
   done();
 });
 
-// TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildings()", function () {
   before(function(done) {
@@ -73,7 +75,7 @@ describe("getBuildings()", function () {
   });
 });
 
-// TODO: Work out how to test this without polluting database, file-system or S3
+// TODO: Test for Mongo / Express error responses
 describe("postBuildings()", function () {
   before(function(done) {
     building = proxyquire("../../controllers/building", {
@@ -173,7 +175,6 @@ describe("postBuildings()", function () {
   });
 });
 
-// TODO: Work out how to test this without polluting database
 // TODO: Test for Mongo / Express error responses
 describe("putBuildings()", function () {
   before(function(done) {
@@ -219,7 +220,6 @@ describe("putBuildings()", function () {
   });
 });
 
-// TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildingsBbox()", function () {
   before(function(done) {
@@ -256,7 +256,6 @@ describe("getBuildingsBbox()", function () {
   });
 });
 
-// TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildingsNear()", function () {
   before(function(done) {
@@ -287,7 +286,6 @@ describe("getBuildingsNear()", function () {
   });
 });
 
-// TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildingsTile()", function () {
   before(function(done) {
@@ -318,7 +316,6 @@ describe("getBuildingsTile()", function () {
   });
 });
 
-// TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuilding()", function () {
   before(function(done) {
@@ -349,7 +346,6 @@ describe("getBuilding()", function () {
   });
 });
 
-// TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildingDownload()", function () {
   before(function(done) {
@@ -400,7 +396,6 @@ describe("getBuildingDownload()", function () {
   });
 });
 
-// TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildingKML()", function () {
   before(function(done) {

@@ -1,12 +1,9 @@
-// TODO: Make it so an existing, populated database isn't required
-// - https://github.com/mccormicka/Mockgoose
-// - http://blog.jeffryhesse.com/test-driven-development-in-sails-js-with-mongoose-mocha-and-chai/
-// TODO: Is it worth testing private methods too, or just the public interface?
-// TODO: Mock S3
-// - https://github.com/jsantell/mock-s3
-// TODO: Create a helper function for Express req/res stubs
-
 var _ = require("lodash");
+var proxyquire = require("proxyquire");
+var Q = require("q");
+
+var fs = require("fs-extra");
+var rimraf = require("rimraf");
 
 var chai = require("chai");
 var sinon = require("sinon");
@@ -18,11 +15,13 @@ var mongooseStub = require("../mongoose-helper");
 var expressStub = require("../express-helper");
 
 // Models
-var Building = require("../../models/building");
+var Building;
 
-// Could overload S3 and others using proxyquire
-var building = require("../../controllers/building")();
+// Controllers
+var building;
+
 var buildingData = require("../building-data");
+var buildingModel = require("../building-model");
 
 var sandbox;
 beforeEach(function (done) {
@@ -46,6 +45,12 @@ after(function(done) {
 // TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildings()", function () {
+  before(function(done) {
+    Building = require("../../models/building");
+    building = require("../../controllers/building")();
+    done();
+  });
+
   it("exists", function(done) {
     expect(building.getBuildings).to.exist;
     done();
@@ -68,17 +73,115 @@ describe("getBuildings()", function () {
   });
 });
 
-// TODO: Work out how to test this without polluting database or S3
+// TODO: Work out how to test this without polluting database, file-system or S3
 describe("postBuildings()", function () {
+  before(function(done) {
+    building = proxyquire("../../controllers/building", {
+      "../models/building": buildingModel,
+      "aws-sdk": {
+        S3: function() {
+          return {
+            upload: function(options) {
+              return {
+                on: function() {
+                  return this;
+                },
+                send: function(callback) {
+                  var data = {
+                    Location: options.Key
+                  };
+
+                  callback(null, data);
+                }
+              };
+            }
+          };
+        }
+      },
+      "model-converter": {
+        convert: function(inputPath, outputPath) {
+          var deferred = Q.defer();
+
+          var outputExt = outputPath.split(".").pop();
+
+          fs.copy(__dirname + "/../files/postBuildings/example." + outputExt, __dirname + "/../files/tmp/example/example." + outputExt, function(err) {
+            if (err) {
+              deferred.reject(err);
+              return;
+            }
+
+            deferred.resolve(outputPath);
+          });
+
+          return deferred.promise;
+        }
+      },
+    })();
+
+    // Set up and move files
+    fs.copy(__dirname + "/../files/postBuildings/example.dae", __dirname + "/../files/tmp/example.dae", function(err) {
+      if (err) {
+        expect.fail();
+        return;
+      }
+
+      done();
+    });
+  });
+
+  after(function(done) {
+    // Clean up files if not already cleaned
+    rimraf(__dirname + "/../files/tmp", function(err) {
+      if (err) {
+        expect.fail();
+        return;
+      }
+
+      done();
+    });
+  });
+
   it("exists", function(done) {
     expect(building.postBuildings).to.exist;
     done();
+  });
+
+  it("successfully adds a building", function(done) {
+    var req = expressStub.req({
+      body: {
+        name: "example-building",
+        method: "handmade"
+      },
+      files: {
+        model: {
+          path: __dirname + "/../files/tmp/example.dae",
+          extension: "dae"
+        }
+      }
+    });
+
+    var res = expressStub.res();
+
+    // TODO: Validate response data
+    res.json = function(data) {
+      expect(data).to.exist;
+      expect(data.error).to.not.exist;
+      done();
+    };
+
+    building.postBuildings(req, res);
   });
 });
 
 // TODO: Work out how to test this without polluting database
 // TODO: Test for Mongo / Express error responses
 describe("putBuildings()", function () {
+  before(function(done) {
+    Building = require("../../models/building");
+    building = require("../../controllers/building")();
+    done();
+  });
+
   it("exists", function(done) {
     expect(building.putBuildings).to.exist;
     done();
@@ -119,6 +222,12 @@ describe("putBuildings()", function () {
 // TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildingsBbox()", function () {
+  before(function(done) {
+    Building = require("../../models/building");
+    building = require("../../controllers/building")();
+    done();
+  });
+
   it("exists", function(done) {
     expect(building.getBuildingsBbox).to.exist;
     done();
@@ -150,6 +259,12 @@ describe("getBuildingsBbox()", function () {
 // TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildingsNear()", function () {
+  before(function(done) {
+    Building = require("../../models/building");
+    building = require("../../controllers/building")();
+    done();
+  });
+
   it("exists", function(done) {
     expect(building.getBuildingsNear).to.exist;
     done();
@@ -175,6 +290,12 @@ describe("getBuildingsNear()", function () {
 // TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildingsTile()", function () {
+  before(function(done) {
+    Building = require("../../models/building");
+    building = require("../../controllers/building")();
+    done();
+  });
+
   it("exists", function(done) {
     expect(building.getBuildingsTile).to.exist;
     done();
@@ -200,6 +321,12 @@ describe("getBuildingsTile()", function () {
 // TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuilding()", function () {
+  before(function(done) {
+    Building = require("../../models/building");
+    building = require("../../controllers/building")();
+    done();
+  });
+
   it("exists", function(done) {
     expect(building.getBuilding).to.exist;
     done();
@@ -225,6 +352,12 @@ describe("getBuilding()", function () {
 // TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildingDownload()", function () {
+  before(function(done) {
+    Building = require("../../models/building");
+    building = require("../../controllers/building")();
+    done();
+  });
+
   it("exists", function(done) {
     expect(building.getBuildingDownload).to.exist;
     done();
@@ -270,6 +403,12 @@ describe("getBuildingDownload()", function () {
 // TODO: Need sample buildings to request from the database
 // TODO: Test for Mongo / Express error responses
 describe("getBuildingKML()", function () {
+  before(function(done) {
+    Building = require("../../models/building");
+    building = require("../../controllers/building")();
+    done();
+  });
+
   it("exists", function(done) {
     expect(building.getBuildingKML).to.exist;
     done();

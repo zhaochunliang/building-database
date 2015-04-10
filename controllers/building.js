@@ -933,13 +933,15 @@ module.exports = function (passport) {
     });
 
     archive.pipe(output);
+
+    var prefix = (path[0] === "/") ? "" : "./";
     
-    archive.append(fs.createReadStream("./" + path), { name: path.split("tmp/")[1] });
+    archive.append(fs.createReadStream(prefix + path), { name: path.split("tmp/")[1] });
 
     _.each(moveAssetFiles, function(assetFile) {
       var assetPath = assetFile[3];
 
-      archive.append(fs.createReadStream("./" + assetPath), { name: assetPath.split("tmp/")[1] });
+      archive.append(fs.createReadStream(prefix + assetPath), { name: assetPath.split("tmp/")[1] });
     });
 
     archive.finalize();

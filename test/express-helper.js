@@ -7,6 +7,7 @@ express.req = function(req) {
   var defaultReq = {
     body: {},
     params: {},
+    session: {},
     user: {
       _id: 123
     }

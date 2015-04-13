@@ -192,6 +192,10 @@ describe("putBuildings()", function () {
 
   // TODO: Remove reliance on calling the Nominatim API
   it("successfully saves building changes", function(done) {
+    // Increase default timeout due to external requests
+    // TODO: Stub external requests
+    this.timeout(5000);
+
     var selectedBuilding = _.first(buildingData);
 
     var req = expressStub.req({

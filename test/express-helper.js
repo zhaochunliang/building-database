@@ -6,7 +6,9 @@ var express = {};
 express.req = function(req) {
   var defaultReq = {
     body: {},
+    flash: sinon.spy(),
     params: {},
+    query: {},
     session: {},
     user: {
       _id: 123

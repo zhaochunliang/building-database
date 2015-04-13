@@ -54,6 +54,10 @@ model.save = function(callback) {
   callback(null, this);
 };
 
-module.exports = function() {
-  return model
+module.exports = function(data) {
+  model.paginate = function(query, page, limit, callback) {
+    callback(null, 10, data);
+  };
+
+  return model;
 };

@@ -7,6 +7,10 @@ express.req = function(req) {
   var defaultReq = {
     body: {},
     flash: sinon.spy(),
+    login: function(user, callback) {
+      callback(null);
+    },
+    logout: sinon.spy(),
     params: {},
     query: {},
     session: {},
@@ -26,6 +30,10 @@ express.res = function(res) {
   };
 
   return _.defaults(res || {}, defaultRes);
+};
+
+express.next = function() {
+  return this;
 };
 
 module.exports = express;

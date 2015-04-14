@@ -267,7 +267,7 @@ describe("postBuildingReport()", function () {
 
   it("successfully adds a building report", function(done) {
     var selectedBuilding = _.first(buildingData);
-    
+
     var req = expressStub.req({
       body: {
         details: "A sample report.",
@@ -1179,7 +1179,7 @@ describe("postUserEdit()", function () {
 
     site.postUserEdit(req, res);
   });
-  
+
   // TODO: Fix this test
   // - Not working due to needing different User.find stub responses
   // it("update user email", function(done) {

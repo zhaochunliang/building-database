@@ -1,9 +1,14 @@
 var model = {
   _id: "",
-  building: {},
-  reason: "",
-  details: "",
+  username: "",
   email: "",
+  password: "",
+  gravatar: "",
+  twitter: "",
+  website: "",
+  group: "",
+  verified: false,
+  banned: false,
   createdAt: new Date(),
   updatedAt: new Date()
 };

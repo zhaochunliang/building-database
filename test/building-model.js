@@ -1,5 +1,5 @@
 var model = {
-  id: "",
+  _id: "",
   name: "",
   slug: {
     id: "",

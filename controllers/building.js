@@ -32,8 +32,9 @@ var s3Directory = config.s3.directory || "buildings";
 
 module.exports = function (passport) {
   // Endpoint /api/buildings for GET
+  // Capped to the 100 most recent
   var getBuildings = function(req, res) {
-    Building.find({hidden: false}, function(err, buildings) {
+    Building.find({$and: [{"location.coordinates": {$ne: [0,0]}}, {hidden: false}]}).limit(100).sort({createdAt: -1}).exec(function(err, buildings) {
       if (err) {
         debug(err);
         res.send(err);
@@ -714,7 +715,7 @@ module.exports = function (passport) {
         
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        res.set("content-Type", "text/xml");
+        res.set("Content-Type", "text/xml");
         res.send("<?xml version='1.0' encoding='UTF-8'?>" + JXON.stringify(kmlObj));
       }
     });
@@ -906,7 +907,7 @@ module.exports = function (passport) {
         
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-        res.set("content-Type", "text/xml");
+        res.set("Content-Type", "text/xml");
         res.send("<?xml version='1.0' encoding='UTF-8'?>" + JXON.stringify(kmlObj));
       });
     });
@@ -932,13 +933,15 @@ module.exports = function (passport) {
     });
 
     archive.pipe(output);
+
+    var prefix = (path[0] === "/") ? "" : "./";
     
-    archive.append(fs.createReadStream("./" + path), { name: path.split("tmp/")[1] });
+    archive.append(fs.createReadStream(prefix + path), { name: path.split("tmp/")[1] });
 
     _.each(moveAssetFiles, function(assetFile) {
       var assetPath = assetFile[3];
 
-      archive.append(fs.createReadStream("./" + assetPath), { name: assetPath.split("tmp/")[1] });
+      archive.append(fs.createReadStream(prefix + assetPath), { name: assetPath.split("tmp/")[1] });
     });
 
     archive.finalize();

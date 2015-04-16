@@ -3,6 +3,7 @@ tmp
 model-files
 #public/lib
 public/style/main.css
+coverage/
 
 # Created by https://www.gitignore.io
 
@@ -58,4 +59,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-

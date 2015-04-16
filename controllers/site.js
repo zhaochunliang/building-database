@@ -226,7 +226,7 @@ module.exports = function (passport) {
       } else if (req.body.longitude && req.body.latitude) {
         var longitude = req.body.longitude;
         var latitude = req.body.latitude;
-        var distance = req.body.distance | 1000;
+        var distance = req.body.distance || 1000;
 
         res.redirect("/search/near/" + longitude + "," + latitude + "," + distance);
       } else {
@@ -244,7 +244,7 @@ module.exports = function (passport) {
           type: "Point",
           coordinates: [req.params.lon, req.params.lat]
         },
-        $maxDistance: Number(req.params.distance) | 1000
+        $maxDistance: Number(req.params.distance) || 1000
       }
     }}, {hidden: false}]}, req.query.page, req.query.limit, function(err, pageCount, buildings) {
       if (err) {
@@ -469,6 +469,7 @@ module.exports = function (passport) {
           user: req.user,
           banned: true
         });
+        return;
       }
 
       profile = {

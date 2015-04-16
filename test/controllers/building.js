@@ -26,6 +26,8 @@ var building;
 var buildingData = require("../building-data");
 var buildingModel = require("../building-model");
 
+var config = require("../config");
+
 var sandbox;
 beforeEach(function (done) {
   sandbox = sinon.sandbox.create();
@@ -49,7 +51,9 @@ after(function(done) {
 describe("getBuildings()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    building = require("../../controllers/building")();
+    building = proxyquire("../../controllers/building", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -79,6 +83,7 @@ describe("getBuildings()", function () {
 describe("postBuildings()", function () {
   before(function(done) {
     building = proxyquire("../../controllers/building", {
+      "../config/configProxy": config,
       "../models/building": buildingModel,
       "aws-sdk": {
         S3: function() {
@@ -181,7 +186,9 @@ describe("postBuildings()", function () {
 describe("putBuildings()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    building = require("../../controllers/building")();
+    building = proxyquire("../../controllers/building", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -257,7 +264,9 @@ describe("putBuildings()", function () {
 describe("getBuildingsBbox()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    building = require("../../controllers/building")();
+    building = proxyquire("../../controllers/building", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -294,7 +303,7 @@ describe("getBuildingsBbox()", function () {
 
     var req = expressStub.req({
       params: {
-        kml: true 
+        kml: true
       }
     });
     var res = expressStub.res();
@@ -322,7 +331,9 @@ describe("getBuildingsBbox()", function () {
 describe("getBuildingsNear()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    building = require("../../controllers/building")();
+    building = proxyquire("../../controllers/building", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -354,7 +365,9 @@ describe("getBuildingsNear()", function () {
 describe("getBuildingsTile()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    building = require("../../controllers/building")();
+    building = proxyquire("../../controllers/building", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -386,7 +399,9 @@ describe("getBuildingsTile()", function () {
 describe("getBuilding()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    building = require("../../controllers/building")();
+    building = proxyquire("../../controllers/building", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -418,7 +433,9 @@ describe("getBuilding()", function () {
 describe("getBuildingDownload()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    building = require("../../controllers/building")();
+    building = proxyquire("../../controllers/building", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -468,7 +485,9 @@ describe("getBuildingDownload()", function () {
 describe("getBuildingKML()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    building = require("../../controllers/building")();
+    building = proxyquire("../../controllers/building", {
+      "../config/configProxy": config
+    })();
     done();
   });
 

@@ -20,7 +20,7 @@ var rimraf = require("rimraf");
 
 var Building = require("../models/building");
 
-var config = require("../config/config.js");
+var config = require("../config/configProxy");
 
 if (config.s3.accessId && config.s3.accessKey) {
   AWS.config.update({accessKeyId: config.s3.accessId, secretAccessKey: config.s3.accessKey});
@@ -138,7 +138,7 @@ module.exports = function (passport) {
         }
 
         tmpName = uploadPath.split("." + uploadExt)[0];
-        
+
         var newPath = tmpName + "/" + uploadPath.split("tmp/")[1];
 
         mkdirp(tmpName, function(err) {
@@ -316,7 +316,7 @@ module.exports = function (passport) {
         }, function(deleteErr) {
           done(deleteErr);
         });
-      });  
+      });
     }, function(moveFiles, moveAssetFiles, done) {
       var archiveQueue = [];
       var structurePath;
@@ -422,7 +422,7 @@ module.exports = function (passport) {
         lr.on("line", function (line) {
           var vertexResult = vertexRegex.exec(line);
           var faceResult = faceRegex.exec(line);
-          
+
           if (!vertexResult && !faceResult) {
             return;
           }
@@ -440,7 +440,7 @@ module.exports = function (passport) {
 
           saveBuilding(building).done(function(savedBuilding) {
             res.json({message: "Building added", building: savedBuilding});
-            
+
             // Delete temporary directories
             // Delay to prevent random LR "error" events after recursive delete
             setTimeout(function() {
@@ -470,7 +470,7 @@ module.exports = function (passport) {
         debug(err);
 
         res.json({error: err.message});
-        
+
         // TODO: Only throw on specific errors, or throw before getting here
         //throw err;
       }
@@ -567,7 +567,7 @@ module.exports = function (passport) {
 
     // var url = "http://pelias.mapzen.com/reverse?lat=" + req.body.latitude + "&lon=" + req.body.longitude
     var url = "http://open.mapquestapi.com/nominatim/v1/reverse.php?format=json&zoom=18&lat=" + latitude + "&lon=" + longitude;
-    
+
     // Find location country and admin
     request(url, function (error, response, body) {
       if (!error && response.statusCode == 200) {
@@ -601,7 +601,7 @@ module.exports = function (passport) {
 
           if (featureProperties.house_number) {
             if (addressStr.length > 0) {
-              addressStr += ", ";  
+              addressStr += ", ";
             }
 
             addressStr += featureProperties.house_number;
@@ -609,9 +609,9 @@ module.exports = function (passport) {
 
           if (featureProperties.road || featureProperties.footway || featureProperties.pedestrian) {
             if (addressStr.length > 0) {
-              addressStr += ", ";  
+              addressStr += ", ";
             }
-            
+
             addressStr += (featureProperties.road) ? featureProperties.road : (featureProperties.footway || featureProperties.pedestrian);
           }
 
@@ -712,7 +712,7 @@ module.exports = function (passport) {
             }
           });
         });
-        
+
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         res.set("Content-Type", "text/xml");
@@ -732,7 +732,7 @@ module.exports = function (passport) {
     var w = bbox[0];
     var s = bbox[1];
     var e = bbox[2];
-    var n = bbox[3]; 
+    var n = bbox[3];
 
     var sortBy = {
       highlight: -1
@@ -834,7 +834,7 @@ module.exports = function (passport) {
           res.send(err);
           return;
         }
-        
+
         // res.sendFile(path.resolve("." + file.path), options);
         res.redirect(file.path);
       });
@@ -904,7 +904,7 @@ module.exports = function (passport) {
           res.send(err);
           return;
         }
-        
+
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         res.set("Content-Type", "text/xml");
@@ -935,7 +935,7 @@ module.exports = function (passport) {
     archive.pipe(output);
 
     var prefix = (path[0] === "/") ? "" : "./";
-    
+
     archive.append(fs.createReadStream(prefix + path), { name: path.split("tmp/")[1] });
 
     _.each(moveAssetFiles, function(assetFile) {
@@ -972,14 +972,14 @@ module.exports = function (passport) {
     var deferred = Q.defer();
 
     var fileStream = fs.createReadStream(path);
-    
+
     fileStream.on("error", function(err) {
       deferred.reject(err);
     });
 
     fileStream.on("open", function() {
       var s3 = new AWS.S3();
-      
+
       s3.upload({
         Bucket: config.s3.bucket,
         Key: s3PathKey,

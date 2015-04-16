@@ -7,7 +7,7 @@ var nodemailer = require("nodemailer");
 var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
 
-var config = require("../config/config.js");
+var config = require("../config/configProxy");
 
 var User = require("../models/user");
 
@@ -26,7 +26,7 @@ module.exports = function(passport) {
         done(err);
         return;
       }
-      
+
       done(null, user);
     });
   });
@@ -34,9 +34,9 @@ module.exports = function(passport) {
   passport.use("login", new LocalStrategy({
       passReqToCallback : true
     },
-    function(req, username, password, done) { 
+    function(req, username, password, done) {
       // check in mongo if a user with username exists or not
-      User.findOne({ $and: [{"username": username}, {"verified": true}, {"banned": false}]}, 
+      User.findOne({ $and: [{"username": username}, {"verified": true}, {"banned": false}]},
         function(err, user) {
           // In case of any error, return using the done method
           if (err) {
@@ -47,9 +47,9 @@ module.exports = function(passport) {
           // Username does not exist, log the error and redirect back
           if (!user){
             debug("User not found with username "+username);
-            return done(null, false, req.flash("message", "User not found"));                 
+            return done(null, false, req.flash("message", "User not found"));
           }
-          // User exists but wrong password, log the error 
+          // User exists but wrong password, log the error
           if (!isValidPassword(user, password)){
             debug("Invalid Password");
               return done(null, false, req.flash("message", "Incorrect password"));
@@ -132,7 +132,7 @@ module.exports = function(passport) {
                 });
               }, function(token, asyncDone) {
                 // Send verify email
-                
+
                 // Skip if email hasn't been set up
                 if (!config.email.verify.fromAddress) {
                   asyncDone(new Error("Email verify.fromAddress not found in configuration"));
@@ -150,7 +150,7 @@ module.exports = function(passport) {
                     (config.siteURL || "http://" + req.headers.host) + "/verify/" + token + "\n\n" +
                     "If you did not request this, please ignore this email.\n"
                 };
-                
+
                 transport.sendMail(mailOptions, function(err) {
                   if (err) {
                     debug("Unable to send email via SMTP server. Is it running?");
@@ -159,7 +159,7 @@ module.exports = function(passport) {
                   }
 
                   req.flash("message", "A verification link has been sent by e-mail to " + newUser.email + ".");
-                  
+
                   asyncDone(null, newUser);
                 });
               }
@@ -187,7 +187,7 @@ module.exports = function(passport) {
     if (req.isAuthenticated()) {
       return next();
     }
-    
+
     // Send 403 on AJAX
     if (req.xhr) {
       // TODO: Should this be a 401?

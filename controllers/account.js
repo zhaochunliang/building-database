@@ -5,7 +5,7 @@ var nodemailer = require("nodemailer");
 var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
 
-var config = require("../config/config.js");
+var config = require("../config/configProxy");
 
 var User = require("../models/user");
 
@@ -26,7 +26,7 @@ module.exports = function (passport) {
     passport.authenticate("login", {
       successRedirect: req.session.returnTo || "/",
       failureRedirect: "/login",
-      failureFlash: true  
+      failureFlash: true
     })(req, res, next);
   };
 
@@ -49,7 +49,7 @@ module.exports = function (passport) {
     passport.authenticate("signup", {
       successRedirect: "/signup",
       failureRedirect: "/signup",
-      failureFlash: true  
+      failureFlash: true
     })(req, res, next);
   };
 
@@ -276,9 +276,9 @@ module.exports = function (passport) {
             done(err);
             return;
           }
-          
+
           req.flash("message", "Success! Your password has been changed.");
-          
+
           done(null);
         });
       }

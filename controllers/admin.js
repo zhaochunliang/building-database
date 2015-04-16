@@ -1,6 +1,6 @@
 var debug = require("debug")("polygoncity");
 var _ = require("underscore");
-var config = require("../config/config.js");
+var config = require("../config/configProxy");
 var gravatar = require("gravatar");
 
 var Building = require("../models/building");
@@ -38,7 +38,7 @@ module.exports = function (passport) {
         res.send(err);
         return;
       }
-      
+
       res.render("admin-buildings", {
         bodyId: "admin-buildings",
         user: req.user,
@@ -125,7 +125,7 @@ module.exports = function (passport) {
         res.send(err);
         return;
       }
-      
+
       res.render("admin-users", {
         bodyId: "admin-users",
         user: req.user,
@@ -189,7 +189,7 @@ module.exports = function (passport) {
 
       // Check for updated details
       // TODO: Support updating of username and email
-      
+
       if (req.body.website) {
         user.website = req.body.website;
       }

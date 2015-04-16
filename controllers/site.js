@@ -7,7 +7,7 @@ var smtpTransport = require("nodemailer-smtp-transport");
 var gravatar = require("gravatar");
 var git = require("git-rev");
 
-var config = require("../config/config.js");
+var config = require("../config/configProxy");
 
 module.exports = function (passport) {
   var Building = require("../models/building");
@@ -53,7 +53,7 @@ module.exports = function (passport) {
         res.send(err);
         return;
       }
-      
+
       res.render("browse", {
         bodyId: "browse",
         user: req.user,
@@ -131,7 +131,7 @@ module.exports = function (passport) {
             res.send(err);
             return;
           }
-          
+
           res.render("building", {
             bodyId: "building",
             user: req.user,
@@ -167,7 +167,7 @@ module.exports = function (passport) {
         res.send(err);
         return;
       }
-      
+
       // Skip if email hasn't been set up
       if (!config.email.report.fromAddress || !config.email.report.toAddress) {
         throw new Error("Email report from or to address not found in configuration");
@@ -555,7 +555,7 @@ module.exports = function (passport) {
           var grav = gravatar.url(user.email);
           user.gravatar = grav;
 
-          // Check for updated details      
+          // Check for updated details
           if (req.body.website) {
             user.website = req.body.website;
           }
@@ -657,12 +657,12 @@ module.exports = function (passport) {
               (config.siteURL || "http://" + req.headers.host) + "/verify/" + token + "\n\n" +
               "If you did not request this, please ignore this email.\n"
           };
-          
+
           transport.sendMail(mailOptions, function(err) {
             if (err) {
               debug("Unable to send email via SMTP server. Is it running?");
               asyncDone(err);
-              return;              
+              return;
             }
 
             msg = "Profile updated, verification email sent.";

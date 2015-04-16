@@ -1,5 +1,5 @@
 var _ = require("lodash");
-var proxyquire = require("proxyquire");
+var proxyquire = require("proxyquire").noCallThru();
 
 var chai = require("chai");
 var sinon = require("sinon");
@@ -12,6 +12,8 @@ var passport = require("passport");
 var mongooseStub = require("../mongoose-helper");
 var expressStub = require("../express-helper");
 var nodemailerStub = require("../nodemailer-helper");
+
+var config = require("../config");
 
 // Models
 var User;
@@ -41,7 +43,9 @@ after(function(done) {
 // TODO: Test for Mongo / Express error responses
 describe("getLogin()", function () {
   before(function(done) {
-    account = require("../../controllers/account")(passport);
+    account = proxyquire("../../controllers/account", {
+      "../config/configProxy": config
+    })(passport);
     done();
   });
 
@@ -69,7 +73,9 @@ describe("getLogin()", function () {
 // TODO: Test for Mongo / Express error responses
 describe("postLogin()", function () {
   before(function(done) {
-    account = require("../../controllers/account")(passport);
+    account = proxyquire("../../controllers/account", {
+      "../config/configProxy": config
+    })(passport);
     done();
   });
 
@@ -104,7 +110,9 @@ describe("postLogin()", function () {
 // TODO: Test for Mongo / Express error responses
 describe("getLogout()", function () {
   before(function(done) {
-    account = require("../../controllers/account")(passport);
+    account = proxyquire("../../controllers/account", {
+      "../config/configProxy": config
+    })(passport);
     done();
   });
 
@@ -132,7 +140,9 @@ describe("getLogout()", function () {
 // TODO: Test for Mongo / Express error responses
 describe("getSignup()", function () {
   before(function(done) {
-    account = require("../../controllers/account")(passport);
+    account = proxyquire("../../controllers/account", {
+      "../config/configProxy": config
+    })(passport);
     done();
   });
 
@@ -160,7 +170,9 @@ describe("getSignup()", function () {
 // TODO: Test for Mongo / Express error responses
 describe("postSignup()", function () {
   before(function(done) {
-    account = require("../../controllers/account")(passport);
+    account = proxyquire("../../controllers/account", {
+      "../config/configProxy": config
+    })(passport);
     done();
   });
 
@@ -187,7 +199,9 @@ describe("postSignup()", function () {
 describe("getVerify()", function () {
   before(function(done) {
     User = require("../../models/user.js");
-    account = require("../../controllers/account")(passport);
+    account = proxyquire("../../controllers/account", {
+      "../config/configProxy": config
+    })(passport);
     done();
   });
 
@@ -296,7 +310,9 @@ describe("getVerify()", function () {
 // TODO: Test for Mongo / Express error responses
 describe("getForgot()", function () {
   before(function(done) {
-    account = require("../../controllers/account")(passport);
+    account = proxyquire("../../controllers/account", {
+      "../config/configProxy": config
+    })(passport);
     done();
   });
 
@@ -326,6 +342,7 @@ describe("postForgot()", function () {
   before(function(done) {
     User = require("../../models/user.js");
     account = proxyquire("../../controllers/account", {
+      "../config/configProxy": config,
       "nodemailer": nodemailerStub
     })(passport);
     done();
@@ -399,7 +416,9 @@ describe("postForgot()", function () {
 describe("getReset()", function () {
   before(function(done) {
     User = require("../../models/user.js");
-    account = require("../../controllers/account")(passport);
+    account = proxyquire("../../controllers/account", {
+      "../config/configProxy": config
+    })(passport);
     done();
   });
 
@@ -480,6 +499,7 @@ describe("postReset()", function () {
   before(function(done) {
     User = require("../../models/user.js");
     account = proxyquire("../../controllers/account", {
+      "../config/configProxy": config,
       "nodemailer": nodemailerStub
     })(passport);
     done();

@@ -24,6 +24,8 @@ var buildingModel = require("../building-model");
 
 var buildingReportModel = require("../building-report-model");
 
+var config = require("../config");
+
 var sandbox;
 beforeEach(function (done) {
   sandbox = sinon.sandbox.create();
@@ -47,7 +49,9 @@ after(function(done) {
 describe("getIndex()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -89,6 +93,7 @@ describe("getBrowse()", function () {
   before(function(done) {
     selectedBuildings = _.take(buildingData, 10);
     site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config,
       "../models/building": buildingModel(selectedBuildings)
     })();
     done();
@@ -128,7 +133,9 @@ describe("getBrowse()", function () {
 describe("getBrowseAll()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -168,7 +175,9 @@ describe("getBuilding()", function () {
   before(function(done) {
     Building = require("../../models/building");
     User = require("../../models/user");
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -225,7 +234,9 @@ describe("getBuilding()", function () {
 describe("getBuildingReport()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -254,6 +265,7 @@ describe("getBuildingReport()", function () {
 describe("postBuildingReport()", function () {
   before(function(done) {
     site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config,
       "../models/building-report": buildingReportModel,
       "nodemailer": nodemailerStub
     })();
@@ -300,7 +312,9 @@ describe("postBuildingReport()", function () {
 // TODO: Test for Mongo / Express error responses
 describe("getSearch()", function () {
   before(function(done) {
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -328,7 +342,9 @@ describe("getSearch()", function () {
 // TODO: Test for Mongo / Express error responses
 describe("postSearch()", function () {
   before(function(done) {
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -438,6 +454,7 @@ describe("getSearchNear()", function () {
   before(function(done) {
     selectedBuildings = _.take(buildingData, 10);
     site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config,
       "../models/building": buildingModel(selectedBuildings)
     })();
     done();
@@ -484,6 +501,7 @@ describe("getSearchUser()", function () {
     User = require("../../models/user");
     selectedBuildings = _.take(buildingData, 10);
     site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config,
       "../models/building": buildingModel(selectedBuildings)
     })();
     done();
@@ -543,6 +561,7 @@ describe("getSearchOSM()", function () {
   before(function(done) {
     selectedBuildings = _.take(buildingData, 10);
     site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config,
       "../models/building": buildingModel(selectedBuildings)
     })();
     done();
@@ -591,6 +610,7 @@ describe("getSearchTerm()", function () {
   before(function(done) {
     selectedBuildings = _.take(buildingData, 10);
     site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config,
       "../models/building": buildingModel(selectedBuildings)
     })();
     done();
@@ -634,7 +654,9 @@ describe("getSearchTerm()", function () {
 // TODO: Test for Mongo / Express error responses
 describe("getAdd()", function () {
   before(function(done) {
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -663,7 +685,9 @@ describe("getAdd()", function () {
 describe("getAddLocation()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -743,7 +767,9 @@ describe("getAddLocation()", function () {
 describe("getAddOSM()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -827,6 +853,7 @@ describe("getUser()", function () {
     Building = require("../../models/building");
     User = require("../../models/user");
     site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config,
       "../models/building": buildingModel(selectedBuildings)
     })();
     done();
@@ -965,7 +992,9 @@ describe("getUser()", function () {
 describe("getUserEdit()", function () {
   before(function(done) {
     User = require("../../models/user");
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -1061,6 +1090,7 @@ describe("postUserEdit()", function () {
   before(function(done) {
     User = require("../../models/user");
     site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config,
       "nodemailer": nodemailerStub
     })();
     done();
@@ -1274,7 +1304,9 @@ describe("postUserEdit()", function () {
 // TODO: Test for Mongo / Express error responses
 describe("getTerms()", function () {
   before(function(done) {
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -1307,7 +1339,9 @@ describe("getTerms()", function () {
 // TODO: Test for Mongo / Express error responses
 describe("getContributing()", function () {
   before(function(done) {
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 
@@ -1341,7 +1375,9 @@ describe("getContributing()", function () {
 describe("getPing()", function () {
   before(function(done) {
     Building = require("../../models/building");
-    site = require("../../controllers/site")();
+    site = proxyquire("../../controllers/site", {
+      "../config/configProxy": config
+    })();
     done();
   });
 

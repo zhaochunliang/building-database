@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./bin/www",
-    "test": "./node_modules/.bin/mocha -R spec test/**/*.js"
+    "test": "./node_modules/.bin/mocha -R spec test/controllers/*.js"
   },
   "keywords": [
     "buildings",

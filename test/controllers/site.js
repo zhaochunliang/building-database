@@ -1370,39 +1370,3 @@ describe("getContributing()", function () {
     site.getContributing(req, res);
   });
 });
-
-// TODO: Test for Mongo / Express error responses
-describe("getPing()", function () {
-  before(function(done) {
-    Building = require("../../models/building");
-    site = proxyquire("../../controllers/site", {
-      "../config/configProxy": config
-    })();
-    done();
-  });
-
-  it("exists", function(done) {
-    expect(site.getPing).to.exist;
-    done();
-  });
-
-  it("renders view", function(done) {
-    var req = expressStub.req();
-    var res = expressStub.res();
-
-    var findRes = mongooseStub.model([_.first(buildingData)]);
-    sandbox.stub(Building, "find").returns(mongooseStub.query(findRes));
-
-    res.send = function(data) {
-      expect(data).to.exist;
-      done();
-    };
-
-    res.sendStatus = function(status) {
-      expect.fail();
-      done();
-    };
-
-    site.getPing(req, res);
-  });
-});

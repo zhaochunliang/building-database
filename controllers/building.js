@@ -68,6 +68,7 @@ module.exports = function (passport) {
 
     // If any of the tasks pass an error to their own callback, the next function is not executed, and the main callback is immediately called with the error.
     async.waterfall([function(done) {
+      var uploadPathRaw = req.files.model.path;
       var uploadPath = req.files.model.path.toLowerCase();
       var uploadExt = req.files.model.extension.toLowerCase();
 
@@ -147,7 +148,7 @@ module.exports = function (passport) {
             return;
           }
 
-          fs.rename(uploadPath, newPath, function(err) {
+          fs.rename(uploadPathRaw, newPath, function(err) {
             if (err) {
               done(err);
               return;

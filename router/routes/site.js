@@ -1,6 +1,6 @@
 var express = require("express");
 var router = express.Router();
-  
+
 module.exports = function (passport) {
   var authController = require("../../controllers/auth")(passport);
   var siteController = require("../../controllers/site")(passport);
@@ -36,7 +36,7 @@ module.exports = function (passport) {
   router.route("/search")
     .get(siteController.getSearch)
     .post(siteController.postSearch);
-  
+
   router.route("/add")
     .get(authController.isAuthenticated, siteController.getAdd);
 
@@ -58,9 +58,6 @@ module.exports = function (passport) {
 
   router.route("/contributing")
     .get(siteController.getContributing);
-
-  router.route("/ping")
-    .get(siteController.getPing);
 
   return router;
 };

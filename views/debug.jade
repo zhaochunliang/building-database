@@ -1,0 +1,18 @@
+h2 Git SHA
+p #{git.sha}
+
+h2 Node version
+p #{node.version}
+
+h2 NPM version
+p #{npm.version}
+
+h2 NPM packages
+ul
+  each package, key in npm.packages
+    li #{package.name}@#{package.version}
+
+h2 NPM issues
+ul
+  each issue, key in npm.issues
+    li #{issue}

@@ -714,23 +714,6 @@ module.exports = function (passport) {
     });
   };
 
-  // Endpoint /ping for GET
-  var getPing = function(req, res) {
-    // Run a simple database query
-    Building.find({hidden: false}).limit(1).sort({createdAt: -1}).exec(function(err, buildings) {
-      if (err) {
-        debug(err);
-        res.sendStatus(500);
-        return;
-      }
-
-      git.short(function (sha) {
-        res.send(sha);
-        return;
-      });
-    });
-  };
-
   return {
     getIndex: getIndex,
     getBrowse: getBrowse,
@@ -751,7 +734,6 @@ module.exports = function (passport) {
     getUserEdit: getUserEdit,
     postUserEdit: postUserEdit,
     getTerms: getTerms,
-    getContributing: getContributing,
-    getPing: getPing
+    getContributing: getContributing
   };
 };

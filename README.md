@@ -1,5 +1,7 @@
 # Polygon City
 
+![](http://cl.ly/image/2H2i3z2N3c2H/ezgif-3575058242.gif)
+
 * [Install MongoDB](http://docs.mongodb.org/manual/installation/)
 * [Start a MongoDB instance](http://docs.mongodb.org/manual/tutorial/install-mongodb-on-os-x/#run-mongodb)
 * In the mongo shell, add a user/password to building-database
@@ -28,4 +30,3 @@
 * To start the server, run `grunt` in the project directory
 * Open [http://localhost:3000](http://localhost:3000)
 * Sign up for a new account
-

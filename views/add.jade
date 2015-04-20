@@ -157,6 +157,10 @@ block content
           if (xhr.status === 403) {
             // Redirect to login page
             window.location.href = "/login";
+          } else {
+            flash.querySelector("span").textContent = error;
+            flash.style.display = "block";
+            addButton.innerHTML = "Add building";
           }
 
           console.log(xhr.status);
